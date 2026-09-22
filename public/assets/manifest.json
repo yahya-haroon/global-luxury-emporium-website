@@ -1,0 +1,65 @@
+{
+  "banner": {
+    "file": "banner.jpg",
+    "width": 1983,
+    "height": 793
+  },
+  "models": [
+    {
+      "file": "models/model-1.webp",
+      "x": 729,
+      "y": 41,
+      "w": 522,
+      "h": 752,
+      "patch": "models/model-1-patch.webp"
+    },
+    {
+      "file": "models/model-2.webp",
+      "x": 1049,
+      "y": 74,
+      "w": 373,
+      "h": 719,
+      "patch": "models/model-2-patch.webp"
+    },
+    {
+      "file": "models/model-3.webp",
+      "x": 1357,
+      "y": 29,
+      "w": 407,
+      "h": 764
+    }
+  ],
+  "products": [
+    {
+      "name": "Shearling Aviator Jacket",
+      "price": 349,
+      "category": "Women",
+      "sizes": "XS,S,M,L,XL",
+      "main": "products/product-1-main.jpg",
+      "detail": "products/product-1-detail.jpg"
+    },
+    {
+      "name": "Quilted Burgundy Biker Jacket",
+      "price": 299,
+      "category": "Women",
+      "sizes": "XS,S,M,L,XL",
+      "main": "products/product-2-main.jpg",
+      "detail": "products/product-2-detail.jpg"
+    },
+    {
+      "name": "Classic Black Racer Jacket",
+      "price": 319,
+      "category": "Men",
+      "sizes": "S,M,L,XL,XXL",
+      "main": "products/product-3-main.jpg",
+      "detail": "products/product-3-detail.jpg"
+    }
+  ],
+  "notes": [
+    "Model layers and patches share the same box: x,y = top-left in BANNER PIXELS (banner.jpg is 1983x793); w,h = size in banner pixels.",
+    "model-1 and model-2 have a patch layer (rebuilt hidden shoulder/sleeve). model-3 has none.",
+    "Draw order bottom to top: model-1, model-2, model-3.",
+    "model-2 shows a belt buckle that resembles a third-party brand logo: replace the source photo before launch.",
+    "Products are sample placeholders."
+  ]
+}
