@@ -26,6 +26,10 @@ CREATE TABLE IF NOT EXISTS public.settings (
     requirements_price NUMERIC(10,2) NOT NULL DEFAULT 0.00,
     requirements_label TEXT NOT NULL DEFAULT 'Additional requirements',
     requirements_hint TEXT NOT NULL DEFAULT 'Anything else we should know (up to 110 characters)',
+    delivery_zones JSONB NOT NULL DEFAULT '[
+        {"id": "uk", "name": "United Kingdom", "price": 0.00},
+        {"id": "row", "name": "Rest of world", "price": 0.00}
+    ]'::jsonb,
     updated_at TIMESTAMPTZ DEFAULT now()
 );
 
@@ -37,22 +41,45 @@ CREATE TABLE IF NOT EXISTS public.products (
     category TEXT NOT NULL DEFAULT 'Women',
     description TEXT NOT NULL DEFAULT '',
     sizes TEXT NOT NULL DEFAULT 'XS, S, M, L, XL',
+    options JSONB DEFAULT '[]'::jsonb,
     images TEXT[] NOT NULL DEFAULT '{}',
     allow_personalisation BOOLEAN NOT NULL DEFAULT false,
     allow_requirements BOOLEAN NOT NULL DEFAULT false,
-    link TEXT DEFAULT '',
-    link_p TEXT DEFAULT '',
-    link_r TEXT DEFAULT '',
-    link_pr TEXT DEFAULT '',
     is_visible BOOLEAN NOT NULL DEFAULT true,
     sort_order INT NOT NULL DEFAULT 0,
     created_at TIMESTAMPTZ DEFAULT now(),
     updated_at TIMESTAMPTZ DEFAULT now()
 );
 
--- 4. Enable Row Level Security (RLS)
+-- 4. Orders Table
+CREATE TABLE IF NOT EXISTS public.orders (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    product_id TEXT NOT NULL,
+    product_name TEXT NOT NULL,
+    size TEXT NOT NULL,
+    selected_options JSONB DEFAULT '{}'::jsonb,
+    personalisation_text TEXT DEFAULT '',
+    personalisation_fee NUMERIC(10,2) NOT NULL DEFAULT 0.00,
+    requirements_text TEXT DEFAULT '',
+    requirements_fee NUMERIC(10,2) NOT NULL DEFAULT 0.00,
+    delivery_zone TEXT NOT NULL,
+    delivery_price NUMERIC(10,2) NOT NULL DEFAULT 0.00,
+    product_price NUMERIC(10,2) NOT NULL,
+    total_amount NUMERIC(10,2) NOT NULL,
+    currency TEXT NOT NULL DEFAULT '£',
+    customer_name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    address JSONB NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'paid', 'failed')),
+    stripe_payment_intent_id TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT now(),
+    updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 5. Enable Row Level Security (RLS)
 ALTER TABLE public.settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
 
 -- 5. Settings RLS Policies
 -- Public can read settings
@@ -111,6 +138,29 @@ CREATE POLICY "Allow owner delete products"
 ON public.products FOR DELETE
 TO authenticated
 USING (auth.jwt()->>'email' = 'yahyaharoon77@gmail.com');
+
+-- 7. Orders RLS Policies
+-- Allow anyone to insert orders
+DROP POLICY IF EXISTS "Allow public insert orders" ON public.orders;
+CREATE POLICY "Allow public insert orders"
+ON public.orders FOR INSERT
+TO public
+WITH CHECK (true);
+
+-- Allow authenticated owner to view all orders
+DROP POLICY IF EXISTS "Allow owner select orders" ON public.orders;
+CREATE POLICY "Allow owner select orders"
+ON public.orders FOR SELECT
+TO authenticated
+USING (auth.jwt()->>'email' = 'yahyaharoon77@gmail.com');
+
+-- Allow authenticated owner to update orders
+DROP POLICY IF EXISTS "Allow owner update orders" ON public.orders;
+CREATE POLICY "Allow owner update orders"
+ON public.orders FOR UPDATE
+TO authenticated
+USING (auth.jwt()->>'email' = 'yahyaharoon77@gmail.com')
+WITH CHECK (auth.jwt()->>'email' = 'yahyaharoon77@gmail.com');
 
 -- 7. Supabase Storage Bucket & Policies
 -- Create public-read bucket for product-images
@@ -271,26 +321,28 @@ ON CONFLICT (id) DO NOTHING;
 -- ====================================================================
 
 CREATE TABLE IF NOT EXISTS public.orders (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-
-    -- Supabase Auth user, when the customer has an account
-    customer_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
-
-    -- Customer email from the Stripe checkout/payment
-    customer_email TEXT NOT NULL,
-
-    -- Stripe identifiers
-    stripe_checkout_session_id TEXT UNIQUE,
-    stripe_payment_intent_id TEXT,
-
-    status TEXT NOT NULL DEFAULT 'pending'
-        CHECK (status IN ('pending', 'paid', 'cancelled', 'refunded')),
-
-    amount_total NUMERIC(10,2),
-    currency TEXT DEFAULT 'GBP',
-
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    id                        UUID            PRIMARY KEY DEFAULT gen_random_uuid(),
+    product_id                TEXT            NOT NULL,
+    product_name              TEXT            NOT NULL,
+    size                      TEXT            NOT NULL,
+    selected_options          JSONB           NOT NULL DEFAULT '{}'::jsonb,
+    personalisation_text      TEXT            NOT NULL DEFAULT '',
+    personalisation_fee       NUMERIC(10,2)   NOT NULL DEFAULT 0.00,
+    requirements_text         TEXT            NOT NULL DEFAULT '',
+    requirements_fee          NUMERIC(10,2)   NOT NULL DEFAULT 0.00,
+    delivery_zone             TEXT            NOT NULL,
+    delivery_price            NUMERIC(10,2)   NOT NULL DEFAULT 0.00,
+    product_price             NUMERIC(10,2)   NOT NULL,
+    total_amount              NUMERIC(10,2)   NOT NULL,
+    currency                  TEXT            NOT NULL DEFAULT '£',
+    customer_name             TEXT            NOT NULL,
+    email                     TEXT            NOT NULL,
+    address                   JSONB           NOT NULL,
+    status                    TEXT            NOT NULL DEFAULT 'pending'
+                                CHECK (status IN ('pending', 'paid', 'failed')),
+    stripe_payment_intent_id  TEXT            NOT NULL,
+    created_at                TIMESTAMPTZ     NOT NULL DEFAULT now(),
+    updated_at                TIMESTAMPTZ     NOT NULL DEFAULT now()
 );
 
 -- ====================================================================

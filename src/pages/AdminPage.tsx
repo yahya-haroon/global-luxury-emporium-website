@@ -18,6 +18,10 @@ import {
   CheckCircle2,
   Loader2,
   ShieldCheck,
+  ShoppingBag,
+  Truck,
+  Search,
+  RefreshCw,
 } from 'lucide-react';
 
 export const AdminPage: React.FC = () => {
@@ -54,15 +58,22 @@ export const AdminPage: React.FC = () => {
   const {
     products,
     settings,
+    orders,
     loading: dataLoading,
     saveProduct,
     deleteProduct,
     toggleProductVisibility,
     saveSettings,
+    refreshOrders,
   } = useData();
 
   // Navigation & Tabs
-  const [activeTab, setActiveTab] = useState<'products' | 'settings'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'settings'>('products');
+
+  // Orders tab state
+  const [orderFilter, setOrderFilter] = useState<'all' | 'paid' | 'pending' | 'failed'>('all');
+  const [orderSearch, setOrderSearch] = useState('');
+  const [isRefreshingOrders, setIsRefreshingOrders] = useState(false);
 
   // Login form state
   const [loginEmail, setLoginEmail] = useState('');
@@ -91,10 +102,6 @@ export const AdminPage: React.FC = () => {
     images: [],
     allow_personalisation: false,
     allow_requirements: false,
-    link: '',
-    link_p: '',
-    link_r: '',
-    link_pr: '',
     is_visible: true,
     sort_order: 1,
   });
@@ -108,6 +115,43 @@ export const AdminPage: React.FC = () => {
   const [settingsSuccess, setSettingsSuccess] = useState(false);
   const [settingsError, setSettingsError] = useState<string | null>(null);
   const [isSavingSettings, setIsSavingSettings] = useState(false);
+
+  const handleRefreshOrders = async () => {
+    setIsRefreshingOrders(true);
+    try {
+      await refreshOrders();
+    } finally {
+      setIsRefreshingOrders(false);
+    }
+  };
+
+  const addDeliveryZone = () => {
+    const newZone = {
+      id: `zone_${Date.now()}`,
+      name: '',
+      price: 0,
+    };
+    setSettingsForm((prev) => ({
+      ...prev,
+      delivery_zones: [...(prev.delivery_zones || []), newZone],
+    }));
+  };
+
+  const updateDeliveryZone = (index: number, updates: Partial<{ name: string; price: number }>) => {
+    setSettingsForm((prev) => ({
+      ...prev,
+      delivery_zones: (prev.delivery_zones || []).map((zone, i) =>
+        i === index ? { ...zone, ...updates } : zone
+      ),
+    }));
+  };
+
+  const removeDeliveryZone = (index: number) => {
+    setSettingsForm((prev) => ({
+      ...prev,
+      delivery_zones: (prev.delivery_zones || []).filter((_, i) => i !== index),
+    }));
+  };
 
   // Sync settings when loaded
   React.useEffect(() => {
@@ -350,10 +394,6 @@ export const AdminPage: React.FC = () => {
         images: [],
         allow_personalisation: false,
         allow_requirements: false,
-        link: '',
-        link_p: '',
-        link_r: '',
-        link_pr: '',
         is_visible: true,
         sort_order: products.length + 1,
       });
@@ -391,20 +431,6 @@ export const AdminPage: React.FC = () => {
     for (const option of cleanedOptions) {
       if (option.type !== 'text' && option.type !== 'textarea' && option.values.length === 0) {
         setProductFormError(`Add at least one value for "${option.name}".`);
-        return;
-      }
-    }
-
-    // Validate Stripe links must start with https://
-    const linksToValidate = [
-      currentProduct.link,
-      currentProduct.link_p,
-      currentProduct.link_r,
-      currentProduct.link_pr,
-    ];
-    for (const lk of linksToValidate) {
-      if (lk && lk.trim() !== '' && !/^https:\/\//i.test(lk.trim())) {
-        setProductFormError('Payment link URLs must begin with https://');
         return;
       }
     }
@@ -706,6 +732,16 @@ export const AdminPage: React.FC = () => {
             Products ({products.length})
           </button>
           <button
+            onClick={() => setActiveTab('orders')}
+            className={`pb-3 px-6 text-sm uppercase tracking-widest font-medium border-b-2 transition-all ${
+              activeTab === 'orders'
+                ? 'border-gold text-gold font-semibold'
+                : 'border-transparent text-muted hover:text-text'
+            }`}
+          >
+            Orders ({orders.length})
+          </button>
+          <button
             onClick={() => setActiveTab('settings')}
             className={`pb-3 px-6 text-sm uppercase tracking-widest font-medium border-b-2 transition-all ${
               activeTab === 'settings'
@@ -722,7 +758,7 @@ export const AdminPage: React.FC = () => {
           <div>
             <div className="flex items-center justify-between mb-6">
               <p className="text-muted text-sm font-light">
-                Manage your bespoke jacket catalog, photos, sizes, and Stripe payment links.
+                Manage your bespoke jacket catalog, photos, sizes, and custom options.
               </p>
               <button
                 onClick={() => openEditModal()}
@@ -740,8 +776,6 @@ export const AdminPage: React.FC = () => {
                 </div>
               ) : (
                 products.map((p) => {
-                  const hasCardLink = Boolean(p.link && p.link.trim() !== '');
-
                   return (
                     <div
                       key={p.id}
@@ -773,11 +807,6 @@ export const AdminPage: React.FC = () => {
                             {' • '}
                             <span>Sort: {p.sort_order}</span>
                           </p>
-                          {!hasCardLink && (
-                            <p className="text-[11px] text-amber-700 font-medium mt-1">
-                              • no card link yet
-                            </p>
-                          )}
                         </div>
                       </div>
 
@@ -834,7 +863,325 @@ export const AdminPage: React.FC = () => {
           </div>
         )}
 
-        {/* TAB 2: STORE SETTINGS MANAGEMENT */}
+        {/* TAB 2: ORDERS MANAGEMENT */}
+        {activeTab === 'orders' && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="font-serif text-2xl text-gradient-gold">Customer Orders</h2>
+                <p className="text-muted text-xs font-light mt-1">
+                  All customer orders captured on-site with live Stripe payment status and itemised charges.
+                </p>
+              </div>
+              <button
+                onClick={handleRefreshOrders}
+                disabled={isRefreshingOrders}
+                className="btn-ghost text-xs py-2 px-3 flex items-center gap-1.5 self-start sm:self-auto"
+                title="Refresh orders from Supabase"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${isRefreshingOrders ? 'animate-spin text-gold' : ''}`} />
+                <span>Refresh orders</span>
+              </button>
+            </div>
+
+            {/* Orders Metric Summary */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+              <div className="bg-white border border-hairline p-4 rounded-lg">
+                <span className="text-[11px] uppercase tracking-wider text-muted font-medium block">
+                  Total Orders
+                </span>
+                <span className="text-2xl font-serif font-bold text-text mt-1 block">
+                  {orders.length}
+                </span>
+              </div>
+              <div className="bg-white border border-hairline p-4 rounded-lg">
+                <span className="text-[11px] uppercase tracking-wider text-emerald-700 font-medium block">
+                  Paid
+                </span>
+                <div className="flex items-baseline gap-2 mt-1">
+                  <span className="text-2xl font-serif font-bold text-emerald-800">
+                    {orders.filter((o) => o.status === 'paid').length}
+                  </span>
+                  <span className="text-xs text-muted">
+                    ({settings.currency}
+                    {orders
+                      .filter((o) => o.status === 'paid')
+                      .reduce((sum, o) => sum + (o.total_amount || 0), 0)
+                      .toFixed(2)})
+                  </span>
+                </div>
+              </div>
+              <div className="bg-white border border-hairline p-4 rounded-lg">
+                <span className="text-[11px] uppercase tracking-wider text-amber-700 font-medium block">
+                  Pending Payment
+                </span>
+                <span className="text-2xl font-serif font-bold text-amber-800 mt-1 block">
+                  {orders.filter((o) => o.status === 'pending').length}
+                </span>
+              </div>
+              <div className="bg-white border border-hairline p-4 rounded-lg">
+                <span className="text-[11px] uppercase tracking-wider text-red-700 font-medium block">
+                  Failed
+                </span>
+                <span className="text-2xl font-serif font-bold text-red-800 mt-1 block">
+                  {orders.filter((o) => o.status === 'failed').length}
+                </span>
+              </div>
+            </div>
+
+            {/* Filter and Search Bar */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-3 border border-hairline rounded-lg">
+              {/* Status Tabs */}
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+                {(['all', 'paid', 'pending', 'failed'] as const).map((filter) => (
+                  <button
+                    key={filter}
+                    onClick={() => setOrderFilter(filter)}
+                    className={`text-xs uppercase tracking-wider px-3 py-1.5 rounded transition-colors font-medium whitespace-nowrap ${
+                      orderFilter === filter
+                        ? 'bg-text text-white'
+                        : 'text-muted hover:text-text hover:bg-ivory'
+                    }`}
+                  >
+                    {filter === 'all' ? 'All Orders' : filter}
+                  </button>
+                ))}
+              </div>
+
+              {/* Search Field */}
+              <div className="relative sm:w-72">
+                <Search className="w-3.5 h-3.5 text-muted absolute left-3 top-2.5" />
+                <input
+                  type="text"
+                  value={orderSearch}
+                  onChange={(e) => setOrderSearch(e.target.value)}
+                  placeholder="Search customer, jacket, email..."
+                  className="w-full bg-ivory/50 border border-hairline rounded pl-8 pr-3 py-1.5 text-xs text-text placeholder-muted focus:outline-none focus:border-gold"
+                />
+              </div>
+            </div>
+
+            {/* Orders List */}
+            {orders.length === 0 ? (
+              <div className="bg-white border border-hairline rounded-lg p-12 text-center">
+                <ShoppingBag className="w-10 h-10 text-muted/40 mx-auto mb-3" />
+                <h3 className="font-serif text-lg text-text font-medium mb-1">No orders captured yet</h3>
+                <p className="text-xs text-muted font-light max-w-md mx-auto">
+                  When customers purchase bespoke jackets on the site, their order details, delivery address, and Stripe payment status will appear here.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {orders
+                  .filter((order) => {
+                    if (orderFilter !== 'all' && order.status !== orderFilter) return false;
+                    if (orderSearch.trim()) {
+                      const q = orderSearch.toLowerCase();
+                      const matchName = order.customer_name?.toLowerCase().includes(q);
+                      const matchEmail = order.email?.toLowerCase().includes(q);
+                      const matchProduct = order.product_name?.toLowerCase().includes(q);
+                      const matchId = order.id?.toLowerCase().includes(q);
+                      const matchCity = order.address?.city?.toLowerCase().includes(q);
+                      const matchCountry = order.address?.country?.toLowerCase().includes(q);
+                      return Boolean(matchName || matchEmail || matchProduct || matchId || matchCity || matchCountry);
+                    }
+                    return true;
+                  })
+                  .map((order) => {
+                    const orderDate = new Date(order.created_at);
+                    const formattedDate = isNaN(orderDate.getTime())
+                      ? order.created_at
+                      : orderDate.toLocaleDateString('en-GB', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        });
+
+                    return (
+                      <div
+                        key={order.id}
+                        className="bg-white border border-hairline rounded-lg overflow-hidden shadow-sm hover:border-gold/50 transition-colors"
+                      >
+                        {/* Order Header */}
+                        <div className="bg-ivory/50 border-b border-hairline px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3 text-xs">
+                          <div className="flex items-center gap-3">
+                            <span className="font-mono text-muted uppercase tracking-wider text-[11px]" title={order.id}>
+                              Order #{order.id.slice(0, 8)}
+                            </span>
+                            <span className="text-muted">•</span>
+                            <span className="text-muted">{formattedDate}</span>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            {order.status === 'paid' && (
+                              <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
+                                <CheckCircle2 className="w-3 h-3" /> Paid
+                              </span>
+                            )}
+                            {order.status === 'pending' && (
+                              <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 border border-amber-300">
+                                Pending payment
+                              </span>
+                            )}
+                            {order.status === 'failed' && (
+                              <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-300">
+                                Payment failed
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Order Body: 3-column editorial breakdown */}
+                        <div className="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-3 gap-6 text-xs">
+                          {/* Column 1: Customer & Delivery Address */}
+                          <div className="space-y-3">
+                            <h4 className="uppercase tracking-wider text-[10px] font-semibold text-gold-dark border-b border-hairline pb-1">
+                              Customer & Shipping
+                            </h4>
+                            <div>
+                              <p className="font-medium text-text text-sm">{order.customer_name}</p>
+                              <a
+                                href={`mailto:${order.email}`}
+                                className="text-gold hover:underline block text-xs mt-0.5"
+                              >
+                                {order.email}
+                              </a>
+                            </div>
+
+                            <div className="text-muted leading-relaxed pt-1">
+                              <p className="text-text">{order.address?.line1}</p>
+                              <p>{order.address?.city}, {order.address?.postal_code}</p>
+                              <p className="font-medium text-text">{order.address?.country}</p>
+                            </div>
+
+                            <div className="pt-1 text-[11px] text-muted flex items-center gap-1.5">
+                              <Truck className="w-3.5 h-3.5 text-gold flex-shrink-0" />
+                              <span>Zone: <strong className="text-text font-medium">{order.delivery_zone}</strong></span>
+                            </div>
+                          </div>
+
+                          {/* Column 2: Jacket & Bespoke Options */}
+                          <div className="space-y-3">
+                            <h4 className="uppercase tracking-wider text-[10px] font-semibold text-gold-dark border-b border-hairline pb-1">
+                              Bespoke Specification
+                            </h4>
+                            <div>
+                              <p className="font-serif text-base text-text font-medium">{order.product_name}</p>
+                              <p className="text-xs text-muted mt-0.5">
+                                Size: <span className="font-semibold text-text uppercase px-1.5 py-0.5 bg-ivory rounded border border-hairline ml-1">{order.size}</span>
+                              </p>
+                            </div>
+
+                            {/* Dynamically selected product options (e.g. Color) */}
+                            {order.selected_options && Object.keys(order.selected_options).length > 0 && (
+                              <div className="space-y-1 pt-1">
+                                {Object.entries(order.selected_options).map(([optName, optVal]) => (
+                                  <p key={optName} className="text-muted">
+                                    <span className="font-medium text-text">{optName}:</span> {optVal}
+                                  </p>
+                                ))}
+                              </div>
+                            )}
+
+                            {/* Personalisation */}
+                            <div className="pt-1">
+                              <span className="text-[10px] uppercase tracking-wider text-muted font-medium block">
+                                Personalisation
+                              </span>
+                              {order.personalisation_text ? (
+                                <p className="italic text-text font-serif text-sm bg-ivory/60 p-2 rounded border border-hairline mt-1">
+                                  "{order.personalisation_text}"
+                                </p>
+                              ) : (
+                                <p className="text-muted text-[11px] italic mt-0.5">None requested</p>
+                              )}
+                            </div>
+
+                            {/* Requirements */}
+                            <div className="pt-1">
+                              <span className="text-[10px] uppercase tracking-wider text-muted font-medium block">
+                                Additional Requirements
+                              </span>
+                              {order.requirements_text ? (
+                                <p className="text-text text-xs bg-ivory/60 p-2 rounded border border-hairline mt-1 whitespace-pre-wrap">
+                                  {order.requirements_text}
+                                </p>
+                              ) : (
+                                <p className="text-muted text-[11px] italic mt-0.5">None requested</p>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Column 3: Itemised Charges & Stripe Intent */}
+                          <div className="space-y-3">
+                            <h4 className="uppercase tracking-wider text-[10px] font-semibold text-gold-dark border-b border-hairline pb-1">
+                              Itemised Charges
+                            </h4>
+                            <div className="space-y-1.5 divide-y divide-hairline/60">
+                              <div className="flex justify-between items-center py-1">
+                                <span className="text-muted">Jacket Price:</span>
+                                <span className="text-text font-medium">
+                                  {settings.currency}{order.product_price.toFixed(2)}
+                                </span>
+                              </div>
+
+                              {order.personalisation_fee > 0 && (
+                                <div className="flex justify-between items-center py-1">
+                                  <span className="text-muted">Personalisation:</span>
+                                  <span className="text-text font-medium">
+                                    +{settings.currency}{order.personalisation_fee.toFixed(2)}
+                                  </span>
+                                </div>
+                              )}
+
+                              {order.requirements_fee > 0 && (
+                                <div className="flex justify-between items-center py-1">
+                                  <span className="text-muted">Requirements:</span>
+                                  <span className="text-text font-medium">
+                                    +{settings.currency}{order.requirements_fee.toFixed(2)}
+                                  </span>
+                                </div>
+                              )}
+
+                              <div className="flex justify-between items-center py-1">
+                                <span className="text-muted">Delivery ({order.delivery_zone}):</span>
+                                <span className="text-text font-medium">
+                                  {order.delivery_price > 0
+                                    ? `${settings.currency}${order.delivery_price.toFixed(2)}`
+                                    : 'Free'}
+                                </span>
+                              </div>
+
+                              <div className="flex justify-between items-center pt-2 font-semibold text-sm">
+                                <span className="text-text">Total Charged:</span>
+                                <span className="text-gold text-base font-bold">
+                                  {settings.currency}{order.total_amount.toFixed(2)}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Stripe Payment Intent ID */}
+                            <div className="pt-2">
+                              <span className="text-[10px] uppercase tracking-wider text-muted font-medium block">
+                                Stripe Payment Intent
+                              </span>
+                              <code className="block mt-1 font-mono text-[10px] bg-ivory p-1.5 rounded border border-hairline text-text truncate select-all" title={order.stripe_payment_intent_id}>
+                                {order.stripe_payment_intent_id || 'N/A'}
+                              </code>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* TAB 3: STORE SETTINGS MANAGEMENT */}
         {activeTab === 'settings' && (
           <form onSubmit={handleSaveSettings} className="max-w-3xl bg-white border border-hairline rounded-lg p-6 sm:p-8 shadow-sm space-y-8">
             <div>
@@ -959,7 +1306,7 @@ export const AdminPage: React.FC = () => {
             {/* Personalisation Configuration */}
             <div className="space-y-4 pt-4 border-t border-hairline">
               <h3 className="text-xs uppercase tracking-wider font-semibold text-gold-dark border-b border-hairline pb-2">
-                Personalisation Text Box
+                Personalisation pricing
               </h3>
 
               <div className="space-y-3">
@@ -1055,7 +1402,7 @@ export const AdminPage: React.FC = () => {
             {/* Additional Requirements Configuration */}
             <div className="space-y-4 pt-4 border-t border-hairline">
               <h3 className="text-xs uppercase tracking-wider font-semibold text-gold-dark border-b border-hairline pb-2">
-                Additional Requirements Box
+                Additional requirements pricing
               </h3>
 
               <div className="space-y-3">
@@ -1145,6 +1492,70 @@ export const AdminPage: React.FC = () => {
                     />
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Delivery Pricing Configuration */}
+            <div className="space-y-4 pt-4 border-t border-hairline">
+              <div className="flex items-center justify-between border-b border-hairline pb-2">
+                <div>
+                  <h3 className="text-xs uppercase tracking-wider font-semibold text-gold-dark">
+                    Delivery pricing
+                  </h3>
+                  <p className="text-[11px] text-muted mt-0.5">
+                    Configure customer delivery destinations and shipping costs.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={addDeliveryZone}
+                  className="btn-ghost text-xs py-1 px-3 flex items-center gap-1.5"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Add zone
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                {(settingsForm.delivery_zones || []).map((zone, idx) => (
+                  <div key={zone.id || idx} className="flex items-center gap-3 bg-ivory/40 p-3 rounded border border-hairline">
+                    <div className="flex-1">
+                      <label className="block text-[10px] uppercase tracking-wider font-medium text-text mb-1">
+                        Zone / Region Name
+                      </label>
+                      <input
+                        type="text"
+                        value={zone.name}
+                        onChange={(e) => updateDeliveryZone(idx, { name: e.target.value })}
+                        placeholder="e.g. United Kingdom"
+                        className="w-full bg-white border border-hairline px-3 py-1.5 text-sm rounded focus:border-gold"
+                      />
+                    </div>
+                    <div className="w-36">
+                      <label className="block text-[10px] uppercase tracking-wider font-medium text-text mb-1">
+                        Price ({settingsForm.currency})
+                      </label>
+                      <input
+                        type="number"
+                        min={0}
+                        step="0.01"
+                        value={zone.price}
+                        onChange={(e) => updateDeliveryZone(idx, { price: parseFloat(e.target.value) || 0 })}
+                        className="w-full bg-white border border-hairline px-3 py-1.5 text-sm rounded focus:border-gold"
+                      />
+                    </div>
+                    <div className="pt-4">
+                      <button
+                        type="button"
+                        onClick={() => removeDeliveryZone(idx)}
+                        disabled={(settingsForm.delivery_zones || []).length <= 1}
+                        className="p-2 text-muted hover:text-red-600 disabled:opacity-30 disabled:cursor-not-allowed"
+                        title="Remove delivery zone"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -1575,71 +1986,7 @@ export const AdminPage: React.FC = () => {
                 </label>
               </div>
 
-              {/* Payment Links Configuration */}
-              <div className="pt-3 border-t border-hairline space-y-3">
-                <h4 className="text-xs uppercase tracking-wider font-semibold text-gold-dark">
-                  Stripe Payment Links
-                </h4>
 
-                <div>
-                  <label className="block text-xs uppercase tracking-wider font-medium text-text mb-1">
-                    Base Card Payment Link (Required for direct card checkout)
-                  </label>
-                  <input
-                    type="url"
-                    placeholder="https://buy.stripe.com/..."
-                    value={currentProduct.link || ''}
-                    onChange={(e) => setCurrentProduct({ ...currentProduct, link: e.target.value })}
-                    className="w-full bg-white border border-hairline px-3 py-2 text-sm rounded focus:border-gold"
-                  />
-                </div>
-
-                {/* Conditional Extra Link Fields based on Settings */}
-                {settings.personalisation.charge && (
-                  <div>
-                    <label className="block text-xs uppercase tracking-wider font-medium text-text mb-1">
-                      Link with Personalisation Fee ({settings.currency}{settings.personalisation.price})
-                    </label>
-                    <input
-                      type="url"
-                      placeholder="https://buy.stripe.com/..."
-                      value={currentProduct.link_p || ''}
-                      onChange={(e) => setCurrentProduct({ ...currentProduct, link_p: e.target.value })}
-                      className="w-full bg-white border border-hairline px-3 py-2 text-sm rounded focus:border-gold"
-                    />
-                  </div>
-                )}
-
-                {settings.requirements.charge && (
-                  <div>
-                    <label className="block text-xs uppercase tracking-wider font-medium text-text mb-1">
-                      Link with Requirements Fee ({settings.currency}{settings.requirements.price})
-                    </label>
-                    <input
-                      type="url"
-                      placeholder="https://buy.stripe.com/..."
-                      value={currentProduct.link_r || ''}
-                      onChange={(e) => setCurrentProduct({ ...currentProduct, link_r: e.target.value })}
-                      className="w-full bg-white border border-hairline px-3 py-2 text-sm rounded focus:border-gold"
-                    />
-                  </div>
-                )}
-
-                {settings.personalisation.charge && settings.requirements.charge && (
-                  <div>
-                    <label className="block text-xs uppercase tracking-wider font-medium text-text mb-1">
-                      Link with Both Fees (Personalisation + Requirements)
-                    </label>
-                    <input
-                      type="url"
-                      placeholder="https://buy.stripe.com/..."
-                      value={currentProduct.link_pr || ''}
-                      onChange={(e) => setCurrentProduct({ ...currentProduct, link_pr: e.target.value })}
-                      className="w-full bg-white border border-hairline px-3 py-2 text-sm rounded focus:border-gold"
-                    />
-                  </div>
-                )}
-              </div>
 
               {/* Form Buttons */}
               <div className="pt-4 flex items-center justify-end gap-3">

@@ -1,0 +1,9 @@
+# Supabase Project Configuration
+# https://supabase.com/docs/guides/functions/function-configuration
+
+[functions.stripe-webhook]
+# Stripe webhook requests do not carry a Supabase JWT Authorization header.
+# Disabling JWT verification here lets Stripe reach the function.
+# Security is maintained inside index.ts via Stripe webhook signature
+# verification (stripe.webhooks.constructEventAsync + STRIPE_WEBHOOK_SECRET).
+verify_jwt = false

@@ -1,197 +1,229 @@
-# Global Luxury Emporium — Production Website
+# Global Luxury Emporium — Production Platform
 
-Production-ready e-commerce and store management platform for **Global Luxury Emporium Ltd**, a UK-registered limited company based in London selling bespoke leather jackets crafted in Pakistan and shipped worldwide.
+Production-ready e-commerce platform and administrative dashboard for **Global Luxury Emporium Ltd**, a UK-registered bespoke leather atelier in London selling handcrafted jackets made in Pakistan and shipped worldwide.
 
-Built with **React 18 + Vite + TypeScript + Tailwind CSS** and backed by **Supabase** (Postgres, Auth, Storage) for deployment to **Cloudflare Pages**.
-
----
-
-## 1. Tech Stack & Architecture
-
-- **Frontend**: React 18, TypeScript, Vite, React Router v6, Tailwind CSS (Custom luxury theme tokens).
-- **Backend & Database**: Supabase (PostgreSQL with Row Level Security, Storage for photos, GoTrue Auth for owner login).
-- **Payment Processing**: Stripe Payment Links with dynamic fee combination resolution and sanitized `client_reference_id`.
-- **Hosting / CDN**: Cloudflare Pages (single-page application with `/* /index.html 200` rewrite).
+Built with **React 18 + Vite + TypeScript + Tailwind CSS**, powered by **Supabase** (Postgres, Row Level Security, Storage, Edge Functions, GoTrue Auth), and integrated with **Stripe** for seamless on-site payment processing and **Resend** for automated customer & merchant email confirmations.
 
 ---
 
-## 2. Setup Guide
+## 1. System Architecture
 
-### Step 1: Create a Supabase Project
-1. Go to [supabase.com](https://supabase.com) and create a new project.
-2. Note your **Project URL** and **anon public API key** from **Project Settings → API**. (Never use `service_role`).
+```
+                    ┌───────────────────────────────────────────────┐
+                    │               CLIENT (VITE SPA)               │
+                    │   - Full /product/:id editorial page          │
+                    │   - Dynamic options (Color, Size, etc.)       │
+                    │   - Order Form (Name, Email, Delivery Address)│
+                    │   - Embedded Stripe CardElement               │
+                    └───────┬───────────────────────────────┬───────┘
+                            │                               │
+        1. create-payment-intent (POST)                     │ 3. confirmCardPayment()
+        (jacket id, size, options, address)                 │ (client_secret + CardElement)
+                            │                               │
+                            ▼                               ▼
+       ┌───────────────────────────────┐        ┌───────────────────────────────┐
+       │   SUPABASE EDGE FUNCTION      │        │        STRIPE API             │
+       │   `create-payment-intent`     │        │  - Direct PaymentIntent       │
+       │   - Looks up product price    │───────►│  - No Stripe Products/Prices  │
+       │   - Calculates customisation  │        │  - Client secret generated    │
+       │   - Adds delivery zone fee    │        └───────────────┬───────────────┘
+       │   - Creates pending order     │                        │
+       └───────────────┬───────────────┘                        │
+                       │                                        │ 4. Webhook event
+                       ▼                                        ▼
+       ┌───────────────────────────────┐        ┌───────────────────────────────┐
+       │    SUPABASE POSTGRESQL        │        │   SUPABASE EDGE FUNCTION      │
+       │    `orders` table: pending    │◄───────│   `stripe-webhook`            │
+       │    `settings` & `products`    │ (paid) │   - Validates webhook sig     │
+       └───────────────────────────────┘        │   - Updates order to 'paid'   │
+                                                │   - Sends emails via Resend   │
+                                                └───────────────┬───────────────┘
+                                                                │
+                                                                ▼
+                                                ┌───────────────────────────────┐
+                                                │          RESEND API           │
+                                                │  - Itemised receipt to user   │
+                                                │  - Notification to merchant   │
+                                                └───────────────────────────────┘
+```
 
-### Step 2: Run Database Schema
-1. Open the **SQL Editor** in your Supabase dashboard.
-2. Open `supabase/schema.sql` from this repository.
-3. Paste the contents into the SQL Editor and click **Run**.
-4. This creates:
-   - `public.settings` table with initial seed configuration.
-   - `public.products` table with seed products.
-   - Row Level Security (RLS) policies allowing public reads of visible products and restricting all writes strictly to `yahyaharoon77@gmail.com`.
-   - `product-images` storage bucket with public-read and owner-write policies.
+- **Frontend**: React 18, TypeScript, Vite, Tailwind CSS, `@stripe/react-stripe-js` & `@stripe/stripe-js`.
+- **Database**: PostgreSQL on Supabase with strict Row Level Security (RLS).
+- **Checkout Engine**: On-site embedded `CardElement` — customers never leave the website. No Stripe Products or Prices needed; charge amounts are dynamically calculated server-side from database tables.
+- **Edge Functions**: Deno runtime on Supabase Edge Functions.
+- **Fulfillment & Notifications**: Resend API sending dual itemised emails upon `payment_intent.succeeded`.
+- **Hosting**: Cloudflare Pages (`/* /index.html 200` rewrite).
 
-### Step 3: Create the Owner User
-1. In the Supabase Dashboard, navigate to **Authentication → Users**.
-2. Click **Add User** → **Create User**.
-3. Enter:
-   - Email: `yahyaharoon77@gmail.com`
-   - Password: Choose a strong temporary password (8+ characters).
-   - Auto Confirm User: Checked (`true`).
+---
 
-### Step 4: Turn Off Public Sign-ups
-1. Go to **Authentication → Configuration → Providers → Email**.
-2. Uncheck **"Enable email signups"** (or turn off **"Allow new users to sign up"**).
-3. This ensures nobody other than the store owner can ever register an account.
+## 2. Environment Variables Setup
 
-### Step 5: Configure Supabase Auth URLs
-1. Navigate to **Authentication → URL Configuration**.
-2. Set **Site URL**: `https://globalluxuryemporium.com/admin`
-3. Add to **Redirect URLs**:
-   - `https://globalluxuryemporium.com/admin`
-   - `http://localhost:5173/admin` (for local development)
-4. This ensures password recovery emails redirect directly to the owner password reset screen.
+### Frontend Client Keys (`.env`)
+Only public/anon credentials are ever exposed in client bundles. Create `.env` based on `.env.example`:
 
-### Step 6: Environment Variables
-Create a local `.env` file based on `.env.example`:
 ```env
 VITE_SUPABASE_URL=https://your-project-id.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-public-api-key
+VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
+VITE_STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable_key
+```
+
+### Supabase Edge Functions Secrets (Backend Only)
+**Never expose these to the frontend.** Set them securely via the Supabase CLI or Dashboard:
+
+```bash
+supabase secrets set \
+  STRIPE_SECRET_KEY="sk_test_..." \
+  STRIPE_WEBHOOK_SECRET="whsec_..." \
+  RESEND_API_KEY="re_..." \
+  STORE_OWNER_EMAIL="globalluxuryemporium@gmail.com"
 ```
 
 ---
 
-## 3. Local Development & Build
+## 3. Database Setup & Migrations
 
-### Install Dependencies
+### If setting up from scratch:
+1. Open the **SQL Editor** in your Supabase Dashboard.
+2. Run `supabase/schema.sql`.
+
+### If upgrading an existing database:
+1. Open the **SQL Editor** in your Supabase Dashboard.
+2. Run `supabase/migrations/20260923_orders_and_delivery.sql`.
+
+This ensures:
+- The `orders` table is created with full customer, delivery, bespoke specifications, itemised pricing, and Stripe payment tracking.
+- Row Level Security (RLS) policies allow public checkout creation and restrict order management and updates exclusively to the verified store owner (`yahyaharoon77@gmail.com`).
+- The `settings` table includes configurable `delivery_zones` (defaulting to United Kingdom £0 and Rest of world £35).
+- Legacy Stripe Payment Link columns are safely retired.
+
+---
+
+## 4. Supabase Edge Functions Deployment
+
+Deploy the two edge functions using the Supabase CLI:
+
 ```bash
-npm install
+# 1. Login to Supabase CLI
+supabase login
+
+# 2. Link your local repo to your Supabase project
+supabase link --project-ref your-project-ref
+
+# 3. Deploy the PaymentIntent creation function
+supabase functions deploy create-payment-intent --no-verify-jwt
+
+# 4. Deploy the Stripe Webhook handler function
+supabase functions deploy stripe-webhook --no-verify-jwt
 ```
 
-### Start Development Server
-```bash
-npm run dev
-```
+*(Note: `--no-verify-jwt` allows public checkout clients and Stripe servers to call these endpoints).*
 
-### Build for Production
+---
+
+## 5. Stripe Webhook Configuration
+
+1. In the [Stripe Dashboard](https://dashboard.stripe.com/test/webhooks), navigate to **Developers → Webhooks**.
+2. Click **Add endpoint**.
+3. **Endpoint URL**: `https://<your-project-ref>.supabase.co/functions/v1/stripe-webhook`
+4. **Events to listen for**:
+   - `payment_intent.succeeded`
+   - `payment_intent.payment_failed`
+5. Click **Add endpoint**.
+6. Copy the **Signing secret** (`whsec_...`) and save it in your Supabase secrets:
+   ```bash
+   supabase secrets set STRIPE_WEBHOOK_SECRET="whsec_..."
+   ```
+
+---
+
+## 6. Store Owner Authentication Setup
+
+1. In Supabase Dashboard, navigate to **Authentication → Users**.
+2. Click **Add User** → **Create User**:
+   - Email: `yahyaharoon77@gmail.com`
+   - Auto Confirm User: Checked (`true`).
+3. Under **Authentication → Configuration → Providers → Email**:
+   - Turn OFF **"Allow new users to sign up"** (ensures only the store owner can ever access the admin).
+4. Under **Authentication → URL Configuration**:
+   - Set Site URL: `https://globalluxuryemporium.com/admin`
+   - Add Redirect URLs: `https://globalluxuryemporium.com/admin` and `http://localhost:5173/admin`.
+
+---
+
+## 7. Testing On-Site Checkout with Stripe Test Cards
+
+1. Start your local dev server:
+   ```bash
+   npm run dev
+   ```
+2. Navigate to any jacket (e.g. `/product/1` or click any jacket card from the home page).
+3. Select your bespoke options:
+   - Size (e.g., `M`)
+   - Color / Options (e.g., `Black`)
+   - Personalisation (e.g., "J. DOE")
+   - Additional Requirements (e.g., "Custom brass zippers")
+4. Fill in the required Order Form:
+   - Full Name: `Test Customer`
+   - Email: `test@example.com`
+   - Delivery Address: `10 Downing Street`, `London`, `SW1A 2AA`, `United Kingdom`
+   - Delivery Zone: Select `United Kingdom (£0.00)` or `Rest of world (£35.00)`
+5. Verify that the **Itemised Order Summary** updates in real-time with:
+   - Jacket base price
+   - Personalisation charge (if applicable)
+   - Requirements charge (if applicable)
+   - Delivery zone fee
+   - Accurate live total
+6. In the embedded **Card details** field, enter Stripe's official test card:
+   - Card Number: `4242 4242 4242 4242`
+   - Expiry: Any future date (e.g., `12/28`)
+   - CVC: Any 3 digits (e.g., `123`)
+7. Click **Pay £...**.
+8. The order completes directly on the page showing the order reference and confirmation details.
+9. Log in to `/admin` with `yahyaharoon77@gmail.com`:
+   - Click the **Orders** tab.
+   - Verify the order appears with status **Paid**, complete customer information, delivery address, jacket specifications, and full itemised financial breakdown.
+
+---
+
+## 8. Store Management (/admin)
+
+The Owner Dashboard provides 3 tabs:
+
+### 1. Products
+- Manage jacket catalog, high-resolution photo uploads with canvas compression.
+- Custom options manager: add Color chips, dropdown selectors, radio choices, or custom text fields.
+- Reorder jackets with sort orders and quick "Hide/Show" toggles.
+
+### 2. Orders
+- Live listing of all customer orders, sorted newest first.
+- Filter by status (`All`, `Paid`, `Pending`, `Failed`) or search by customer name, email, jacket, order ID, or city.
+- Comprehensive 3-column breakdown for each order:
+  1. Customer contact and full shipping address.
+  2. Bespoke specification (size, color, customisation text, special requirements).
+  3. Itemised charges (jacket, personalisation fee, requirements fee, delivery fee, total charged) and Stripe PaymentIntent reference.
+
+### 3. Store Settings
+- Company & contact details (WhatsApp, email, registered office address).
+- **Personalisation pricing**: Toggle personalisation box, set extra fee, box label, and hint text.
+- **Additional requirements pricing**: Toggle requirements box, set extra fee, box label, and hint text.
+- **Delivery pricing**: Add, rename, edit prices, or remove delivery zones (e.g., UK, EU, USA, Rest of world).
+
+---
+
+## 9. Production Build & Deployment
+
+### Build Command:
 ```bash
 npm run build
 ```
-Verify that the output builds into the `dist/` directory without any TypeScript or bundling errors.
+Builds verified assets into `dist/` with 0 errors.
 
----
-
-## 4. Deploying to Cloudflare Pages
-
-1. In your Cloudflare Dashboard, navigate to **Workers & Pages → Create Application → Pages → Connect to Git**.
-2. Select your repository.
-3. Configure the Build Settings:
-   - **Framework preset**: `Vite`
-   - **Build command**: `npm run build`
-   - **Build output directory**: `dist`
-4. **Environment Variables**:
-   Under **Settings → Environment Variables**, add your production Supabase keys:
-   - `VITE_SUPABASE_URL` = `https://your-project-id.supabase.co`
-   - `VITE_SUPABASE_ANON_KEY` = `your-anon-public-api-key`
-   *(Important: In Vite, all `VITE_` environment variables must exist at build time).*
-5. Deploy. The `public/_redirects` file automatically handles single-page client-side routing.
-
----
-
-## 5. Stripe Payment Links & Pricing Note
-
-> [!IMPORTANT]
-> **Pricing in Stripe vs. Site**:
-> Prices displayed on the website and prices charged in Stripe Payment Links are separate. When changing a jacket's base price or option fees in the Admin settings, make sure to update the corresponding Stripe Payment Link prices in your Stripe Dashboard.
-
-### Fee Link Routing Logic:
-- Base Link (`link`): Default jacket price.
-- Personalisation Link (`link_p`): Jacket price + Personalisation fee.
-- Requirements Link (`link_r`): Jacket price + Requirements fee.
-- Combined Link (`link_pr`): Jacket price + Personalisation fee + Requirements fee.
-- If a chosen fee combination link is not configured in the admin, the customer receives the notice: *"That option is not available for this jacket right now"* and the checkout does not open, preventing customers from inadvertently paying base price for customized orders.
-- Client Reference ID appended to URL: `size-<size>__text-<personalisation>__req-<requirements>` (alphanumeric sanitized, truncated to 200 chars).
-
----
-
-## 6. Manual Test Checklist
-
-- [ ] **Desktop & Mobile Responsiveness**:
-  - Test at 360px viewport: Header collapses links; trust strip displays 2x2; floating WhatsApp pill stays visible above safe-area insets.
-  - Test at 1440px viewport: Full width hero; 4-column trust strip; multi-column product card grid; 3-column footer.
-- [ ] **Keyboard Navigation & Accessibility**:
-  - Tab through navigation and product cards; ensure visible gold outline (`:focus-visible`).
-  - Press `Enter` or `Space` on any card to open product view.
-  - Hover or focus on cards with secondary photos to verify smooth 0.35s crossfade.
-- [ ] **Stripe Link & Options Selection**:
-  - Open a product modal and select a size.
-  - Fill in personalisation / requirements: verify extra fee calculation notes.
-  - Click "Pay by card" and verify that the target URL contains the expected `client_reference_id` parameter.
-- [ ] **Owner Authentication & Security**:
-  - Navigate to `/admin`.
-  - Try logging in with a non-owner email; verify access is rejected.
-  - Log in with `yahyaharoon77@gmail.com`; verify access granted to Products and Settings tabs.
-  - Test "Forgot password" flow: verify reset email is triggered.
-  - Test "Set new password" recovery screen using `supabase.auth.updateUser`.
-- [ ] **Product & Image Management**:
-  - Upload multiple jacket photos; verify client-side canvas compression down to max 1200px.
-  - Reorder thumbnails with "Make main" and remove photos.
-  - Toggle "Hide product" switch; verify product is immediately hidden from the public store.
-  - Edit pricing and verify instant update without requiring a publish step.
-
----
-
-## 7. Security Test: Row Level Security (RLS) Verification
-
-To verify that Row Level Security (RLS) and Storage policies strictly protect your store data from unauthorized modifications:
-
-1. **Create a Test User**:
-   - In your **Supabase Dashboard** > **Authentication** > **Users**, click **Add User** > **Create User**.
-   - Create a secondary non-owner user (e.g. `test-non-owner@example.com`) with a test password.
-
-2. **Verify Products & Settings Table Permissions**:
-   - Authenticate in the browser console or API client with the second user's credentials.
-   - Attempt an **INSERT**, **UPDATE**, or **DELETE** on the `products` table:
-     ```javascript
-     const { data, error } = await supabase.from('products').insert([{ title: 'Test Exploit', price: 1 }]);
-     console.log(error); // Must return: 42501 / new row violates row-level security policy
-     ```
-   - Attempt an **UPDATE** or **DELETE** on the `settings` table:
-     ```javascript
-     const { data, error } = await supabase.from('settings').update({ stripe_pk: 'test' }).eq('id', 1);
-     console.log(error); // Must return: 42501 / new row violates row-level security policy
-     ```
-   - Confirm that all write operations are strictly denied. Only `yahyaharoon77@gmail.com` is granted write access by `supabase/schema.sql`.
-
-3. **Verify Storage Bucket Permissions (`product-images`)**:
-   - As the non-owner user, attempt to upload or remove a file in the `product-images` bucket:
-     ```javascript
-     const { data, error } = await supabase.storage.from('product-images').upload('unauthorized.jpg', file);
-     console.log(error); // Must return: Access denied / unauthorized policy violation
-     ```
-   - Confirm that write operations are rejected, while public read access to uploaded images remains functional.
-
----
-
-## 8. Supabase Free Tier Inactivity & Production Recommendation
-
-> [!WARNING]
-> **Supabase Free Projects Inactivity Pause**:
-> Supabase projects on the Free Tier automatically pause after **7 days of inactivity**. When a project is paused, all public API requests will fail and the store will display a notice to customers until the project is manually resumed in the Supabase Dashboard.
->
-> **Live Store Recommendation**:
-> Before actively marketing the store or accepting real customer orders, upgrade your Supabase organization to the **Pro Tier** ($25/mo). The Pro tier guarantees:
-> - Zero project pausing / always-on availability.
-> - Daily database backups with point-in-time recovery (PITR).
-> - Dedicated compute and high-capacity storage for your product assets.
-
----
-
-## 9. Campaign Assets & Known Notes
-
-> [!NOTE]
-> **Campaign Photography Notice**:
-> model-2 shows a belt buckle that resembles a third-party brand logo: replace the source photo before launch.
-> All model layers (`models/model-1.webp` + `model-1-patch.webp`, `models/model-2.webp` + `model-2-patch.webp`, `models/model-3.webp`) are preserved as independent transparent assets and animated via pure hand-written `requestAnimationFrame` + CSS transforms without any external animation libraries.
-
-
+### Cloudflare Pages Deployment:
+1. Connect repository in Cloudflare Dashboard: **Workers & Pages → Pages → Connect to Git**.
+2. Set Build Command: `npm run build`
+3. Set Output Directory: `dist`
+4. Set Environment Variables:
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_ANON_KEY`
+   - `VITE_STRIPE_PUBLISHABLE_KEY`
+5. Deploy. `public/_redirects` ensures clean single-page routing across `/product/:id`, `/admin`, and `/`.

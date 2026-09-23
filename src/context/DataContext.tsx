@@ -1,18 +1,20 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { supabase, isSupabaseConfigured, defaultSeedProducts, defaultSeedSettings } from '../lib/supabase';
 import { normalizeProductOptions } from '../lib/options';
-import { Product, Settings } from '../types';
+import { Product, Settings, Order } from '../types';
 import { useAuth } from './AuthContext';
 
 interface DataContextType {
   products: Product[];
   settings: Settings;
+  orders: Order[];
   loading: boolean;
   error: string | null;
   activeCategory: string;
   setActiveCategory: (cat: string) => void;
   categories: string[];
   refreshData: () => Promise<void>;
+  refreshOrders: () => Promise<void>;
   saveProduct: (productData: Partial<Product> & { id?: string }) => Promise<{ error?: string; product?: Product }>;
   deleteProduct: (id: string) => Promise<{ error?: string }>;
   toggleProductVisibility: (id: string, isVisible: boolean) => Promise<{ error?: string }>;
@@ -25,6 +27,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { user } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [settings, setSettings] = useState<Settings>(defaultSeedSettings);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>('All');
@@ -47,6 +50,17 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     if (!data) {
       return defaultSeedSettings;
+    }
+
+    let parsedDeliveryZones = defaultSeedSettings.delivery_zones;
+    if (Array.isArray(data.delivery_zones)) {
+      parsedDeliveryZones = data.delivery_zones;
+    } else if (typeof data.delivery_zones === 'string') {
+      try {
+        parsedDeliveryZones = JSON.parse(data.delivery_zones);
+      } catch {
+        parsedDeliveryZones = defaultSeedSettings.delivery_zones;
+      }
     }
 
     return {
@@ -72,6 +86,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         label: data.requirements_label || 'Additional requirements',
         hint: data.requirements_hint || 'Anything else we should know (up to 110 characters)',
       },
+      delivery_zones: parsedDeliveryZones,
     };
   }, []);
 
@@ -117,16 +132,64 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       allow_personalisation: Boolean(p.allow_personalisation),
       allow_requirements: Boolean(p.allow_requirements),
-      link: p.link || '',
-      link_p: p.link_p || '',
-      link_r: p.link_r || '',
-      link_pr: p.link_pr || '',
       is_visible: p.is_visible ?? true,
       sort_order: Number(p.sort_order || 0),
       created_at: p.created_at,
       updated_at: p.updated_at,
     }));
   }, []);
+
+  const fetchOrders = useCallback(async (): Promise<Order[]> => {
+    if (!isSupabaseConfigured || !user?.isOwner) {
+      return [];
+    }
+
+    try {
+      const { data, error: ordersErr } = await supabase
+        .from('orders')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (ordersErr) {
+        console.warn('Orders fetch notice (table may need creation):', ordersErr.message);
+        return [];
+      }
+
+      return (data || []).map((o: any) => ({
+        id: o.id,
+        product_id: o.product_id,
+        product_name: o.product_name,
+        size: o.size,
+        selected_options: o.selected_options || {},
+        personalisation_text: o.personalisation_text || '',
+        personalisation_fee: Number(o.personalisation_fee || 0),
+        requirements_text: o.requirements_text || '',
+        requirements_fee: Number(o.requirements_fee || 0),
+        delivery_zone: o.delivery_zone || '',
+        delivery_price: Number(o.delivery_price || 0),
+        product_price: Number(o.product_price || 0),
+        total_amount: Number(o.total_amount || 0),
+        currency: o.currency || '£',
+        customer_name: o.customer_name || '',
+        email: o.email || '',
+        address: typeof o.address === 'string' ? JSON.parse(o.address) : (o.address || { line1: '', city: '', postal_code: '', country: '' }),
+        status: o.status || 'pending',
+        stripe_payment_intent_id: o.stripe_payment_intent_id || '',
+        created_at: o.created_at,
+        updated_at: o.updated_at,
+      }));
+    } catch (err) {
+      console.warn('Failed to load orders:', err);
+      return [];
+    }
+  }, [user?.isOwner]);
+
+  const refreshOrders = useCallback(async () => {
+    if (user?.isOwner) {
+      const loadedOrders = await fetchOrders();
+      setOrders(loadedOrders);
+    }
+  }, [fetchOrders, user?.isOwner]);
 
   const refreshData = useCallback(async () => {
     setLoading(true);
@@ -137,11 +200,13 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Run with default seed data
         setSettings(defaultSeedSettings);
         setProducts(defaultSeedProducts);
+        setOrders([]);
       } else {
-        // Fetch real Supabase data; if it fails, throw error directly
-        const [loadedSettings, loadedProducts] = await Promise.all([
+        // Fetch real Supabase data
+        const [loadedSettings, loadedProducts, loadedOrders] = await Promise.all([
           fetchSettings(),
           fetchProducts(Boolean(user?.isOwner)),
+          fetchOrders(),
         ]);
 
         if (loadedSettings) {
@@ -149,6 +214,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         setProducts(loadedProducts);
+        setOrders(loadedOrders);
       }
     } catch (err: any) {
       console.error('Data loading error:', err);
@@ -156,7 +222,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setLoading(false);
     }
-  }, [fetchSettings, fetchProducts, user?.isOwner]);
+  }, [fetchSettings, fetchProducts, fetchOrders, user?.isOwner]);
 
   useEffect(() => {
     refreshData();
@@ -203,10 +269,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         allow_requirements: Boolean(
           productData.allow_requirements
         ),
-        link: productData.link?.trim() || '',
-        link_p: productData.link_p?.trim() || '',
-        link_r: productData.link_r?.trim() || '',
-        link_pr: productData.link_pr?.trim() || '',
         is_visible: productData.is_visible ?? true,
         sort_order: Number(
           productData.sort_order ?? products.length + 1
@@ -373,6 +435,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         requirements_hint:
           newSettings.requirements.hint || '',
 
+        delivery_zones: newSettings.delivery_zones || defaultSeedSettings.delivery_zones,
+
         updated_at: new Date().toISOString(),
       };
 
@@ -400,12 +464,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       value={{
         products,
         settings,
+        orders,
         loading,
         error,
         activeCategory,
         setActiveCategory,
         categories,
         refreshData,
+        refreshOrders,
         saveProduct,
         deleteProduct,
         toggleProductVisibility,

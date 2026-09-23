@@ -1,32 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { PageLoader } from '../components/PageLoader';
 import { HeroSequence } from '../components/HeroSequence';
 import { TrustStrip } from '../components/TrustStrip';
 import { Collection } from '../components/Collection';
 import { OurStory } from '../components/OurStory';
-import { ProductDrawer } from '../components/ProductDrawer';
 import { useData } from '../context/DataContext';
-import { Product } from '../types';
 
 export const HomePage: React.FC = () => {
-  const { products, settings, error } = useData();
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-
-  const handleOpenProduct = (product: Product) => {
-    setSelectedProduct(product);
-    setIsDrawerOpen(true);
-  };
-
-  const handleOpenProductByIndex = (index: number) => {
-    if (products[index]) {
-      handleOpenProduct(products[index]);
-    }
-  };
-
-  const handleCloseDrawer = () => {
-    setIsDrawerOpen(false);
-  };
+  const { products, error } = useData();
 
   return (
     <>
@@ -51,28 +32,17 @@ export const HomePage: React.FC = () => {
         )}
 
         {/* Pinned Scroll-Driven Hero Sequence */}
-        <HeroSequence
-          products={products}
-          onSelectProduct={handleOpenProductByIndex}
-        />
+        <HeroSequence products={products} />
 
         {/* Marquee Strip */}
         <TrustStrip />
 
         {/* The Collection (All Jackets) */}
-        <Collection onSelectProduct={handleOpenProduct} />
+        <Collection />
 
         {/* Our Story Band */}
         <OurStory />
       </main>
-
-      {/* Product Drawer Panel */}
-      <ProductDrawer
-        product={selectedProduct}
-        settings={settings}
-        isOpen={isDrawerOpen}
-        onClose={handleCloseDrawer}
-      />
     </>
   );
 };

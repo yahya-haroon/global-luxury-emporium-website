@@ -1,9 +1,10 @@
 import React, { useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Product } from '../types';
 
 interface HeroSequenceProps {
   products: Product[];
-  onSelectProduct: (index: number) => void;
+  onSelectProduct?: (index: number) => void;
 }
 
 interface ModelMeta {
@@ -48,6 +49,7 @@ export const HeroSequence: React.FC<HeroSequenceProps> = ({
   products,
   onSelectProduct,
 }) => {
+  const navigate = useNavigate();
   const seqRef = useRef<HTMLDivElement>(null);
   const stgRef = useRef<HTMLDivElement>(null);
   const bkRef = useRef<HTMLDivElement>(null);
@@ -535,7 +537,12 @@ export const HeroSequence: React.FC<HeroSequenceProps> = ({
               href={`/product/${product.id}`}
               onClick={(e) => {
                 e.preventDefault();
-                onSelectProduct(i);
+                if (product.id) {
+                  navigate(`/product/${product.id}`);
+                }
+                if (onSelectProduct) {
+                  onSelectProduct(i);
+                }
               }}
               onMouseEnter={() =>
                 handleCardHover(

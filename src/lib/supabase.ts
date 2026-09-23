@@ -50,6 +50,10 @@ export const defaultSeedSettings: Settings = {
     label: 'Additional requirements',
     hint: 'Anything else we should know (up to 110 characters)',
   },
+  delivery_zones: [
+    { id: 'uk', name: 'United Kingdom', price: 0 },
+    { id: 'row', name: 'Rest of world', price: 35 },
+  ],
 };
 
 // Default seed products matching specifications
@@ -75,10 +79,6 @@ export const defaultSeedProducts: Product[] = [
     ],
     allow_personalisation: true,
     allow_requirements: true,
-    link: '',
-    link_p: '',
-    link_r: '',
-    link_pr: '',
     is_visible: true,
     sort_order: 1,
   },
@@ -103,10 +103,6 @@ export const defaultSeedProducts: Product[] = [
     ],
     allow_personalisation: true,
     allow_requirements: true,
-    link: '',
-    link_p: '',
-    link_r: '',
-    link_pr: '',
     is_visible: true,
     sort_order: 2,
   },
@@ -131,10 +127,6 @@ export const defaultSeedProducts: Product[] = [
     ],
     allow_personalisation: true,
     allow_requirements: true,
-    link: '',
-    link_p: '',
-    link_r: '',
-    link_pr: '',
     is_visible: true,
     sort_order: 3,
   },
