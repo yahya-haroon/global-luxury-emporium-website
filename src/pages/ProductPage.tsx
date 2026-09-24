@@ -530,7 +530,7 @@ const ProductPageContent: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16 items-start">
         {/* Left Column: Image Gallery */}
-        <div className="flex flex-col gap-4 sticky top-24">
+        <div className="flex flex-col gap-4 md:sticky md:top-24">
           <div className="aspect-[4/5] bg-ivory rounded overflow-hidden border border-hairline relative shadow-sm">
             <img
               src={selectedImage || product.images[0]}
