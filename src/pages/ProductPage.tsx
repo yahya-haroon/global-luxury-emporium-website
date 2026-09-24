@@ -72,6 +72,122 @@ const ProductPageContent: React.FC = () => {
   const elements = useElements();
 
   const product = products.find((p) => p.id === id);
+    // Dynamic SEO metadata and Product structured data
+  useEffect(() => {
+    if (!product) return;
+
+    const siteUrl = 'https://www.globalluxuryemporium.com';
+    const productUrl = `${siteUrl}/product/${product.id}`;
+    const productImage = product.images?.[0]
+      ? new URL(product.images[0], siteUrl).href
+      : `${siteUrl}/assets/banner.png`;
+
+    const description = product.description?.trim()
+      ? product.description.trim().replace(/\s+/g, ' ').slice(0, 160)
+      : `Shop the ${product.name} from Global Luxury Emporium. Premium handcrafted leather fashion designed in London and crafted in Pakistan.`;
+
+    const currencyMap: Record<string, string> = {
+      '£': 'GBP',
+      '$': 'USD',
+      '€': 'EUR',
+      'GBP': 'GBP',
+      'USD': 'USD',
+      'EUR': 'EUR',
+      'CAD': 'CAD',
+      'AUD': 'AUD',
+    };
+
+    const priceCurrency =
+      currencyMap[settings.currency] ||
+      currencyMap[settings.currency?.toUpperCase?.()] ||
+      'GBP';
+
+    document.title = `${product.name} | Global Luxury Emporium`;
+
+    const setMeta = (
+      selector: string,
+      attribute: 'name' | 'property',
+      value: string,
+    ) => {
+      let element = document.querySelector<HTMLMetaElement>(selector);
+
+      if (!element) {
+        element = document.createElement('meta');
+        element.setAttribute(attribute, '');
+        document.head.appendChild(element);
+      }
+
+      element.setAttribute(attribute, element.getAttribute(attribute) || '');
+      element.setAttribute('content', value);
+    };
+
+    setMeta('meta[name="description"]', 'name', description);
+    setMeta('meta[property="og:title"]', 'property', `${product.name} | Global Luxury Emporium`);
+    setMeta('meta[property="og:description"]', 'property', description);
+    setMeta('meta[property="og:url"]', 'property', productUrl);
+    setMeta('meta[property="og:image"]', 'property', productImage);
+    setMeta('meta[name="twitter:title"]', 'name', `${product.name} | Global Luxury Emporium`);
+    setMeta('meta[name="twitter:description"]', 'name', description);
+    setMeta('meta[name="twitter:image"]', 'name', productImage);
+    setMeta('meta[name="twitter:url"]', 'name', productUrl);
+
+    let canonical = document.querySelector<HTMLLinkElement>(
+      'link[rel="canonical"]',
+    );
+
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.rel = 'canonical';
+      document.head.appendChild(canonical);
+    }
+
+    canonical.href = productUrl;
+
+    const structuredData = {
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      name: product.name,
+      description,
+      image: product.images?.length
+        ? product.images.map((image) => new URL(image, siteUrl).href)
+        : [productImage],
+      sku: product.id,
+      brand: {
+        '@type': 'Brand',
+        name: 'Global Luxury Emporium',
+      },
+      category: product.category,
+      offers: {
+        '@type': 'Offer',
+        url: productUrl,
+        priceCurrency,
+        price: Number(product.price).toFixed(2),
+        availability: 'https://schema.org/InStock',
+        itemCondition: 'https://schema.org/NewCondition',
+      },
+    };
+
+    let structuredDataScript = document.querySelector<HTMLScriptElement>(
+      'script[data-product-schema="true"]',
+    );
+
+    if (!structuredDataScript) {
+      structuredDataScript = document.createElement('script');
+      structuredDataScript.type = 'application/ld+json';
+      structuredDataScript.setAttribute('data-product-schema', 'true');
+      document.head.appendChild(structuredDataScript);
+    }
+
+    structuredDataScript.textContent = JSON.stringify(structuredData);
+
+    return () => {
+      const existingSchema = document.querySelector(
+        'script[data-product-schema="true"]',
+      );
+
+      existingSchema?.remove();
+    };
+  }, [product, settings.currency]);
 
   const [selectedImage, setSelectedImage] = useState<string>('');
   const [selectedSize, setSelectedSize] = useState<string>('');

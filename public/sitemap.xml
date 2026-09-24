@@ -1,27 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- Homepage -->
   <url>
-    <loc>https://globalluxuryemporium.com/</loc>
-    <lastmod>2026-09-21</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
+    <loc>https://www.globalluxuryemporium.com/</loc>
+    <lastmod>2026-09-24</lastmod>
   </url>
+
+  <!-- Information Pages -->
   <url>
-    <loc>https://globalluxuryemporium.com/delivery</loc>
-    <lastmod>2026-09-21</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <loc>https://www.globalluxuryemporium.com/delivery</loc>
+    <lastmod>2026-09-24</lastmod>
   </url>
+
   <url>
-    <loc>https://globalluxuryemporium.com/returns</loc>
-    <lastmod>2026-09-21</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <loc>https://www.globalluxuryemporium.com/returns</loc>
+    <lastmod>2026-09-24</lastmod>
   </url>
+
   <url>
-    <loc>https://globalluxuryemporium.com/privacy</loc>
-    <lastmod>2026-09-21</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <loc>https://www.globalluxuryemporium.com/privacy</loc>
+    <lastmod>2026-09-24</lastmod>
   </url>
+
+  <!-- Products -->
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/7603af3f-9fe3-46b7-a2be-2d4718871385</loc>
+  </url>
+
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/f16a3372-1695-4447-8d55-c97b86b52334</loc>
+  </url>
+
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/2db0dcef-0e76-4086-9641-253d072f9d89</loc>
+  </url>
+
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/36d2c044-447e-4254-9e1c-9fa188940895</loc>
+  </url>
+
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/6ebdf95f-6d2c-4f06-ae70-69796d1e4b78</loc>
+  </url>
+
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/b24b8265-5edd-4684-bff0-690677c9296b</loc>
+  </url>
+
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/b3e1d493-8c60-469d-8281-48d17bb7c844</loc>
+  </url>
+
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/0b392748-5b6f-4ac0-8a11-e94b15b5349d</loc>
+  </url>
+
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/fd2605b8-8fc0-4580-8c28-1f6fb5b61310</loc>
+  </url>
+
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/6d62d04f-048d-42ce-a716-896c1cc7a62d</loc>
+  </url>
+
 </urlset>
