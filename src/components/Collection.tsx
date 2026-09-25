@@ -10,25 +10,45 @@ interface CollectionProps {
 const PAGE_SIZE = 9;
 
 export const Collection: React.FC<CollectionProps> = () => {
-  const { products, activeCategory, setActiveCategory } = useData();
+  const { products, activeCategory, setActiveCategory, searchQuery, setSearchQuery } = useData();
   const observerRef = useRef<IntersectionObserver | null>(null);
   const sectionRef = useRef<HTMLElement | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
 
   const categories = ['All', 'Women', 'Men'];
 
-  const filteredProducts = products.filter(
-    (p) => activeCategory === 'All' || p.category.toLowerCase() === activeCategory.toLowerCase()
-  );
+  // Build a lowercase searchable string from existing product fields only
+  // (name, description, category, sizes, and option names/labels/values).
+  const buildHaystack = (p: Product): string => {
+    const optionText = (p.options || [])
+      .map((o) => [o.name, o.label, ...(o.values || [])].filter(Boolean).join(' '))
+      .join(' ');
+
+    return [p.name, p.description, p.category, p.sizes, optionText]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+  };
+
+  const tokens = searchQuery.trim().toLowerCase().split(/\s+/).filter(Boolean);
+
+  const filteredProducts = products.filter((p) => {
+    const matchesCategory =
+      activeCategory === 'All' || p.category.toLowerCase() === activeCategory.toLowerCase();
+    if (!matchesCategory) return false;
+    if (tokens.length === 0) return true;
+    const haystack = buildHaystack(p);
+    return tokens.every((t) => haystack.includes(t));
+  });
 
   const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PAGE_SIZE));
   const startIndex = currentPage * PAGE_SIZE;
   const paginatedProducts = filteredProducts.slice(startIndex, startIndex + PAGE_SIZE);
 
-  // Reset to the first page whenever the filter changes.
+  // Reset to the first page whenever the filter or search query changes.
   useEffect(() => {
     setCurrentPage(0);
-  }, [activeCategory]);
+  }, [activeCategory, searchQuery]);
 
   // Keep the current page in range if the product list shrinks.
   useEffect(() => {
@@ -128,32 +148,56 @@ export const Collection: React.FC<CollectionProps> = () => {
       </div>
 
       {/* Client-side pagination controls */}
-      {totalPages > 1 && (
-        <div className="pagination">
-          <button
-            type="button"
-            className="pagination-btn"
-            onClick={() => goToPage(currentPage - 1)}
-            disabled={currentPage === 0}
-            aria-label="Previous products"
-          >
-            &larr; Previous
-          </button>
-
-          <span className="pagination-indicator sm" aria-live="polite">
-            {currentPage + 1} / {totalPages}
-          </span>
-
-          <button
-            type="button"
-            className="pagination-btn"
-            onClick={() => goToPage(currentPage + 1)}
-            disabled={currentPage === totalPages - 1}
-            aria-label="Next products"
-          >
-            Next &rarr;
-          </button>
+      {filteredProducts.length === 0 ? (
+        <div className="collection-empty">
+          <h3>No products found</h3>
+          <p className="sm">
+            {searchQuery.trim()
+              ? `Nothing matches “${searchQuery.trim()}”`
+              : 'Nothing matches this filter'}
+            {activeCategory !== 'All' ? ` in ${activeCategory}` : ''}.
+          </p>
+          {(searchQuery.trim() || activeCategory !== 'All') && (
+            <button
+              type="button"
+              className="pagination-btn"
+              onClick={() => {
+                setSearchQuery('');
+                setActiveCategory('All');
+              }}
+            >
+              Clear search
+            </button>
+          )}
         </div>
+      ) : (
+        totalPages > 1 && (
+          <div className="pagination">
+            <button
+              type="button"
+              className="pagination-btn"
+              onClick={() => goToPage(currentPage - 1)}
+              disabled={currentPage === 0}
+              aria-label="Previous products"
+            >
+              &larr; Previous
+            </button>
+
+            <span className="pagination-indicator sm" aria-live="polite">
+              {currentPage + 1} / {totalPages}
+            </span>
+
+            <button
+              type="button"
+              className="pagination-btn"
+              onClick={() => goToPage(currentPage + 1)}
+              disabled={currentPage === totalPages - 1}
+              aria-label="Next products"
+            >
+              Next &rarr;
+            </button>
+          </div>
+        )
       )}
     </section>
   );

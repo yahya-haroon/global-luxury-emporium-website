@@ -1,11 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Search, X } from 'lucide-react';
+import { useData } from '../context/DataContext';
 
 export const Header: React.FC = () => {
   const [hasShadow, setHasShadow] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [searchOpen, setSearchOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const { searchQuery, setSearchQuery } = useData();
+
+  const searchWrapRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     let ticking = false;
@@ -31,6 +38,60 @@ export const Header: React.FC = () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
+
+  // Focus the field when the search opens.
+  useEffect(() => {
+    if (searchOpen) {
+      const id = window.setTimeout(() => searchInputRef.current?.focus(), 60);
+      return () => window.clearTimeout(id);
+    }
+  }, [searchOpen]);
+
+  // Close the search when clicking outside of it.
+  useEffect(() => {
+    if (!searchOpen) return;
+    const onDocClick = (e: MouseEvent) => {
+      if (searchWrapRef.current && !searchWrapRef.current.contains(e.target as Node)) {
+        setSearchOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onDocClick);
+    return () => document.removeEventListener('mousedown', onDocClick);
+  }, [searchOpen]);
+
+  const scrollToCollection = () => {
+    const shopEl = document.getElementById('shop');
+    if (shopEl) {
+      shopEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const goToCollection = () => {
+    if (location.pathname !== '/') {
+      navigate('/');
+      window.setTimeout(scrollToCollection, 120);
+    } else {
+      scrollToCollection();
+    }
+  };
+
+  const openSearch = () => {
+    setSearchOpen(true);
+    // Ensure the results are reachable when opening from another route.
+    if (location.pathname !== '/') {
+      navigate('/');
+    }
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    goToCollection();
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
+    searchInputRef.current?.focus();
+  };
 
   const handleNavClick = (e: React.MouseEvent, targetId: string) => {
     e.preventDefault();
@@ -80,26 +141,57 @@ export const Header: React.FC = () => {
           <span>Global Luxury Emporium</span>
         </Link>
 
-        <nav className="main-nav sm">
-          <a
-            href="#shop"
-            onClick={(e) => handleNavClick(e, 'shop')}
-          >
-            Collection
-          </a>
-          <a
-            href="#story"
-            onClick={(e) => handleNavClick(e, 'story')}
-          >
-            Our story
-          </a>
-          <a
-            href="#contact"
-            onClick={(e) => handleNavClick(e, 'contact')}
-          >
-            Contact
-          </a>
-        </nav>
+        <div className="header-actions">
+          <nav className="main-nav sm">
+            <a href="#shop" onClick={(e) => handleNavClick(e, 'shop')}>
+              Collection
+            </a>
+            <a href="#story" onClick={(e) => handleNavClick(e, 'story')}>
+              Our story
+            </a>
+            <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')}>
+              Contact
+            </a>
+          </nav>
+
+          <div className={`header-search ${searchOpen ? 'open' : ''}`} ref={searchWrapRef}>
+            <form role="search" className="search-form" onSubmit={handleSearchSubmit}>
+              <input
+                ref={searchInputRef}
+                type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Escape') {
+                    setSearchOpen(false);
+                  }
+                }}
+                placeholder="Search the collection…"
+                aria-label="Search products"
+              />
+              {searchOpen && searchQuery && (
+                <button
+                  type="button"
+                  className="search-clear"
+                  onClick={clearSearch}
+                  aria-label="Clear search"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </form>
+
+            <button
+              type="button"
+              className="search-toggle"
+              onClick={() => (searchOpen ? setSearchOpen(false) : openSearch())}
+              aria-label={searchOpen ? 'Close search' : 'Search products'}
+              aria-expanded={searchOpen}
+            >
+              <Search className="w-[18px] h-[18px]" />
+            </button>
+          </div>
+        </div>
       </header>
     </>
   );

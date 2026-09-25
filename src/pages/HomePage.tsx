@@ -4,6 +4,7 @@ import { HeroSequence } from '../components/HeroSequence';
 import { TrustStrip } from '../components/TrustStrip';
 import { FeaturedGallery } from '../components/FeaturedGallery';
 import { Collection } from '../components/Collection';
+import { WhyChoose } from '../components/WhyChoose';
 import { OurStory } from '../components/OurStory';
 import { useData } from '../context/DataContext';
 
@@ -43,6 +44,9 @@ export const HomePage: React.FC = () => {
 
         {/* The Collection (All Jackets) */}
         <Collection />
+
+        {/* Why Choose Our Leather — feature/benefits section */}
+        <WhyChoose />
 
         {/* Our Story Band */}
         <OurStory />

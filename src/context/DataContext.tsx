@@ -14,6 +14,8 @@ interface DataContextType {
   error: string | null;
   activeCategory: string;
   setActiveCategory: (cat: string) => void;
+  searchQuery: string;
+  setSearchQuery: (q: string) => void;
   categories: string[];
   refreshData: () => Promise<void>;
   refreshOrders: () => Promise<void>;
@@ -45,6 +47,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>('All');
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   const fetchSettings = useCallback(async (): Promise<Settings | null> => {
     if (!isSupabaseConfigured) {
@@ -796,6 +799,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         error,
         activeCategory,
         setActiveCategory,
+        searchQuery,
+        setSearchQuery,
         categories,
         refreshData,
         refreshOrders,
