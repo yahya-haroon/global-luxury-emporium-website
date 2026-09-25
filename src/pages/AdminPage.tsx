@@ -75,6 +75,7 @@ export const AdminPage: React.FC = () => {
     refreshReviews,
     refreshFeaturedImages,
     updateOrderStatus,
+    createReview,
     saveReviewEdits,
     deleteReview,
     addFeaturedImage,
@@ -96,8 +97,18 @@ export const AdminPage: React.FC = () => {
   const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
   const [editReviewRating, setEditReviewRating] = useState(5);
   const [editReviewText, setEditReviewText] = useState('');
+  const [editReviewProductId, setEditReviewProductId] = useState('');
+  const [editReviewName, setEditReviewName] = useState('');
   const [reviewActionBusy, setReviewActionBusy] = useState<string | null>(null);
   const [reviewFilter, setReviewFilter] = useState<'all' | 'published' | 'hidden'>('all');
+
+  // Reviews tab: manual creation form
+  const [isAddingReview, setIsAddingReview] = useState(false);
+  const [newReviewProductId, setNewReviewProductId] = useState('');
+  const [newReviewName, setNewReviewName] = useState('');
+  const [newReviewRating, setNewReviewRating] = useState(5);
+  const [newReviewText, setNewReviewText] = useState('');
+  const [newReviewPublished, setNewReviewPublished] = useState(true);
 
   // Featured gallery tab state
   const [isUploadingFeatured, setIsUploadingFeatured] = useState(false);
@@ -171,19 +182,65 @@ export const AdminPage: React.FC = () => {
     setEditingReviewId(review.id);
     setEditReviewRating(review.rating);
     setEditReviewText(review.review);
+    setEditReviewProductId(review.product_id);
+    setEditReviewName(review.customer_name || '');
   };
 
   const handleSaveReviewEdits = async (reviewId: string) => {
+    if (!editReviewProductId) {
+      alert('Please choose a product for this review.');
+      return;
+    }
+    if (editReviewText.trim().length < 1) {
+      alert('Review text cannot be empty.');
+      return;
+    }
     setReviewActionBusy(reviewId);
     const result = await saveReviewEdits(reviewId, {
       rating: editReviewRating,
       review: editReviewText.trim(),
+      product_id: editReviewProductId,
+      customer_name: editReviewName.trim(),
     });
     setReviewActionBusy(null);
     if (result.error) {
       alert(`Could not save review: ${result.error}`);
     } else {
       setEditingReviewId(null);
+    }
+  };
+
+  const resetNewReviewForm = () => {
+    setNewReviewProductId('');
+    setNewReviewName('');
+    setNewReviewRating(5);
+    setNewReviewText('');
+    setNewReviewPublished(true);
+  };
+
+  const handleCreateReview = async () => {
+    if (!newReviewProductId) {
+      alert('Please choose a product for this review.');
+      return;
+    }
+    if (newReviewText.trim().length < 1) {
+      alert('Review text cannot be empty.');
+      return;
+    }
+    setReviewActionBusy('new');
+    const result = await createReview({
+      product_id: newReviewProductId,
+      customer_name: newReviewName.trim(),
+      rating: newReviewRating,
+      review: newReviewText.trim(),
+      published: newReviewPublished,
+    });
+    setReviewActionBusy(null);
+    if (result.error) {
+      alert(`Could not add review: ${result.error}`);
+    } else {
+      resetNewReviewForm();
+      setIsAddingReview(false);
     }
   };
 
@@ -1372,14 +1429,138 @@ export const AdminPage: React.FC = () => {
                   Reviews are written only by verified customers through the secure checkout-verification service. The Verified Purchase badge is set server-side and cannot be claimed by shoppers.
                 </p>
               </div>
-              <button
-                onClick={refreshReviews}
-                className="btn-ghost text-xs py-2 px-3 flex items-center gap-1.5 self-start sm:self-auto"
-              >
-                <RefreshCw className="w-3.5 h-3.5" />
-                <span>Refresh reviews</span>
-              </button>
+              <div className="flex items-center gap-2 self-start sm:self-auto">
+                <button
+                  onClick={() => {
+                    setIsAddingReview((v) => !v);
+                    setEditingReviewId(null);
+                  }}
+                  className="btn-gold text-xs py-2 px-3 flex items-center gap-1.5"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>{isAddingReview ? 'Close' : 'Add review'}</span>
+                </button>
+                <button
+                  onClick={refreshReviews}
+                  className="btn-ghost text-xs py-2 px-3 flex items-center gap-1.5"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>Refresh reviews</span>
+                </button>
+              </div>
             </div>
+
+            {/* Manual review creation form */}
+            {isAddingReview && (
+              <div className="bg-white border border-hairline rounded-lg p-4 sm:p-5 shadow-sm space-y-4">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-serif text-lg text-text font-medium">Add a review</h3>
+                  <span className="text-[10px] uppercase tracking-wider bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium">
+                    Not verified
+                  </span>
+                </div>
+                <p className="text-[11px] text-muted -mt-2">
+                  Manually added reviews are never marked as a Verified Purchase. That badge is granted only by the server after it confirms a delivered, matching order.
+                </p>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className="block text-[11px] uppercase tracking-wider font-medium text-text mb-1">
+                      Product
+                    </label>
+                    <select
+                      value={newReviewProductId}
+                      onChange={(e) => setNewReviewProductId(e.target.value)}
+                      className="w-full bg-white border border-hairline px-3 py-2 text-sm rounded focus:border-gold"
+                    >
+                      <option value="">Select a product…</option>
+                      {products.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[11px] uppercase tracking-wider font-medium text-text mb-1">
+                      Customer display name
+                    </label>
+                    <input
+                      type="text"
+                      value={newReviewName}
+                      onChange={(e) => setNewReviewName(e.target.value)}
+                      placeholder="e.g. Amelia R."
+                      className="w-full bg-white border border-hairline px-3 py-2 text-sm rounded focus:border-gold"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] uppercase tracking-wider font-medium text-text mb-1">
+                    Rating
+                  </label>
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((n) => (
+                      <button
+                        key={n}
+                        type="button"
+                        onClick={() => setNewReviewRating(n)}
+                        className="p-0.5"
+                        aria-label={`Set rating ${n}`}
+                      >
+                        <Star
+                          className={`w-5 h-5 ${n <= newReviewRating ? 'fill-gold text-gold' : 'text-hairline'}`}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] uppercase tracking-wider font-medium text-text mb-1">
+                    Review text
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={newReviewText}
+                    onChange={(e) => setNewReviewText(e.target.value)}
+                    maxLength={3000}
+                    placeholder="What did the customer say?"
+                    className="w-full bg-white border border-hairline px-3 py-2 text-sm rounded focus:border-gold resize-none"
+                  />
+                </div>
+
+                <label className="flex items-center gap-2 text-sm text-text cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={newReviewPublished}
+                    onChange={(e) => setNewReviewPublished(e.target.checked)}
+                    className="accent-gold w-4 h-4"
+                  />
+                  Published (visible on the product page)
+                </label>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleCreateReview}
+                    disabled={reviewActionBusy === 'new'}
+                    className="btn-gold text-xs py-2 px-4 flex items-center gap-1.5"
+                  >
+                    {reviewActionBusy === 'new' && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                    Add review
+                  </button>
+                  <button
+                    onClick={() => {
+                      resetNewReviewForm();
+                      setIsAddingReview(false);
+                    }}
+                    className="btn-ghost text-xs py-2 px-3"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
 
             <div className="flex items-center gap-1.5">
               {(['all', 'published', 'hidden'] as const).map((filter) => (
@@ -1431,6 +1612,11 @@ export const AdminPage: React.FC = () => {
                                 <BadgeCheck className="w-3 h-3" /> Verified Purchase
                               </span>
                             )}
+                            {!review.verified && (
+                              <span className="text-[10px] uppercase tracking-wider bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium">
+                                Not verified
+                              </span>
+                            )}
                             {!review.published && (
                               <span className="text-[10px] uppercase tracking-wider bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium">
                                 Hidden
@@ -1453,6 +1639,16 @@ export const AdminPage: React.FC = () => {
                                 month: 'short',
                                 year: 'numeric',
                               })}
+                              {review.updated_at && review.updated_at !== review.created_at && (
+                                <>
+                                  {' · edited '}
+                                  {new Date(review.updated_at).toLocaleDateString('en-GB', {
+                                    day: 'numeric',
+                                    month: 'short',
+                                    year: 'numeric',
+                                  })}
+                                </>
+                              )}
                             </span>
                           </div>
                         </div>
@@ -1487,6 +1683,36 @@ export const AdminPage: React.FC = () => {
 
                       {editingReviewId === review.id ? (
                         <div className="mt-4 space-y-3 border-t border-hairline pt-4">
+                          <div className="grid gap-4 sm:grid-cols-2">
+                            <div>
+                              <label className="block text-[11px] uppercase tracking-wider font-medium text-text mb-1">
+                                Product
+                              </label>
+                              <select
+                                value={editReviewProductId}
+                                onChange={(e) => setEditReviewProductId(e.target.value)}
+                                className="w-full bg-white border border-hairline px-3 py-2 text-sm rounded focus:border-gold"
+                              >
+                                <option value="">Select a product…</option>
+                                {products.map((p) => (
+                                  <option key={p.id} value={p.id}>
+                                    {p.name}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block text-[11px] uppercase tracking-wider font-medium text-text mb-1">
+                                Customer display name
+                              </label>
+                              <input
+                                type="text"
+                                value={editReviewName}
+                                onChange={(e) => setEditReviewName(e.target.value)}
+                                className="w-full bg-white border border-hairline px-3 py-2 text-sm rounded focus:border-gold"
+                              />
+                            </div>
+                          </div>
                           <div>
                             <label className="block text-[11px] uppercase tracking-wider font-medium text-text mb-1">
                               Rating
@@ -1515,11 +1741,12 @@ export const AdminPage: React.FC = () => {
                               rows={3}
                               value={editReviewText}
                               onChange={(e) => setEditReviewText(e.target.value)}
+                              maxLength={3000}
                               className="w-full bg-white border border-hairline px-3 py-2 text-sm rounded focus:border-gold resize-none"
                             />
                           </div>
                           <p className="text-[11px] text-muted">
-                            Product, customer, order, and Verified Purchase status cannot be changed here.
+                            The order link and Verified Purchase status cannot be changed here — the badge is server-authoritative.
                           </p>
                           <div className="flex items-center gap-2">
                             <button

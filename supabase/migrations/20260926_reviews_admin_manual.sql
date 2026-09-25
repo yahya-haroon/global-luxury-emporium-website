@@ -1,0 +1,36 @@
+-- ====================================================================
+-- Migration: 20260926_reviews_admin_manual.sql
+-- Purpose:
+--   Allow the store owner to create/moderate reviews manually from the
+--   Admin dashboard, in addition to the server-verified reviews written
+--   by the `submit-review` Edge Function.
+--
+-- Why this is needed:
+--   The reviews table created in 20260925_reviews_delivery_featured.sql
+--   declared `order_id UUID NOT NULL REFERENCES orders(id)`, because every
+--   customer review is tied to a delivered order. An admin-created review
+--   is NOT tied to any order, so the NOT NULL constraint blocks the insert.
+--
+-- Change (additive, backward compatible):
+--   * Drop the NOT NULL on reviews.order_id. Admin-created reviews store
+--     order_id = NULL; server-verified reviews keep storing the real order id.
+--   * The existing UNIQUE(order_id) constraint is untouched. In Postgres,
+--     NULLs are distinct, so any number of admin-created (NULL order_id)
+--     reviews can coexist, while real orders remain one-review-per-order.
+--   * The FK to orders(id) still applies to non-NULL values; NULL passes
+--     the FK check, so nothing else changes.
+--
+-- Security note (unchanged):
+--   * `verified` remains server-authoritative. Admin inserts omit it, so it
+--     falls back to the column DEFAULT false. The Admin UI never sends it.
+--   * RLS is unchanged: only the authenticated owner (owner email) and the
+--     service-role Edge Function can write. There is still NO anon INSERT
+--     or UPDATE policy, so the browser cannot create or self-verify reviews.
+--   * No customer email is stored on reviews; none is added here.
+--
+-- This migration does NOT modify any already-applied migration file and is
+-- safe to re-run (DROP NOT NULL is a no-op if the column is already nullable).
+-- ====================================================================
+
+ALTER TABLE public.reviews
+    ALTER COLUMN order_id DROP NOT NULL;
