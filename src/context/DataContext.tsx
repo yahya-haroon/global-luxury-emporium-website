@@ -1,13 +1,15 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { supabase, isSupabaseConfigured, defaultSeedProducts, defaultSeedSettings } from '../lib/supabase';
 import { normalizeProductOptions } from '../lib/options';
-import { Product, Settings, Order } from '../types';
+import { Product, Settings, Order, OrderStatus, Review, FeaturedImage } from '../types';
 import { useAuth } from './AuthContext';
 
 interface DataContextType {
   products: Product[];
   settings: Settings;
   orders: Order[];
+  reviews: Review[];
+  featuredImages: FeaturedImage[];
   loading: boolean;
   error: string | null;
   activeCategory: string;
@@ -15,10 +17,19 @@ interface DataContextType {
   categories: string[];
   refreshData: () => Promise<void>;
   refreshOrders: () => Promise<void>;
+  refreshReviews: () => Promise<void>;
+  refreshFeaturedImages: () => Promise<void>;
   saveProduct: (productData: Partial<Product> & { id?: string }) => Promise<{ error?: string; product?: Product }>;
   deleteProduct: (id: string) => Promise<{ error?: string }>;
   toggleProductVisibility: (id: string, isVisible: boolean) => Promise<{ error?: string }>;
   saveSettings: (newSettings: Settings) => Promise<{ error?: string }>;
+  updateOrderStatus: (orderId: string, status: OrderStatus) => Promise<{ error?: string }>;
+  saveReviewEdits: (reviewId: string, edits: { rating?: number; review?: string; published?: boolean }) => Promise<{ error?: string }>;
+  deleteReview: (reviewId: string) => Promise<{ error?: string }>;
+  addFeaturedImage: (image: { image_url: string; alt_text?: string }) => Promise<{ error?: string }>;
+  updateFeaturedImage: (id: string, patch: Partial<Pick<FeaturedImage, 'alt_text' | 'is_active' | 'sort_order'>>) => Promise<{ error?: string }>;
+  deleteFeaturedImage: (id: string) => Promise<{ error?: string }>;
+  reorderFeaturedImages: (orderedIds: string[]) => Promise<{ error?: string }>;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -28,6 +39,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [products, setProducts] = useState<Product[]>([]);
   const [settings, setSettings] = useState<Settings>(defaultSeedSettings);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [featuredImages, setFeaturedImages] = useState<FeaturedImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>('All');
@@ -191,6 +204,271 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [fetchOrders, user?.isOwner]);
 
+  // ---- Admin: reviews (owner-only read; moderation writes) ----
+  const fetchReviews = useCallback(async (): Promise<Review[]> => {
+    if (!isSupabaseConfigured || !user?.isOwner) {
+      return [];
+    }
+
+    try {
+      const { data, error: reviewsErr } = await supabase
+        .from('reviews')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (reviewsErr) {
+        console.warn('Reviews fetch notice (table may need migration):', reviewsErr.message);
+        return [];
+      }
+
+      return (data || []).map((r: any) => ({
+        id: r.id,
+        product_id: r.product_id,
+        order_id: r.order_id,
+        customer_name: r.customer_name || '',
+        rating: Number(r.rating || 0),
+        review: r.review || '',
+        verified: Boolean(r.verified),
+        published: r.published ?? true,
+        created_at: r.created_at,
+        updated_at: r.updated_at,
+      }));
+    } catch (err) {
+      console.warn('Failed to load reviews:', err);
+      return [];
+    }
+  }, [user?.isOwner]);
+
+  const refreshReviews = useCallback(async () => {
+    if (user?.isOwner) {
+      setReviews(await fetchReviews());
+    }
+  }, [fetchReviews, user?.isOwner]);
+
+  // ---- Admin: featured images ----
+  const fetchFeaturedImages = useCallback(async (): Promise<FeaturedImage[]> => {
+    if (!isSupabaseConfigured || !user?.isOwner) {
+      return [];
+    }
+
+    try {
+      const { data, error: featErr } = await supabase
+        .from('featured_images')
+        .select('*')
+        .order('sort_order', { ascending: true })
+        .order('created_at', { ascending: true });
+
+      if (featErr) {
+        console.warn('Featured images fetch notice (table may need migration):', featErr.message);
+        return [];
+      }
+
+      return (data || []).map((f: any) => ({
+        id: f.id,
+        image_url: f.image_url,
+        alt_text: f.alt_text || '',
+        is_active: f.is_active ?? true,
+        sort_order: Number(f.sort_order || 0),
+        created_at: f.created_at,
+        updated_at: f.updated_at,
+      }));
+    } catch (err) {
+      console.warn('Failed to load featured images:', err);
+      return [];
+    }
+  }, [user?.isOwner]);
+
+  const refreshFeaturedImages = useCallback(async () => {
+    if (user?.isOwner) {
+      setFeaturedImages(await fetchFeaturedImages());
+    }
+  }, [fetchFeaturedImages, user?.isOwner]);
+
+  // ---- Mutation: order delivery status ----
+  const updateOrderStatus = useCallback(
+    async (orderId: string, status: OrderStatus): Promise<{ error?: string }> => {
+      if (!isSupabaseConfigured) return { error: 'Supabase is not configured.' };
+      if (!user?.isOwner) return { error: 'Unauthorized. Only the owner can update orders.' };
+
+      try {
+        const { error: updErr } = await supabase
+          .from('orders')
+          .update({ status, updated_at: new Date().toISOString() })
+          .eq('id', orderId);
+
+        if (updErr) throw updErr;
+
+        await refreshOrders();
+        return {};
+      } catch (err: any) {
+        console.error('Error updating order status:', err);
+        return { error: err.message || 'Failed to update order status.' };
+      }
+    },
+    [refreshOrders, user?.isOwner]
+  );
+
+  // ---- Mutation: review moderation (edit text/rating, publish/unpublish) ----
+  const saveReviewEdits = useCallback(
+    async (
+      reviewId: string,
+      edits: { rating?: number; review?: string; published?: boolean }
+    ): Promise<{ error?: string }> => {
+      if (!isSupabaseConfigured) return { error: 'Supabase is not configured.' };
+      if (!user?.isOwner) return { error: 'Unauthorized. Only the owner can moderate reviews.' };
+
+      try {
+        const payload: Record<string, unknown> = { updated_at: new Date().toISOString() };
+        if (edits.rating !== undefined) payload.rating = edits.rating;
+        if (edits.review !== undefined) payload.review = edits.review;
+        if (edits.published !== undefined) payload.published = edits.published;
+
+        const { error: updErr } = await supabase
+          .from('reviews')
+          .update(payload)
+          .eq('id', reviewId);
+
+        if (updErr) throw updErr;
+
+        await refreshReviews();
+        return {};
+      } catch (err: any) {
+        console.error('Error moderating review:', err);
+        return { error: err.message || 'Failed to moderate review.' };
+      }
+    },
+    [refreshReviews, user?.isOwner]
+  );
+
+  const deleteReview = useCallback(
+    async (reviewId: string): Promise<{ error?: string }> => {
+      if (!isSupabaseConfigured) return { error: 'Supabase is not configured.' };
+      if (!user?.isOwner) return { error: 'Unauthorized. Only the owner can delete reviews.' };
+
+      try {
+        const { error: delErr } = await supabase
+          .from('reviews')
+          .delete()
+          .eq('id', reviewId);
+
+        if (delErr) throw delErr;
+
+        await refreshReviews();
+        return {};
+      } catch (err: any) {
+        console.error('Error deleting review:', err);
+        return { error: err.message || 'Failed to delete review.' };
+      }
+    },
+    [refreshReviews, user?.isOwner]
+  );
+
+  // ---- Mutations: featured images ----
+  const addFeaturedImage = useCallback(
+    async (image: { image_url: string; alt_text?: string }): Promise<{ error?: string }> => {
+      if (!isSupabaseConfigured) return { error: 'Supabase is not configured.' };
+      if (!user?.isOwner) return { error: 'Unauthorized.' };
+
+      try {
+        const nextSort = featuredImages.length
+          ? Math.max(...featuredImages.map((f) => f.sort_order)) + 1
+          : 0;
+
+        const { error: insErr } = await supabase
+          .from('featured_images')
+          .insert([{
+            image_url: image.image_url,
+            alt_text: image.alt_text || '',
+            is_active: true,
+            sort_order: nextSort,
+          }]);
+
+        if (insErr) throw insErr;
+
+        await refreshFeaturedImages();
+        return {};
+      } catch (err: any) {
+        console.error('Error adding featured image:', err);
+        return { error: err.message || 'Failed to add featured image.' };
+      }
+    },
+    [featuredImages, refreshFeaturedImages, user?.isOwner]
+  );
+
+  const updateFeaturedImage = useCallback(
+    async (
+      id: string,
+      patch: Partial<Pick<FeaturedImage, 'alt_text' | 'is_active' | 'sort_order'>>
+    ): Promise<{ error?: string }> => {
+      if (!isSupabaseConfigured) return { error: 'Supabase is not configured.' };
+      if (!user?.isOwner) return { error: 'Unauthorized.' };
+
+      try {
+        const { error: updErr } = await supabase
+          .from('featured_images')
+          .update({ ...patch, updated_at: new Date().toISOString() })
+          .eq('id', id);
+
+        if (updErr) throw updErr;
+
+        await refreshFeaturedImages();
+        return {};
+      } catch (err: any) {
+        console.error('Error updating featured image:', err);
+        return { error: err.message || 'Failed to update featured image.' };
+      }
+    },
+    [refreshFeaturedImages, user?.isOwner]
+  );
+
+  const deleteFeaturedImage = useCallback(
+    async (id: string): Promise<{ error?: string }> => {
+      if (!isSupabaseConfigured) return { error: 'Supabase is not configured.' };
+      if (!user?.isOwner) return { error: 'Unauthorized.' };
+
+      try {
+        const { error: delErr } = await supabase
+          .from('featured_images')
+          .delete()
+          .eq('id', id);
+
+        if (delErr) throw delErr;
+
+        await refreshFeaturedImages();
+        return {};
+      } catch (err: any) {
+        console.error('Error deleting featured image:', err);
+        return { error: err.message || 'Failed to delete featured image.' };
+      }
+    },
+    [refreshFeaturedImages, user?.isOwner]
+  );
+
+  const reorderFeaturedImages = useCallback(
+    async (orderedIds: string[]): Promise<{ error?: string }> => {
+      if (!isSupabaseConfigured) return { error: 'Supabase is not configured.' };
+      if (!user?.isOwner) return { error: 'Unauthorized.' };
+
+      try {
+        await Promise.all(
+          orderedIds.map((id, index) =>
+            supabase
+              .from('featured_images')
+              .update({ sort_order: index, updated_at: new Date().toISOString() })
+              .eq('id', id)
+          )
+        );
+
+        await refreshFeaturedImages();
+        return {};
+      } catch (err: any) {
+        console.error('Error reordering featured images:', err);
+        return { error: err.message || 'Failed to reorder featured images.' };
+      }
+    },
+    [refreshFeaturedImages, user?.isOwner]
+  );
+
   const refreshData = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -201,12 +479,16 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSettings(defaultSeedSettings);
         setProducts(defaultSeedProducts);
         setOrders([]);
+        setReviews([]);
+        setFeaturedImages([]);
       } else {
         // Fetch real Supabase data
-        const [loadedSettings, loadedProducts, loadedOrders] = await Promise.all([
+        const [loadedSettings, loadedProducts, loadedOrders, loadedReviews, loadedFeatured] = await Promise.all([
           fetchSettings(),
           fetchProducts(Boolean(user?.isOwner)),
           fetchOrders(),
+          fetchReviews(),
+          fetchFeaturedImages(),
         ]);
 
         if (loadedSettings) {
@@ -215,6 +497,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         setProducts(loadedProducts);
         setOrders(loadedOrders);
+        setReviews(loadedReviews);
+        setFeaturedImages(loadedFeatured);
       }
     } catch (err: any) {
       console.error('Data loading error:', err);
@@ -222,7 +506,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setLoading(false);
     }
-  }, [fetchSettings, fetchProducts, fetchOrders, user?.isOwner]);
+  }, [fetchSettings, fetchProducts, fetchOrders, fetchReviews, fetchFeaturedImages, user?.isOwner]);
 
   useEffect(() => {
     refreshData();
@@ -465,6 +749,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         products,
         settings,
         orders,
+        reviews,
+        featuredImages,
         loading,
         error,
         activeCategory,
@@ -472,10 +758,19 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         categories,
         refreshData,
         refreshOrders,
+        refreshReviews,
+        refreshFeaturedImages,
         saveProduct,
         deleteProduct,
         toggleProductVisibility,
         saveSettings,
+        updateOrderStatus,
+        saveReviewEdits,
+        deleteReview,
+        addFeaturedImage,
+        updateFeaturedImage,
+        deleteFeaturedImage,
+        reorderFeaturedImages,
       }}
     >
       {children}

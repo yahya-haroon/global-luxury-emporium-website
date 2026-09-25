@@ -6,6 +6,7 @@ import { ProductOption, OrderAddress } from '../types';
 import { normalizeProductOptions } from '../lib/options';
 import { getStripe, createPaymentIntent } from '../lib/stripePayment';
 import { countryNameToIso2 } from '../lib/countryUtils';
+import { ProductReviews } from '../components/ProductReviews';
 import { ArrowLeft, AlertCircle, CheckCircle2, Loader2, ShieldCheck } from 'lucide-react';
 
 const CARD_ELEMENT_OPTIONS = {
@@ -1098,6 +1099,9 @@ const ProductPageContent: React.FC = () => {
           </form>
         </div>
       </div>
+
+      {/* Verified-purchase reviews for this product */}
+      <ProductReviews productId={product.id} productName={product.name} />
     </div>
   );
 };

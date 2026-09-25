@@ -92,9 +92,49 @@ export interface Order {
   customer_name: string;
   email: string;
   address: OrderAddress;
-  status: 'pending' | 'paid' | 'failed';
+  status: OrderStatus;
   stripe_payment_intent_id: string;
   created_at: string;
+  updated_at?: string;
+}
+
+export type OrderStatus =
+  | 'pending'
+  | 'paid'
+  | 'processing'
+  | 'shipped'
+  | 'delivered'
+  | 'cancelled'
+  | 'failed';
+
+export const ORDER_STATUS_FLOW: OrderStatus[] = [
+  'paid',
+  'processing',
+  'shipped',
+  'delivered',
+  'cancelled',
+];
+
+export interface Review {
+  id: string;
+  product_id: string;
+  order_id: string;
+  customer_name: string;
+  rating: number;
+  review: string;
+  verified: boolean;
+  published: boolean;
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface FeaturedImage {
+  id: string;
+  image_url: string;
+  alt_text: string;
+  is_active: boolean;
+  sort_order: number;
+  created_at?: string;
   updated_at?: string;
 }
 

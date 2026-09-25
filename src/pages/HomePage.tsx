@@ -2,6 +2,7 @@ import React from 'react';
 import { PageLoader } from '../components/PageLoader';
 import { HeroSequence } from '../components/HeroSequence';
 import { TrustStrip } from '../components/TrustStrip';
+import { FeaturedGallery } from '../components/FeaturedGallery';
 import { Collection } from '../components/Collection';
 import { OurStory } from '../components/OurStory';
 import { useData } from '../context/DataContext';
@@ -36,6 +37,9 @@ export const HomePage: React.FC = () => {
 
         {/* Marquee Strip */}
         <TrustStrip />
+
+        {/* Admin-controlled rotating Featured Gallery (renders nothing if empty) */}
+        <FeaturedGallery />
 
         {/* The Collection (All Jackets) */}
         <Collection />

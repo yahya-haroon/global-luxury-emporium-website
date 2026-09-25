@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
 import { isSupabaseConfigured, uploadProductImage } from '../lib/supabase';
 import { compressImage } from '../lib/imageCompressor';
-import { Product, ProductOption, ProductOptionType, Settings } from '../types';
+import { Product, ProductOption, ProductOptionType, Settings, Review, OrderStatus } from '../types';
 import {
   Lock,
   Mail,
@@ -22,6 +22,11 @@ import {
   Truck,
   Search,
   RefreshCw,
+  Star,
+  BadgeCheck,
+  ArrowUp,
+  ArrowDown,
+  Image as ImageIcon,
 } from 'lucide-react';
 
 export const AdminPage: React.FC = () => {
@@ -59,21 +64,44 @@ export const AdminPage: React.FC = () => {
     products,
     settings,
     orders,
+    reviews,
+    featuredImages,
     loading: dataLoading,
     saveProduct,
     deleteProduct,
     toggleProductVisibility,
     saveSettings,
     refreshOrders,
+    refreshReviews,
+    refreshFeaturedImages,
+    updateOrderStatus,
+    saveReviewEdits,
+    deleteReview,
+    addFeaturedImage,
+    updateFeaturedImage,
+    deleteFeaturedImage,
+    reorderFeaturedImages,
   } = useData();
 
   // Navigation & Tabs
-  const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'settings'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'reviews' | 'gallery' | 'settings'>('products');
 
   // Orders tab state
-  const [orderFilter, setOrderFilter] = useState<'all' | 'paid' | 'pending' | 'failed'>('all');
+  const [orderFilter, setOrderFilter] = useState<'all' | OrderStatus>('all');
   const [orderSearch, setOrderSearch] = useState('');
   const [isRefreshingOrders, setIsRefreshingOrders] = useState(false);
+  const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
+
+  // Reviews tab state
+  const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
+  const [editReviewRating, setEditReviewRating] = useState(5);
+  const [editReviewText, setEditReviewText] = useState('');
+  const [reviewActionBusy, setReviewActionBusy] = useState<string | null>(null);
+  const [reviewFilter, setReviewFilter] = useState<'all' | 'published' | 'hidden'>('all');
+
+  // Featured gallery tab state
+  const [isUploadingFeatured, setIsUploadingFeatured] = useState(false);
+  const [galleryError, setGalleryError] = useState<string | null>(null);
 
   // Login form state
   const [loginEmail, setLoginEmail] = useState('');
@@ -123,6 +151,113 @@ export const AdminPage: React.FC = () => {
     } finally {
       setIsRefreshingOrders(false);
     }
+  };
+
+  // Change an order's delivery status (owner only; enforced by RLS).
+  const handleOrderStatusChange = async (orderId: string, status: OrderStatus) => {
+    setUpdatingOrderId(orderId);
+    const result = await updateOrderStatus(orderId, status);
+    setUpdatingOrderId(null);
+    if (result.error) {
+      alert(`Could not update order status: ${result.error}`);
+    }
+  };
+
+  const productNameById = (productId: string): string => {
+    return products.find((p) => p.id === productId)?.name || 'Unknown product';
+  };
+
+  const startEditReview = (review: Review) => {
+    setEditingReviewId(review.id);
+    setEditReviewRating(review.rating);
+    setEditReviewText(review.review);
+  };
+
+  const handleSaveReviewEdits = async (reviewId: string) => {
+    setReviewActionBusy(reviewId);
+    const result = await saveReviewEdits(reviewId, {
+      rating: editReviewRating,
+      review: editReviewText.trim(),
+    });
+    setReviewActionBusy(null);
+    if (result.error) {
+      alert(`Could not save review: ${result.error}`);
+    } else {
+      setEditingReviewId(null);
+    }
+  };
+
+  const handleToggleReviewPublished = async (review: Review) => {
+    setReviewActionBusy(review.id);
+    const result = await saveReviewEdits(review.id, { published: !review.published });
+    setReviewActionBusy(null);
+    if (result.error) {
+      alert(`Could not update review visibility: ${result.error}`);
+    }
+  };
+
+  const handleDeleteReview = async (reviewId: string) => {
+    if (!window.confirm('Delete this review permanently?')) return;
+    setReviewActionBusy(reviewId);
+    const result = await deleteReview(reviewId);
+    setReviewActionBusy(null);
+    if (result.error) {
+      alert(`Could not delete review: ${result.error}`);
+    }
+  };
+
+  // Featured gallery: upload a new image into the product-images bucket,
+  // then register it as a featured image.
+  const handleFeaturedFilesSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    setIsUploadingFeatured(true);
+    setGalleryError(null);
+
+    try {
+      for (const file of files) {
+        const compressedBlob = await compressImage(file, 1600, 0.82);
+
+        if (isSupabaseConfigured) {
+          const publicUrl = await uploadProductImage(compressedBlob, file.name);
+          const result = await addFeaturedImage({ image_url: publicUrl, alt_text: '' });
+          if (result.error) throw new Error(result.error);
+        } else {
+          const dataUrl = await new Promise<string>((res) => {
+            const r = new FileReader();
+            r.onload = () => res(r.result as string);
+            r.readAsDataURL(compressedBlob);
+          });
+          const result = await addFeaturedImage({ image_url: dataUrl, alt_text: '' });
+          if (result.error) throw new Error(result.error);
+        }
+      }
+    } catch (err: any) {
+      console.error('Featured image upload failed:', err);
+      setGalleryError(err.message || 'Failed to upload featured image.');
+    } finally {
+      setIsUploadingFeatured(false);
+      if (e.target) e.target.value = '';
+    }
+  };
+
+  // Quick-add an existing product image to the featured gallery.
+  const handleAddProductImageToGallery = async (imageUrl: string) => {
+    setGalleryError(null);
+    const result = await addFeaturedImage({ image_url: imageUrl, alt_text: '' });
+    if (result.error) {
+      setGalleryError(result.error);
+    }
+  };
+
+  const handleMoveFeatured = async (index: number, direction: -1 | 1) => {
+    const targetIndex = index + direction;
+    if (targetIndex < 0 || targetIndex >= featuredImages.length) return;
+    const ordered = [...featuredImages];
+    const [moved] = ordered.splice(index, 1);
+    ordered.splice(targetIndex, 0, moved);
+    await reorderFeaturedImages(ordered.map((f) => f.id));
   };
 
   const addDeliveryZone = () => {
@@ -742,6 +877,26 @@ export const AdminPage: React.FC = () => {
             Orders ({orders.length})
           </button>
           <button
+            onClick={() => setActiveTab('reviews')}
+            className={`pb-3 px-6 text-sm uppercase tracking-widest font-medium border-b-2 transition-all ${
+              activeTab === 'reviews'
+                ? 'border-gold text-gold font-semibold'
+                : 'border-transparent text-muted hover:text-text'
+            }`}
+          >
+            Reviews ({reviews.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('gallery')}
+            className={`pb-3 px-6 text-sm uppercase tracking-widest font-medium border-b-2 transition-all ${
+              activeTab === 'gallery'
+                ? 'border-gold text-gold font-semibold'
+                : 'border-transparent text-muted hover:text-text'
+            }`}
+          >
+            Featured Gallery
+          </button>
+          <button
             onClick={() => setActiveTab('settings')}
             className={`pb-3 px-6 text-sm uppercase tracking-widest font-medium border-b-2 transition-all ${
               activeTab === 'settings'
@@ -933,7 +1088,7 @@ export const AdminPage: React.FC = () => {
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-3 border border-hairline rounded-lg">
               {/* Status Tabs */}
               <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-                {(['all', 'paid', 'pending', 'failed'] as const).map((filter) => (
+                {(['all', 'paid', 'processing', 'shipped', 'delivered', 'cancelled', 'pending', 'failed'] as const).map((filter) => (
                   <button
                     key={filter}
                     onClick={() => setOrderFilter(filter)}
@@ -1015,21 +1170,47 @@ export const AdminPage: React.FC = () => {
                           </div>
 
                           <div className="flex items-center gap-2">
-                            {order.status === 'paid' && (
-                              <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
-                                <CheckCircle2 className="w-3 h-3" /> Paid
+                            {order.status === 'delivered' && (
+                              <span
+                                className="px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-gold/10 text-gold-dark border border-gold/40 flex items-center gap-1"
+                                title="Customer can now review this product"
+                              >
+                                <BadgeCheck className="w-3 h-3" /> Review eligible
                               </span>
                             )}
-                            {order.status === 'pending' && (
-                              <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 border border-amber-300">
-                                Pending payment
+
+                            <label className="flex items-center gap-1.5">
+                              <span className="text-[10px] uppercase tracking-wider text-muted hidden sm:inline">
+                                Status
                               </span>
-                            )}
-                            {order.status === 'failed' && (
-                              <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-300">
-                                Payment failed
-                              </span>
-                            )}
+                              <select
+                                value={order.status}
+                                disabled={updatingOrderId === order.id}
+                                onChange={(e) =>
+                                  handleOrderStatusChange(order.id, e.target.value as OrderStatus)
+                                }
+                                className={`text-xs font-medium rounded border px-2 py-1 focus:outline-none focus:border-gold ${
+                                  order.status === 'delivered'
+                                    ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
+                                    : order.status === 'cancelled' || order.status === 'failed'
+                                      ? 'bg-red-50 border-red-300 text-red-800'
+                                      : order.status === 'pending'
+                                        ? 'bg-amber-50 border-amber-300 text-amber-800'
+                                        : 'bg-white border-hairline text-text'
+                                }`}
+                              >
+                                <option value="pending">Pending payment</option>
+                                <option value="paid">Paid</option>
+                                <option value="processing">Processing</option>
+                                <option value="shipped">Shipped</option>
+                                <option value="delivered">Delivered</option>
+                                <option value="cancelled">Cancelled</option>
+                                <option value="failed">Payment failed</option>
+                              </select>
+                              {updatingOrderId === order.id && (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin text-gold" />
+                              )}
+                            </label>
                           </div>
                         </div>
 
@@ -1176,6 +1357,341 @@ export const AdminPage: React.FC = () => {
                       </div>
                     );
                   })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* TAB: REVIEWS MODERATION */}
+        {activeTab === 'reviews' && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="font-serif text-2xl text-gradient-gold">Customer Reviews</h2>
+                <p className="text-muted text-xs font-light mt-1">
+                  Reviews are written only by verified customers through the secure checkout-verification service. The Verified Purchase badge is set server-side and cannot be claimed by shoppers.
+                </p>
+              </div>
+              <button
+                onClick={refreshReviews}
+                className="btn-ghost text-xs py-2 px-3 flex items-center gap-1.5 self-start sm:self-auto"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span>Refresh reviews</span>
+              </button>
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              {(['all', 'published', 'hidden'] as const).map((filter) => (
+                <button
+                  key={filter}
+                  onClick={() => setReviewFilter(filter)}
+                  className={`text-xs uppercase tracking-wider px-3 py-1.5 rounded transition-colors font-medium ${
+                    reviewFilter === filter
+                      ? 'bg-text text-white'
+                      : 'text-muted hover:text-text hover:bg-ivory'
+                  }`}
+                >
+                  {filter}
+                </button>
+              ))}
+            </div>
+
+            {reviews.length === 0 ? (
+              <div className="bg-white border border-hairline rounded-lg p-12 text-center">
+                <Star className="w-10 h-10 text-muted/40 mx-auto mb-3" />
+                <h3 className="font-serif text-lg text-text font-medium mb-1">No reviews yet</h3>
+                <p className="text-xs text-muted font-light max-w-md mx-auto">
+                  Once an order is marked Delivered, the customer can leave a verified review for that product. It will appear here for moderation.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {reviews
+                  .filter((r) =>
+                    reviewFilter === 'all'
+                      ? true
+                      : reviewFilter === 'published'
+                        ? r.published
+                        : !r.published
+                  )
+                  .map((review) => (
+                    <div
+                      key={review.id}
+                      className="bg-white border border-hairline rounded-lg p-4 sm:p-5 shadow-sm"
+                    >
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-serif text-base text-text font-medium">
+                              {productNameById(review.product_id)}
+                            </span>
+                            {review.verified && (
+                              <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-300 px-2 py-0.5 rounded-full font-medium">
+                                <BadgeCheck className="w-3 h-3" /> Verified Purchase
+                              </span>
+                            )}
+                            {!review.published && (
+                              <span className="text-[10px] uppercase tracking-wider bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium">
+                                Hidden
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 mt-1">
+                            <div className="flex items-center gap-0.5 text-gold">
+                              {[1, 2, 3, 4, 5].map((n) => (
+                                <Star
+                                  key={n}
+                                  className={`w-3.5 h-3.5 ${n <= review.rating ? 'fill-gold' : 'text-hairline'}`}
+                                />
+                              ))}
+                            </div>
+                            <span className="text-xs text-muted">
+                              by {review.customer_name || 'Customer'} ·{' '}
+                              {new Date(review.created_at).toLocaleDateString('en-GB', {
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric',
+                              })}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleToggleReviewPublished(review)}
+                            disabled={reviewActionBusy === review.id}
+                            className="btn-ghost text-xs py-1.5 px-3 flex items-center gap-1"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                            {review.published ? 'Hide' : 'Publish'}
+                          </button>
+                          {editingReviewId === review.id ? null : (
+                            <button
+                              onClick={() => startEditReview(review)}
+                              className="btn-ghost text-xs py-1.5 px-3 flex items-center gap-1"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" /> Edit
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleDeleteReview(review.id)}
+                            disabled={reviewActionBusy === review.id}
+                            className="text-muted hover:text-red-600 p-2 transition-colors rounded"
+                            title="Delete review"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {editingReviewId === review.id ? (
+                        <div className="mt-4 space-y-3 border-t border-hairline pt-4">
+                          <div>
+                            <label className="block text-[11px] uppercase tracking-wider font-medium text-text mb-1">
+                              Rating
+                            </label>
+                            <div className="flex items-center gap-1">
+                              {[1, 2, 3, 4, 5].map((n) => (
+                                <button
+                                  key={n}
+                                  type="button"
+                                  onClick={() => setEditReviewRating(n)}
+                                  className="p-0.5"
+                                  aria-label={`Set rating ${n}`}
+                                >
+                                  <Star
+                                    className={`w-5 h-5 ${n <= editReviewRating ? 'fill-gold text-gold' : 'text-hairline'}`}
+                                  />
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                          <div>
+                            <label className="block text-[11px] uppercase tracking-wider font-medium text-text mb-1">
+                              Review text
+                            </label>
+                            <textarea
+                              rows={3}
+                              value={editReviewText}
+                              onChange={(e) => setEditReviewText(e.target.value)}
+                              className="w-full bg-white border border-hairline px-3 py-2 text-sm rounded focus:border-gold resize-none"
+                            />
+                          </div>
+                          <p className="text-[11px] text-muted">
+                            Product, customer, order, and Verified Purchase status cannot be changed here.
+                          </p>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleSaveReviewEdits(review.id)}
+                              disabled={reviewActionBusy === review.id}
+                              className="btn-gold text-xs py-2 px-4 flex items-center gap-1.5"
+                            >
+                              {reviewActionBusy === review.id && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                              Save changes
+                            </button>
+                            <button
+                              onClick={() => setEditingReviewId(null)}
+                              className="btn-ghost text-xs py-2 px-3"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="mt-3 text-sm text-text font-light whitespace-pre-wrap">
+                          {review.review}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* TAB: FEATURED GALLERY */}
+        {activeTab === 'gallery' && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="font-serif text-2xl text-gradient-gold">Featured Gallery</h2>
+                <p className="text-muted text-xs font-light mt-1 max-w-2xl">
+                  Choose the images that rotate on the home page. Enable or disable individual images, reorder them, and set alt text. The gallery cross-fades automatically; if nothing is active, the section is hidden.
+                </p>
+              </div>
+              <button
+                onClick={refreshFeaturedImages}
+                className="btn-ghost text-xs py-2 px-3 flex items-center gap-1.5 self-start sm:self-auto"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span>Refresh</span>
+              </button>
+            </div>
+
+            {galleryError && (
+              <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded">
+                {galleryError}
+              </div>
+            )}
+
+            {/* Upload + quick-add from existing product images */}
+            <div className="bg-white border border-hairline rounded-lg p-4 sm:p-5 space-y-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <label className="btn-gold text-xs py-2 px-4 inline-flex items-center gap-2 cursor-pointer">
+                  {isUploadingFeatured ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" /> Uploading...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-4 h-4" /> Upload images
+                    </>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    disabled={isUploadingFeatured}
+                    onChange={handleFeaturedFilesSelected}
+                    className="hidden"
+                  />
+                </label>
+                <span className="text-[11px] text-muted">
+                  Or add an existing product photo below.
+                </span>
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                {products.flatMap((p) => p.images).slice(0, 24).map((img, idx) => (
+                  <button
+                    key={`${img}-${idx}`}
+                    type="button"
+                    onClick={() => handleAddProductImageToGallery(img)}
+                    className="relative w-16 h-20 rounded overflow-hidden border border-hairline hover:border-gold group"
+                    title="Add to featured gallery"
+                  >
+                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <span className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <Plus className="w-5 h-5 text-white" />
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Current featured images */}
+            {featuredImages.length === 0 ? (
+              <div className="bg-white border border-hairline rounded-lg p-12 text-center">
+                <ImageIcon className="w-10 h-10 text-muted/40 mx-auto mb-3" />
+                <h3 className="font-serif text-lg text-text font-medium mb-1">No featured images</h3>
+                <p className="text-xs text-muted font-light max-w-md mx-auto">
+                  Upload or select images above to build the rotating home-page gallery.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {featuredImages.map((img, index) => (
+                  <div
+                    key={img.id}
+                    className={`bg-white border rounded-lg overflow-hidden shadow-sm ${
+                      img.is_active ? 'border-hairline' : 'border-hairline opacity-60'
+                    }`}
+                  >
+                    <div className="aspect-[4/5] bg-ivory">
+                      <img src={img.image_url} alt={img.alt_text} className="w-full h-full object-cover" />
+                    </div>
+                    <div className="p-3 space-y-2">
+                      <input
+                        type="text"
+                        value={img.alt_text}
+                        placeholder="Alt text (optional)"
+                        onChange={(e) =>
+                          updateFeaturedImage(img.id, { alt_text: e.target.value })
+                        }
+                        className="w-full bg-white border border-hairline px-2.5 py-1.5 text-xs rounded focus:border-gold"
+                      />
+                      <div className="flex items-center justify-between gap-2">
+                        <label className="flex items-center gap-1.5 text-xs text-muted cursor-pointer select-none">
+                          <input
+                            type="checkbox"
+                            checked={img.is_active}
+                            onChange={(e) =>
+                              updateFeaturedImage(img.id, { is_active: e.target.checked })
+                            }
+                            className="rounded border-hairline text-gold focus:ring-gold"
+                          />
+                          Active
+                        </label>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => handleMoveFeatured(index, -1)}
+                            disabled={index === 0}
+                            className="p-1.5 text-muted hover:text-text disabled:opacity-30"
+                            title="Move up"
+                          >
+                            <ArrowUp className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleMoveFeatured(index, 1)}
+                            disabled={index === featuredImages.length - 1}
+                            className="p-1.5 text-muted hover:text-text disabled:opacity-30"
+                            title="Move down"
+                          >
+                            <ArrowDown className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => deleteFeaturedImage(img.id)}
+                            className="p-1.5 text-muted hover:text-red-600"
+                            title="Delete"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
