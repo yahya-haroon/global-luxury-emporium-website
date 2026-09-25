@@ -11,10 +11,10 @@ export const Footer: React.FC = () => {
 
   return (
     <>
-      <footer id="contact" className="site-footer">
+      <footer className="site-footer">
         {/* Column 1: Brand Info */}
         <div>
-          <div className="wm" style={{ color: 'var(--ink)', marginBottom: '18px' }}>
+          <div className="wm" style={{ color: 'var(--bottom-text, #a89f8b)', marginBottom: '18px' }}>
             <span>Global Luxury Emporium Ltd</span>
           </div>
           <p style={{ margin: 0 }}>

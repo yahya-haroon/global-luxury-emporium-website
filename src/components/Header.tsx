@@ -9,7 +9,7 @@ export const Header: React.FC = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { searchQuery, setSearchQuery } = useData();
+  const { searchQuery, setSearchQuery, homepageSlots } = useData();
 
   const searchWrapRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -129,12 +129,21 @@ export const Header: React.FC = () => {
       {/* 2px Viewport Progress Bar */}
       <div id="pg" style={{ width: `${scrollProgress}%` }} aria-hidden="true" />
 
+      {/* Announcement Bar */}
+      <div className="announce sm" role="note">
+        <span>Made to order</span>
+        <span aria-hidden="true">&middot;</span>
+        <span>Worldwide delivery</span>
+        <span aria-hidden="true">&middot;</span>
+        <span>Secure Stripe checkout</span>
+      </div>
+
       {/* Solid Ivory Header */}
       <header id="hd" className={`site-header ${hasShadow ? 's' : ''}`}>
         <Link to="/" className="wm" aria-label="Global Luxury Emporium Home">
           <img
-            src="/assets/logo-round.png"
-            alt="Global Luxury Emporium Logo"
+            src={homepageSlots.header_logo?.image_url || '/assets/logo-round.png'}
+            alt={homepageSlots.header_logo?.alt_text || 'Global Luxury Emporium Logo'}
             width={34}
             height={34}
           />

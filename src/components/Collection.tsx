@@ -130,12 +130,6 @@ export const Collection: React.FC<CollectionProps> = () => {
                   src={product.images[0] || `/assets/products/product-${(idx % 3) + 1}-main.jpg`}
                   alt={product.name}
                 />
-                <img
-                  className="h"
-                  src={product.images[1] || `/assets/products/product-${(idx % 3) + 1}-detail.jpg`}
-                  alt=""
-                  aria-hidden="true"
-                />
               </div>
               <div className="ci">
                 <h3>{product.name}</h3>

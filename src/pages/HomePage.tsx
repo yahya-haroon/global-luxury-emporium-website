@@ -1,15 +1,21 @@
 import React from 'react';
 import { PageLoader } from '../components/PageLoader';
-import { HeroSequence } from '../components/HeroSequence';
+import { GenderHero } from '../components/GenderHero';
 import { TrustStrip } from '../components/TrustStrip';
+import { OurStory } from '../components/OurStory';
+import { CategoryGrid } from '../components/CategoryGrid';
 import { FeaturedGallery } from '../components/FeaturedGallery';
 import { Collection } from '../components/Collection';
 import { WhyChoose } from '../components/WhyChoose';
-import { OurStory } from '../components/OurStory';
+import { FeaturedHighlights } from '../components/FeaturedHighlights';
+import { LeatherGuide } from '../components/LeatherGuide';
+import { Testimonials } from '../components/Testimonials';
+import { Faq } from '../components/Faq';
+import { ContactSection } from '../components/ContactSection';
 import { useData } from '../context/DataContext';
 
 export const HomePage: React.FC = () => {
-  const { products, error } = useData();
+  const { error } = useData();
 
   return (
     <>
@@ -33,23 +39,39 @@ export const HomePage: React.FC = () => {
           </div>
         )}
 
-        {/* Pinned Scroll-Driven Hero Sequence */}
-        <HeroSequence products={products} />
+        {/* 3. Split FOR MEN / FOR WOMEN hero */}
+        <GenderHero />
 
-        {/* Marquee Strip */}
+        {/* Marquee trust strip */}
         <TrustStrip />
 
-        {/* Admin-controlled rotating Featured Gallery (renders nothing if empty) */}
-        <FeaturedGallery />
+        {/* 4. Editorial story band */}
+        <OurStory />
 
-        {/* The Collection (All Jackets) */}
+        {/* 5. Visual category discovery mosaic */}
+        <CategoryGrid />
+
+        {/* 6. Product discovery: admin gallery lead-in + collection */}
+        <FeaturedGallery />
         <Collection />
 
-        {/* Why Choose Our Leather — feature/benefits section */}
+        {/* 7. Why Choose Our Leather editorial carousel */}
         <WhyChoose />
 
-        {/* Our Story Band */}
-        <OurStory />
+        {/* 8. Featured product highlights on dark */}
+        <FeaturedHighlights />
+
+        {/* 9. Leather size & care guide */}
+        <LeatherGuide />
+
+        {/* 10. Customer testimonials (real published reviews) */}
+        <Testimonials />
+
+        {/* 11. FAQ accordion */}
+        <Faq />
+
+        {/* 12. Contact section */}
+        <ContactSection />
       </main>
     </>
   );

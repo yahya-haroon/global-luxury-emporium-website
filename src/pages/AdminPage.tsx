@@ -27,7 +27,30 @@ import {
   ArrowUp,
   ArrowDown,
   Image as ImageIcon,
+  RotateCcw,
+  Check,
+  Palette,
+  Video,
+  Link2,
 } from 'lucide-react';
+import {
+  ColorTheme,
+  THEME_PRESETS,
+  DEFAULT_THEME,
+  applyThemeToDocument,
+} from '../lib/theme';
+import {
+  HOMEPAGE_SLOTS,
+  HOMEPAGE_SLOT_SECTIONS,
+  DEFAULT_WHY_SLIDES,
+  DEFAULT_FEATURED_IMAGES,
+  uploadHomepageImage,
+  deleteHomepageImageObject,
+  validateHomepageImageFile,
+  HomepageSlotDef,
+  isVideoMedia,
+  isVideoUrl,
+} from '../lib/homepageImages';
 
 export const AdminPage: React.FC = () => {
   useEffect(() => {
@@ -66,6 +89,7 @@ export const AdminPage: React.FC = () => {
     orders,
     reviews,
     featuredImages,
+    homepageImages,
     loading: dataLoading,
     saveProduct,
     deleteProduct,
@@ -74,6 +98,7 @@ export const AdminPage: React.FC = () => {
     refreshOrders,
     refreshReviews,
     refreshFeaturedImages,
+    refreshHomepageImages,
     updateOrderStatus,
     createReview,
     saveReviewEdits,
@@ -82,10 +107,11 @@ export const AdminPage: React.FC = () => {
     updateFeaturedImage,
     deleteFeaturedImage,
     reorderFeaturedImages,
+    saveHomepageSlot,
   } = useData();
 
   // Navigation & Tabs
-  const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'reviews' | 'gallery' | 'settings'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'reviews' | 'gallery' | 'homepage' | 'settings'>('products');
 
   // Orders tab state
   const [orderFilter, setOrderFilter] = useState<'all' | OrderStatus>('all');
@@ -317,6 +343,243 @@ export const AdminPage: React.FC = () => {
     await reorderFeaturedImages(ordered.map((f) => f.id));
   };
 
+  // Homepage Images tab state
+  const [homepageSection, setHomepageSection] = useState<'all' | string>('all');
+  const [uploadingSlotKey, setUploadingSlotKey] = useState<string | null>(null);
+  const [homepageMsg, setHomepageMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [isSavingSlotKey, setIsSavingSlotKey] = useState<string | null>(null);
+  const [isRefreshingHomepage, setIsRefreshingHomepage] = useState(false);
+
+  // Local edits for text inputs and dropdowns
+  const [slideEdits, setSlideEdits] = useState<
+    Record<string, { title?: string; description?: string; alt_text?: string }>
+  >({});
+  const [featuredEdits, setFeaturedEdits] = useState<
+    Record<string, { product_id?: string; alt_text?: string }>
+  >({});
+  const [altEdits, setAltEdits] = useState<Record<string, string>>({});
+
+  const [urlInputSlotKey, setUrlInputSlotKey] = useState<string | null>(null);
+  const [urlInputValue, setUrlInputValue] = useState('');
+
+  const handleRefreshHomepage = async () => {
+    setIsRefreshingHomepage(true);
+    try {
+      await refreshHomepageImages();
+    } finally {
+      setIsRefreshingHomepage(false);
+    }
+  };
+
+  const handleUploadSlotImage = async (slotDef: HomepageSlotDef, file: File) => {
+    const validationError = validateHomepageImageFile(file);
+    if (validationError) {
+      setHomepageMsg({ type: 'error', text: validationError });
+      return;
+    }
+
+    const isVideo = file.type.startsWith('video/') || /\.(mp4|webm|ogg|mov)$/i.test(file.name);
+    setUploadingSlotKey(slotDef.key);
+    setHomepageMsg(null);
+
+    try {
+      const existing = homepageImages.find((r) => r.slot_key === slotDef.key);
+      const oldStoragePath = existing?.storage_path;
+
+      const { publicUrl, storagePath } = await uploadHomepageImage(file, slotDef.key);
+
+      const result = await saveHomepageSlot(slotDef.key, {
+        image_url: publicUrl,
+        storage_path: storagePath,
+        media_type: isVideo ? 'video' : 'image',
+        alt_text: altEdits[slotDef.key] ?? existing?.alt_text ?? slotDef.defaultAlt,
+      });
+
+      if (result.error) {
+        throw new Error(result.error);
+      }
+
+      if (oldStoragePath && oldStoragePath !== storagePath) {
+        await deleteHomepageImageObject(oldStoragePath);
+      }
+
+      setHomepageMsg({
+        type: 'success',
+        text: `${isVideo ? 'Video' : 'Image'} for "${slotDef.label}" replaced successfully.`,
+      });
+    } catch (err: any) {
+      console.error('Homepage media upload error:', err);
+      setHomepageMsg({
+        type: 'error',
+        text: err.message || `Failed to replace media for "${slotDef.label}".`,
+      });
+    } finally {
+      setUploadingSlotKey(null);
+    }
+  };
+
+  const handleSaveMediaUrl = async (slotDef: HomepageSlotDef) => {
+    if (!urlInputValue.trim()) return;
+    setIsSavingSlotKey(slotDef.key);
+    setHomepageMsg(null);
+    try {
+      const url = urlInputValue.trim();
+      const isVideo = isVideoUrl(url);
+      const result = await saveHomepageSlot(slotDef.key, {
+        image_url: url,
+        storage_path: null,
+        media_type: isVideo ? 'video' : 'image',
+      });
+      if (result.error) throw new Error(result.error);
+      setHomepageMsg({
+        type: 'success',
+        text: `${isVideo ? 'Video' : 'Image'} URL saved for "${slotDef.label}".`,
+      });
+      setUrlInputSlotKey(null);
+      setUrlInputValue('');
+    } catch (err: any) {
+      setHomepageMsg({ type: 'error', text: err.message || 'Failed to save media URL.' });
+    } finally {
+      setIsSavingSlotKey(null);
+    }
+  };
+
+  const handleResetSlotImage = async (slotDef: HomepageSlotDef) => {
+    setUploadingSlotKey(slotDef.key);
+    setHomepageMsg(null);
+
+    try {
+      const existing = homepageImages.find((r) => r.slot_key === slotDef.key);
+      const oldStoragePath = existing?.storage_path;
+
+      const result = await saveHomepageSlot(slotDef.key, {
+        image_url: null,
+        storage_path: null,
+      });
+
+      if (result.error) throw new Error(result.error);
+
+      if (oldStoragePath) {
+        await deleteHomepageImageObject(oldStoragePath);
+      }
+
+      setHomepageMsg({
+        type: 'success',
+        text: `Image for "${slotDef.label}" reset to default.`,
+      });
+    } catch (err: any) {
+      console.error('Reset slot error:', err);
+      setHomepageMsg({
+        type: 'error',
+        text: err.message || `Failed to reset image for "${slotDef.label}".`,
+      });
+    } finally {
+      setUploadingSlotKey(null);
+    }
+  };
+
+  const handleToggleSlotActive = async (slotDef: HomepageSlotDef, isActive: boolean) => {
+    try {
+      const result = await saveHomepageSlot(slotDef.key, { is_active: isActive });
+      if (result.error) throw new Error(result.error);
+      setHomepageMsg({
+        type: 'success',
+        text: `"${slotDef.label}" is now ${isActive ? 'active' : 'inactive'}.`,
+      });
+    } catch (err: any) {
+      setHomepageMsg({ type: 'error', text: err.message || 'Failed to update status.' });
+    }
+  };
+
+  const handleSaveAltText = async (slotDef: HomepageSlotDef) => {
+    setIsSavingSlotKey(slotDef.key);
+    setHomepageMsg(null);
+    try {
+      const newAlt = altEdits[slotDef.key] ?? '';
+      const result = await saveHomepageSlot(slotDef.key, { alt_text: newAlt });
+      if (result.error) throw new Error(result.error);
+      setHomepageMsg({ type: 'success', text: `Alt text saved for "${slotDef.label}".` });
+    } catch (err: any) {
+      setHomepageMsg({ type: 'error', text: err.message || 'Failed to save alt text.' });
+    } finally {
+      setIsSavingSlotKey(null);
+    }
+  };
+
+  const handleSaveWhyChooseSlide = async (slotDef: HomepageSlotDef) => {
+    setIsSavingSlotKey(slotDef.key);
+    setHomepageMsg(null);
+    try {
+      const fallback = DEFAULT_WHY_SLIDES.find((d) => d.key === slotDef.key);
+      const existing = homepageImages.find((r) => r.slot_key === slotDef.key);
+      const edits = slideEdits[slotDef.key] || {};
+
+      const title = edits.title !== undefined ? edits.title : (existing?.title || fallback?.title || '');
+      const description = edits.description !== undefined ? edits.description : (existing?.description || fallback?.text || '');
+      const alt_text = edits.alt_text !== undefined ? edits.alt_text : (existing?.alt_text ?? fallback?.alt ?? '');
+
+      const result = await saveHomepageSlot(slotDef.key, {
+        title,
+        description,
+        alt_text,
+      });
+      if (result.error) throw new Error(result.error);
+      setHomepageMsg({ type: 'success', text: `Slide copy saved for "${slotDef.label}".` });
+    } catch (err: any) {
+      setHomepageMsg({ type: 'error', text: err.message || 'Failed to save slide copy.' });
+    } finally {
+      setIsSavingSlotKey(null);
+    }
+  };
+
+  const handleMoveWhyChooseSlide = async (slotKey: string, direction: 'up' | 'down') => {
+    const whySlots = HOMEPAGE_SLOTS.filter((s) => s.section === 'Why Choose');
+    const slideRows = whySlots
+      .map((s, idx) => {
+        const row = homepageImages.find((r) => r.slot_key === s.key);
+        return {
+          key: s.key,
+          sort_order: row ? row.sort_order : idx,
+        };
+      })
+      .sort((a, b) => a.sort_order - b.sort_order);
+
+    const currentIndex = slideRows.findIndex((s) => s.key === slotKey);
+    const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+    if (targetIndex < 0 || targetIndex >= slideRows.length) return;
+
+    const current = slideRows[currentIndex];
+    const target = slideRows[targetIndex];
+
+    try {
+      await saveHomepageSlot(current.key, { sort_order: target.sort_order });
+      await saveHomepageSlot(target.key, { sort_order: current.sort_order });
+      setHomepageMsg({ type: 'success', text: 'Why Choose slide order updated.' });
+    } catch (err: any) {
+      setHomepageMsg({ type: 'error', text: err.message || 'Failed to update order.' });
+    }
+  };
+
+  const handleSaveFeaturedProduct = async (slotDef: HomepageSlotDef) => {
+    setIsSavingSlotKey(slotDef.key);
+    setHomepageMsg(null);
+    try {
+      const edits = featuredEdits[slotDef.key];
+      const existing = homepageImages.find((r) => r.slot_key === slotDef.key);
+      const productId = edits?.product_id !== undefined ? edits.product_id : (existing?.product_id || null);
+
+      const result = await saveHomepageSlot(slotDef.key, {
+        product_id: productId || null,
+      });
+      if (result.error) throw new Error(result.error);
+      setHomepageMsg({ type: 'success', text: `Featured product updated for "${slotDef.label}".` });
+    } catch (err: any) {
+      setHomepageMsg({ type: 'error', text: err.message || 'Failed to save featured product.' });
+    } finally {
+      setIsSavingSlotKey(null);
+    }
+  };
+
   const addDeliveryZone = () => {
     const newZone = {
       id: `zone_${Date.now()}`,
@@ -343,6 +606,29 @@ export const AdminPage: React.FC = () => {
       ...prev,
       delivery_zones: (prev.delivery_zones || []).filter((_, i) => i !== index),
     }));
+  };
+
+  const handleApplyThemePreset = (presetTheme: ColorTheme) => {
+    const updatedTheme = { ...presetTheme };
+    setSettingsForm((prev) => ({
+      ...prev,
+      theme: updatedTheme,
+    }));
+    applyThemeToDocument(updatedTheme);
+  };
+
+  const handleUpdateThemeColor = (field: keyof ColorTheme, value: string) => {
+    const currentTheme = settingsForm.theme || DEFAULT_THEME;
+    const updatedTheme: ColorTheme = {
+      ...currentTheme,
+      [field]: value,
+      name: 'Custom Theme',
+    };
+    setSettingsForm((prev) => ({
+      ...prev,
+      theme: updatedTheme,
+    }));
+    applyThemeToDocument(updatedTheme);
   };
 
   // Sync settings when loaded
@@ -872,7 +1158,7 @@ export const AdminPage: React.FC = () => {
 
   // 3. Authenticated Owner Dashboard
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-ivory text-text transition-colors duration-200" style={{ backgroundColor: 'var(--iv)', color: 'var(--ink)' }}>
       {/* Admin Top Navigation */}
       <div className="bg-ivory border-b border-hairline py-4 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
@@ -954,6 +1240,16 @@ export const AdminPage: React.FC = () => {
             Featured Gallery
           </button>
           <button
+            onClick={() => setActiveTab('homepage')}
+            className={`pb-3 px-6 text-sm uppercase tracking-widest font-medium border-b-2 transition-all ${
+              activeTab === 'homepage'
+                ? 'border-gold text-gold font-semibold'
+                : 'border-transparent text-muted hover:text-text'
+            }`}
+          >
+            Homepage Images
+          </button>
+          <button
             onClick={() => setActiveTab('settings')}
             className={`pb-3 px-6 text-sm uppercase tracking-widest font-medium border-b-2 transition-all ${
               activeTab === 'settings'
@@ -981,7 +1277,7 @@ export const AdminPage: React.FC = () => {
             </div>
 
             {/* Products Table/List */}
-            <div className="border border-hairline rounded divide-y divide-hairline bg-white shadow-sm overflow-hidden">
+            <div className="border border-hairline rounded divide-y divide-hairline bg-ivory/80 shadow-sm overflow-hidden">
               {products.length === 0 ? (
                 <div className="p-8 text-center text-muted font-light">
                   No products in catalog yet. Click "Add product" to create one.
@@ -1098,7 +1394,7 @@ export const AdminPage: React.FC = () => {
 
             {/* Orders Metric Summary */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-              <div className="bg-white border border-hairline p-4 rounded-lg">
+              <div className="bg-ivory/80 border border-hairline p-4 rounded-lg">
                 <span className="text-[11px] uppercase tracking-wider text-muted font-medium block">
                   Total Orders
                 </span>
@@ -1106,7 +1402,7 @@ export const AdminPage: React.FC = () => {
                   {orders.length}
                 </span>
               </div>
-              <div className="bg-white border border-hairline p-4 rounded-lg">
+              <div className="bg-ivory/80 border border-hairline p-4 rounded-lg">
                 <span className="text-[11px] uppercase tracking-wider text-emerald-700 font-medium block">
                   Paid
                 </span>
@@ -1123,7 +1419,7 @@ export const AdminPage: React.FC = () => {
                   </span>
                 </div>
               </div>
-              <div className="bg-white border border-hairline p-4 rounded-lg">
+              <div className="bg-ivory/80 border border-hairline p-4 rounded-lg">
                 <span className="text-[11px] uppercase tracking-wider text-amber-700 font-medium block">
                   Pending Payment
                 </span>
@@ -1131,7 +1427,7 @@ export const AdminPage: React.FC = () => {
                   {orders.filter((o) => o.status === 'pending').length}
                 </span>
               </div>
-              <div className="bg-white border border-hairline p-4 rounded-lg">
+              <div className="bg-ivory/80 border border-hairline p-4 rounded-lg">
                 <span className="text-[11px] uppercase tracking-wider text-red-700 font-medium block">
                   Failed
                 </span>
@@ -1214,7 +1510,7 @@ export const AdminPage: React.FC = () => {
                     return (
                       <div
                         key={order.id}
-                        className="bg-white border border-hairline rounded-lg overflow-hidden shadow-sm hover:border-gold/50 transition-colors"
+                        className="bg-ivory/80 border border-hairline rounded-lg overflow-hidden shadow-sm hover:border-gold/50 transition-colors"
                       >
                         {/* Order Header */}
                         <div className="bg-ivory/50 border-b border-hairline px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3 text-xs">
@@ -1599,7 +1895,7 @@ export const AdminPage: React.FC = () => {
                   .map((review) => (
                     <div
                       key={review.id}
-                      className="bg-white border border-hairline rounded-lg p-4 sm:p-5 shadow-sm"
+                      className="bg-ivory/80 border border-hairline rounded-lg p-4 sm:p-5 shadow-sm"
                     >
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div className="min-w-0">
@@ -1803,7 +2099,7 @@ export const AdminPage: React.FC = () => {
             )}
 
             {/* Upload + quick-add from existing product images */}
-            <div className="bg-white border border-hairline rounded-lg p-4 sm:p-5 space-y-4">
+            <div className="bg-ivory/80 border border-hairline rounded-lg p-4 sm:p-5 space-y-4">
               <div className="flex flex-wrap items-center gap-3">
                 <label className="btn-gold text-xs py-2 px-4 inline-flex items-center gap-2 cursor-pointer">
                   {isUploadingFeatured ? (
@@ -1849,7 +2145,7 @@ export const AdminPage: React.FC = () => {
 
             {/* Current featured images */}
             {featuredImages.length === 0 ? (
-              <div className="bg-white border border-hairline rounded-lg p-12 text-center">
+              <div className="bg-ivory/80 border border-hairline rounded-lg p-12 text-center">
                 <ImageIcon className="w-10 h-10 text-muted/40 mx-auto mb-3" />
                 <h3 className="font-serif text-lg text-text font-medium mb-1">No featured images</h3>
                 <p className="text-xs text-muted font-light max-w-md mx-auto">
@@ -1861,7 +2157,7 @@ export const AdminPage: React.FC = () => {
                 {featuredImages.map((img, index) => (
                   <div
                     key={img.id}
-                    className={`bg-white border rounded-lg overflow-hidden shadow-sm ${
+                    className={`bg-ivory/80 border rounded-lg overflow-hidden shadow-sm ${
                       img.is_active ? 'border-hairline' : 'border-hairline opacity-60'
                     }`}
                   >
@@ -1924,9 +2220,492 @@ export const AdminPage: React.FC = () => {
           </div>
         )}
 
+        {/* TAB: HOMEPAGE IMAGES MANAGEMENT */}
+        {activeTab === 'homepage' && (
+          <div className="space-y-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="font-serif text-2xl text-gradient-gold">Homepage Images</h2>
+                <p className="text-muted text-xs font-light mt-1">
+                  Manage every customer-facing image slot across the homepage. Upload replacements directly to Supabase Storage, adjust slide copy, manage alt text, or revert to defaults anytime.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleRefreshHomepage}
+                disabled={isRefreshingHomepage}
+                className="btn-ghost text-xs py-2 px-3 flex items-center gap-1.5 self-start sm:self-auto"
+                title="Refresh homepage slots from Supabase"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${isRefreshingHomepage ? 'animate-spin text-gold' : ''}`} />
+                <span>Refresh slots</span>
+              </button>
+            </div>
+
+            {/* Notification message */}
+            {homepageMsg && (
+              <div
+                className={`p-3.5 rounded border text-xs flex items-center justify-between gap-3 ${
+                  homepageMsg.type === 'success'
+                    ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                    : 'bg-red-50 border-red-200 text-red-800'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  {homepageMsg.type === 'success' ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                  ) : (
+                    <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0" />
+                  )}
+                  <span>{homepageMsg.text}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setHomepageMsg(null)}
+                  className="text-muted hover:text-text text-xs"
+                >
+                  Dismiss
+                </button>
+              </div>
+            )}
+
+            {/* Section filter navigation */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-hairline">
+              <button
+                type="button"
+                onClick={() => setHomepageSection('all')}
+                className={`px-3 py-1.5 rounded text-xs font-medium uppercase tracking-wider whitespace-nowrap transition-colors ${
+                  homepageSection === 'all'
+                    ? 'bg-text text-white'
+                    : 'bg-ivory text-muted hover:text-text'
+                }`}
+              >
+                All Sections ({HOMEPAGE_SLOTS.length})
+              </button>
+              {HOMEPAGE_SLOT_SECTIONS.map((sec) => {
+                const count = HOMEPAGE_SLOTS.filter((s) => s.section === sec).length;
+                return (
+                  <button
+                    key={sec}
+                    type="button"
+                    onClick={() => setHomepageSection(sec)}
+                    className={`px-3 py-1.5 rounded text-xs font-medium uppercase tracking-wider whitespace-nowrap transition-colors ${
+                      homepageSection === sec
+                        ? 'bg-text text-white'
+                        : 'bg-ivory text-muted hover:text-text'
+                    }`}
+                  >
+                    {sec} ({count})
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Slot cards grouped by section */}
+            <div className="space-y-10">
+              {(homepageSection === 'all' ? HOMEPAGE_SLOT_SECTIONS : [homepageSection]).map((sectionName) => {
+                const slotsInSection = HOMEPAGE_SLOTS.filter((s) => s.section === sectionName);
+                if (slotsInSection.length === 0) return null;
+
+                return (
+                  <div key={sectionName} className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs uppercase tracking-widest font-semibold text-gold px-2 py-0.5 bg-gold/10 rounded">
+                        {sectionName}
+                      </span>
+                      <div className="h-px flex-1 bg-hairline" />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {slotsInSection.map((slot) => {
+                        const configured = homepageImages.find((r) => r.slot_key === slot.key);
+                        const isCustom = Boolean(configured?.image_url);
+                        const isActive = configured?.is_active ?? true;
+                        const isWhyChoose = slot.section === 'Why Choose';
+                        const isFeatured = slot.section === 'Featured Products';
+                        const fallbackWhy = DEFAULT_WHY_SLIDES.find((d) => d.key === slot.key);
+
+                        // Selected product for featured highlight
+                        const selectedProductId =
+                          featuredEdits[slot.key]?.product_id !== undefined
+                            ? featuredEdits[slot.key].product_id
+                            : configured?.product_id;
+                        const assignedProduct = isFeatured
+                          ? products.find((p) => p.id === selectedProductId)
+                          : undefined;
+
+                        // Resolved image preview URL
+                        const resolvedUrl =
+                          configured?.image_url ||
+                          (isFeatured && assignedProduct
+                            ? (DEFAULT_FEATURED_IMAGES[assignedProduct.id] || assignedProduct.images[1] || assignedProduct.images[0])
+                            : slot.defaultUrl);
+
+                        // Resolved alt text
+                        const resolvedAlt =
+                          altEdits[slot.key] !== undefined
+                            ? altEdits[slot.key]
+                            : (configured?.alt_text ?? (isWhyChoose ? fallbackWhy?.alt : slot.defaultAlt) ?? '');
+
+                        // Current title & description for Why Choose
+                        const currentTitle =
+                          slideEdits[slot.key]?.title !== undefined
+                            ? slideEdits[slot.key].title
+                            : (configured?.title || fallbackWhy?.title || '');
+                        const currentDesc =
+                          slideEdits[slot.key]?.description !== undefined
+                            ? slideEdits[slot.key].description
+                            : (configured?.description || fallbackWhy?.text || '');
+
+                        return (
+                          <div
+                            key={slot.key}
+                            className={`bg-ivory/80 border rounded-lg p-5 shadow-sm space-y-4 hover:border-gold/50 transition-colors ${
+                              isCustom ? 'border-gold/40' : 'border-hairline'
+                            }`}
+                          >
+                            {/* Card top bar */}
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                <h3 className="font-serif text-base text-text font-medium">{slot.label}</h3>
+                                <code className="text-[10px] bg-ivory px-1.5 py-0.5 rounded text-muted font-mono inline-block mt-0.5">
+                                  {slot.key}
+                                </code>
+                              </div>
+
+                              <label className="flex items-center gap-1.5 text-xs text-muted cursor-pointer select-none">
+                                <input
+                                  type="checkbox"
+                                  checked={isActive}
+                                  onChange={(e) => handleToggleSlotActive(slot, e.target.checked)}
+                                  className="rounded border-hairline text-gold focus:ring-gold"
+                                />
+                                <span>{isActive ? 'Active' : 'Inactive'}</span>
+                              </label>
+                            </div>
+
+                            {/* Media preview box */}
+                            <div className="space-y-2">
+                              <div className="relative aspect-[16/10] bg-ivory rounded border border-hairline overflow-hidden flex items-center justify-center">
+                                {resolvedUrl ? (
+                                  isVideoMedia(configured || { image_url: resolvedUrl }) ? (
+                                    <video
+                                      src={resolvedUrl}
+                                      autoPlay
+                                      loop
+                                      muted
+                                      playsInline
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    <img
+                                      src={resolvedUrl}
+                                      alt={resolvedAlt || slot.label}
+                                      className={`w-full h-full ${slot.key === 'header_logo' ? 'object-contain p-4' : 'object-cover'}`}
+                                    />
+                                  )
+                                ) : (
+                                  <div className="text-center p-4 text-muted text-xs">
+                                    <ImageIcon className="w-8 h-8 mx-auto mb-1 opacity-40" />
+                                    <span>No media assigned (optional slot)</span>
+                                  </div>
+                                )}
+
+                                {/* Status badge */}
+                                <div className="absolute top-2 left-2 flex flex-wrap gap-1">
+                                  {isVideoMedia(configured || { image_url: resolvedUrl }) && (
+                                    <span className="text-[10px] font-semibold bg-indigo-700 text-white px-2 py-0.5 rounded shadow flex items-center gap-1">
+                                      <Video className="w-3 h-3" />
+                                      <span>Video</span>
+                                    </span>
+                                  )}
+                                  {isCustom ? (
+                                    <span className="text-[10px] font-semibold bg-emerald-800 text-white px-2 py-0.5 rounded shadow">
+                                      Custom
+                                    </span>
+                                  ) : resolvedUrl ? (
+                                    <span className="text-[10px] font-medium bg-black/70 text-white px-2 py-0.5 rounded backdrop-blur-sm">
+                                      Default
+                                    </span>
+                                  ) : null}
+                                  {!isActive && (
+                                    <span className="text-[10px] font-semibold bg-amber-700 text-white px-2 py-0.5 rounded shadow">
+                                      Hidden
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+
+                              <div
+                                className="text-[11px] text-muted truncate font-mono bg-ivory/60 px-2 py-1 rounded border border-hairline"
+                                title={resolvedUrl || 'None'}
+                              >
+                                Source: {resolvedUrl ? (resolvedUrl.startsWith('http') ? resolvedUrl.split('?')[0].split('/').pop() : resolvedUrl) : 'None'}
+                              </div>
+                            </div>
+
+                            {/* Actions: Replace, Enter URL, Reset */}
+                            <div className="flex items-center gap-2 pt-1 flex-wrap">
+                              <label className="btn-gold text-xs py-1.5 px-3 flex items-center gap-1.5 cursor-pointer">
+                                {uploadingSlotKey === slot.key ? (
+                                  <>
+                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                    <span>Uploading...</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Upload className="w-3.5 h-3.5" />
+                                    <span>Upload Media</span>
+                                  </>
+                                )}
+                                <input
+                                  type="file"
+                                  accept="image/*,video/mp4,video/webm,video/quicktime"
+                                  className="hidden"
+                                  disabled={uploadingSlotKey === slot.key}
+                                  onChange={(e) => {
+                                    const f = e.target.files?.[0];
+                                    if (f) handleUploadSlotImage(slot, f);
+                                    e.target.value = '';
+                                  }}
+                                />
+                              </label>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (urlInputSlotKey === slot.key) {
+                                    setUrlInputSlotKey(null);
+                                  } else {
+                                    setUrlInputSlotKey(slot.key);
+                                    setUrlInputValue(configured?.image_url || '');
+                                  }
+                                }}
+                                className="btn-ghost text-xs py-1.5 px-2.5 flex items-center gap-1 text-muted hover:text-text"
+                                title="Paste direct Video or Image URL"
+                              >
+                                <Link2 className="w-3.5 h-3.5" />
+                                <span>Paste URL</span>
+                              </button>
+
+                              {isCustom && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleResetSlotImage(slot)}
+                                  disabled={uploadingSlotKey === slot.key}
+                                  className="btn-ghost text-xs py-1.5 px-2.5 flex items-center gap-1 text-muted hover:text-red-700"
+                                  title="Revert to bundled default image"
+                                >
+                                  <RotateCcw className="w-3.5 h-3.5" />
+                                  <span>Reset</span>
+                                </button>
+                              )}
+                            </div>
+
+                            {/* Direct URL input popup/row */}
+                            {urlInputSlotKey === slot.key && (
+                              <div className="p-2.5 bg-ivory rounded border border-hairline space-y-2">
+                                <label className="block text-[10px] uppercase tracking-wider font-medium text-muted">
+                                  Paste Direct Video or Image URL (.mp4, .webm, CDN link)
+                                </label>
+                                <div className="flex gap-2">
+                                  <input
+                                    type="url"
+                                    value={urlInputValue}
+                                    onChange={(e) => setUrlInputValue(e.target.value)}
+                                    placeholder="https://example.com/hero-video.mp4"
+                                    className="w-full bg-white border border-hairline px-2.5 py-1 text-xs rounded focus:outline-none focus:border-gold font-mono"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => handleSaveMediaUrl(slot)}
+                                    disabled={isSavingSlotKey === slot.key || !urlInputValue.trim()}
+                                    className="btn-gold text-xs px-3 py-1 flex items-center gap-1 flex-shrink-0"
+                                  >
+                                    {isSavingSlotKey === slot.key ? (
+                                      <Loader2 className="w-3 h-3 animate-spin" />
+                                    ) : (
+                                      <Check className="w-3 h-3" />
+                                    )}
+                                    <span>Apply</span>
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Why Choose specific controls: Title, Description, Reorder */}
+                            {isWhyChoose && (
+                              <div className="pt-3 border-t border-hairline/80 space-y-3">
+                                <div>
+                                  <label className="block text-[11px] uppercase tracking-wider font-medium text-text mb-1">
+                                    Slide Title
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={currentTitle}
+                                    onChange={(e) =>
+                                      setSlideEdits((prev) => ({
+                                        ...prev,
+                                        [slot.key]: { ...prev[slot.key], title: e.target.value },
+                                      }))
+                                    }
+                                    className="w-full bg-white border border-hairline px-2.5 py-1.5 text-xs rounded focus:outline-none focus:border-gold"
+                                  />
+                                </div>
+
+                                <div>
+                                  <label className="block text-[11px] uppercase tracking-wider font-medium text-text mb-1">
+                                    Slide Description
+                                  </label>
+                                  <textarea
+                                    rows={2}
+                                    value={currentDesc}
+                                    onChange={(e) =>
+                                      setSlideEdits((prev) => ({
+                                        ...prev,
+                                        [slot.key]: { ...prev[slot.key], description: e.target.value },
+                                      }))
+                                    }
+                                    className="w-full bg-white border border-hairline px-2.5 py-1.5 text-xs rounded focus:outline-none focus:border-gold resize-none"
+                                  />
+                                </div>
+
+                                <div className="flex items-center justify-between gap-2 pt-1">
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-[11px] text-muted mr-1">Reorder:</span>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleMoveWhyChooseSlide(slot.key, 'up')}
+                                      className="p-1 text-muted hover:text-text rounded border border-hairline bg-ivory"
+                                      title="Move slide up"
+                                    >
+                                      <ArrowUp className="w-3.5 h-3.5" />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleMoveWhyChooseSlide(slot.key, 'down')}
+                                      className="p-1 text-muted hover:text-text rounded border border-hairline bg-ivory"
+                                      title="Move slide down"
+                                    >
+                                      <ArrowDown className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => handleSaveWhyChooseSlide(slot)}
+                                    disabled={isSavingSlotKey === slot.key}
+                                    className="btn-gold text-xs py-1 px-3 flex items-center gap-1"
+                                  >
+                                    {isSavingSlotKey === slot.key ? (
+                                      <Loader2 className="w-3 h-3 animate-spin" />
+                                    ) : (
+                                      <Check className="w-3 h-3" />
+                                    )}
+                                    <span>Save Copy</span>
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Featured Products specific controls: Product selection */}
+                            {isFeatured && (
+                              <div className="pt-3 border-t border-hairline/80 space-y-3">
+                                <div>
+                                  <label className="block text-[11px] uppercase tracking-wider font-medium text-text mb-1">
+                                    Select Product from Catalog
+                                  </label>
+                                  <select
+                                    value={selectedProductId || ''}
+                                    onChange={(e) =>
+                                      setFeaturedEdits((prev) => ({
+                                        ...prev,
+                                        [slot.key]: { ...prev[slot.key], product_id: e.target.value },
+                                      }))
+                                    }
+                                    className="w-full bg-white border border-hairline px-2.5 py-1.5 text-xs rounded focus:outline-none focus:border-gold"
+                                  >
+                                    <option value="">-- Choose Product --</option>
+                                    {products.map((p) => (
+                                      <option key={p.id} value={p.id}>
+                                        {p.name} ({settings.currency}{p.price})
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
+
+                                {assignedProduct && (
+                                  <div className="bg-ivory/60 p-2 rounded border border-hairline text-xs space-y-1">
+                                    <div className="font-medium text-text">{assignedProduct.name}</div>
+                                    <div className="text-muted text-[11px]">
+                                      {assignedProduct.category} &bull; {settings.currency}{assignedProduct.price.toFixed(2)}
+                                    </div>
+                                  </div>
+                                )}
+
+                                <div className="flex justify-end pt-1">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleSaveFeaturedProduct(slot)}
+                                    disabled={isSavingSlotKey === slot.key}
+                                    className="btn-gold text-xs py-1 px-3 flex items-center gap-1"
+                                  >
+                                    {isSavingSlotKey === slot.key ? (
+                                      <Loader2 className="w-3 h-3 animate-spin" />
+                                    ) : (
+                                      <Check className="w-3 h-3" />
+                                    )}
+                                    <span>Save Highlight</span>
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Alt text field for accessibility */}
+                            <div className="pt-2 border-t border-hairline/60">
+                              <label className="block text-[10px] uppercase tracking-wider font-medium text-muted mb-1">
+                                Alt Text (Accessibility &amp; SEO)
+                              </label>
+                              <div className="flex gap-2">
+                                <input
+                                  type="text"
+                                  value={resolvedAlt}
+                                  onChange={(e) =>
+                                    setAltEdits((prev) => ({ ...prev, [slot.key]: e.target.value }))
+                                  }
+                                  placeholder="Describe the image..."
+                                  className="w-full bg-ivory/50 border border-hairline px-2.5 py-1 text-xs rounded focus:outline-none focus:border-gold"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => handleSaveAltText(slot)}
+                                  disabled={isSavingSlotKey === slot.key}
+                                  className="btn-ghost text-xs px-2.5 py-1 flex items-center gap-1 font-medium"
+                                  title="Save Alt Text"
+                                >
+                                  {isSavingSlotKey === slot.key ? (
+                                    <Loader2 className="w-3 h-3 animate-spin" />
+                                  ) : (
+                                    <Check className="w-3 h-3 text-gold" />
+                                  )}
+                                  <span>Save</span>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* TAB 3: STORE SETTINGS MANAGEMENT */}
         {activeTab === 'settings' && (
-          <form onSubmit={handleSaveSettings} className="max-w-3xl bg-white border border-hairline rounded-lg p-6 sm:p-8 shadow-sm space-y-8">
+          <form onSubmit={handleSaveSettings} className="max-w-3xl bg-ivory border border-hairline rounded-lg p-6 sm:p-8 shadow-sm space-y-8 transition-colors duration-200" style={{ backgroundColor: 'var(--iv)', color: 'var(--ink)' }}>
             <div>
               <h2 className="font-serif text-2xl text-gradient-gold">Store & Contact Settings</h2>
               <p className="text-muted text-xs font-light mt-1">
@@ -2042,6 +2821,434 @@ export const AdminPage: React.FC = () => {
                     onChange={(e) => setSettingsForm({ ...settingsForm, facebook_url: e.target.value })}
                     className="w-full bg-white border border-hairline px-3 py-2 text-sm rounded focus:border-gold"
                   />
+                </div>
+              </div>
+            </div>
+
+            {/* Color Theme & Brand Palette */}
+            <div className="space-y-6 pt-4 border-t border-hairline">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <Palette className="w-4 h-4 text-gold" />
+                  <h3 className="text-xs uppercase tracking-wider font-semibold text-gold-dark">
+                    Color Theme &amp; Brand Palette
+                  </h3>
+                </div>
+                <p className="text-[11px] text-muted">
+                  Choose from curated bespoke luxury themes or customize every color of your website. Changes preview in real-time and apply live to the entire website when saved.
+                </p>
+              </div>
+
+              {/* Luxury Presets Grid */}
+              <div>
+                <label className="block text-[11px] uppercase tracking-wider font-medium text-text mb-2">
+                  Curated Luxury Presets
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {THEME_PRESETS.map((preset) => {
+                    const isSelected =
+                      settingsForm.theme?.primary === preset.theme.primary &&
+                      settingsForm.theme?.background === preset.theme.background &&
+                      settingsForm.theme?.text === preset.theme.text;
+
+                    return (
+                      <button
+                        key={preset.id}
+                        type="button"
+                        onClick={() => handleApplyThemePreset(preset.theme)}
+                        className={`text-left p-3.5 rounded-lg border transition-all ${
+                          isSelected
+                            ? 'border-gold bg-gold/10 ring-1 ring-gold shadow-sm'
+                            : 'border-hairline bg-ivory/60 hover:bg-ivory/90 hover:border-gold/50'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="font-serif text-sm font-medium text-text">{preset.label}</span>
+                          {isSelected && <Check className="w-3.5 h-3.5 text-gold" />}
+                        </div>
+                        <p className="text-[11px] text-muted mb-3 leading-snug line-clamp-2">
+                          {preset.description}
+                        </p>
+                        {/* Swatch row */}
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            className="w-5 h-5 rounded-full border border-black/10 shadow-inner"
+                            style={{ backgroundColor: preset.theme.background }}
+                            title={`Background: ${preset.theme.background}`}
+                          />
+                          <span
+                            className="w-5 h-5 rounded-full border border-black/10 shadow-inner"
+                            style={{ backgroundColor: preset.theme.primary }}
+                            title={`Primary Accent: ${preset.theme.primary}`}
+                          />
+                          <span
+                            className="w-5 h-5 rounded-full border border-black/10 shadow-inner"
+                            style={{ backgroundColor: preset.theme.secondary }}
+                            title={`Secondary Accent: ${preset.theme.secondary}`}
+                          />
+                          <span
+                            className="w-5 h-5 rounded-full border border-black/10 shadow-inner"
+                            style={{ backgroundColor: preset.theme.text }}
+                            title={`Text: ${preset.theme.text}`}
+                          />
+                          <span
+                            className="w-5 h-5 rounded-full border border-black/10 shadow-inner"
+                            style={{ backgroundColor: preset.theme.border }}
+                            title={`Border: ${preset.theme.border}`}
+                          />
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Custom Palette Fine-Tuning */}
+              <div className="p-4 bg-ivory/50 rounded-lg border border-hairline space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs uppercase tracking-wider font-medium text-text">
+                    Fine-Tune Palette Colors
+                  </h4>
+                  <button
+                    type="button"
+                    onClick={() => handleApplyThemePreset(DEFAULT_THEME)}
+                    className="text-xs text-muted hover:text-gold flex items-center gap-1"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    <span>Reset to Default</span>
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  {/* 1. TOP PART: Header & Navigation */}
+                  <div className="border border-hairline rounded-lg p-3.5 bg-ivory/60 space-y-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded bg-gold/15 text-gold">
+                        Top Part
+                      </span>
+                      <span className="text-xs font-serif text-text font-medium">Header &amp; Navigation Bar</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* Header Background */}
+                      <div>
+                        <label className="block text-[11px] font-medium text-text mb-1">
+                          Header Background
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="color"
+                            value={settingsForm.theme?.topBackground || settingsForm.theme?.background || DEFAULT_THEME.topBackground}
+                            onChange={(e) => handleUpdateThemeColor('topBackground', e.target.value)}
+                            className="w-8 h-8 rounded border border-hairline cursor-pointer p-0 bg-transparent flex-shrink-0"
+                          />
+                          <input
+                            type="text"
+                            value={settingsForm.theme?.topBackground || settingsForm.theme?.background || DEFAULT_THEME.topBackground}
+                            onChange={(e) => handleUpdateThemeColor('topBackground', e.target.value)}
+                            className="w-full bg-ivory/80 border border-hairline px-2 py-1 text-xs font-mono rounded text-text"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Header Text & Links */}
+                      <div>
+                        <label className="block text-[11px] font-medium text-text mb-1">
+                          Header Text &amp; Nav Links
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="color"
+                            value={settingsForm.theme?.topText || settingsForm.theme?.text || DEFAULT_THEME.topText}
+                            onChange={(e) => handleUpdateThemeColor('topText', e.target.value)}
+                            className="w-8 h-8 rounded border border-hairline cursor-pointer p-0 bg-transparent flex-shrink-0"
+                          />
+                          <input
+                            type="text"
+                            value={settingsForm.theme?.topText || settingsForm.theme?.text || DEFAULT_THEME.topText}
+                            onChange={(e) => handleUpdateThemeColor('topText', e.target.value)}
+                            className="w-full bg-ivory/80 border border-hairline px-2 py-1 text-xs font-mono rounded text-text"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 2. MIDDLE PART: Page Canvas & Typography */}
+                  <div className="border border-hairline rounded-lg p-3.5 bg-ivory/60 space-y-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded bg-gold/15 text-gold">
+                        Middle Part
+                      </span>
+                      <span className="text-xs font-serif text-text font-medium">Main Page Canvas &amp; Typography</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      {/* Background Canvas */}
+                      <div>
+                        <label className="block text-[11px] font-medium text-text mb-1">
+                          Page Canvas (Background)
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="color"
+                            value={settingsForm.theme?.background || DEFAULT_THEME.background}
+                            onChange={(e) => handleUpdateThemeColor('background', e.target.value)}
+                            className="w-8 h-8 rounded border border-hairline cursor-pointer p-0 bg-transparent flex-shrink-0"
+                          />
+                          <input
+                            type="text"
+                            value={settingsForm.theme?.background || DEFAULT_THEME.background}
+                            onChange={(e) => handleUpdateThemeColor('background', e.target.value)}
+                            className="w-full bg-ivory/80 border border-hairline px-2 py-1 text-xs font-mono rounded text-text"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Text / Ink */}
+                      <div>
+                        <label className="block text-[11px] font-medium text-text mb-1">
+                          Headings &amp; Body Text
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="color"
+                            value={settingsForm.theme?.text || DEFAULT_THEME.text}
+                            onChange={(e) => handleUpdateThemeColor('text', e.target.value)}
+                            className="w-8 h-8 rounded border border-hairline cursor-pointer p-0 bg-transparent flex-shrink-0"
+                          />
+                          <input
+                            type="text"
+                            value={settingsForm.theme?.text || DEFAULT_THEME.text}
+                            onChange={(e) => handleUpdateThemeColor('text', e.target.value)}
+                            className="w-full bg-ivory/80 border border-hairline px-2 py-1 text-xs font-mono rounded text-text"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Muted Text */}
+                      <div>
+                        <label className="block text-[11px] font-medium text-text mb-1">
+                          Muted Text &amp; Subtitles
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="color"
+                            value={settingsForm.theme?.muted || DEFAULT_THEME.muted}
+                            onChange={(e) => handleUpdateThemeColor('muted', e.target.value)}
+                            className="w-8 h-8 rounded border border-hairline cursor-pointer p-0 bg-transparent flex-shrink-0"
+                          />
+                          <input
+                            type="text"
+                            value={settingsForm.theme?.muted || DEFAULT_THEME.muted}
+                            onChange={(e) => handleUpdateThemeColor('muted', e.target.value)}
+                            className="w-full bg-ivory/80 border border-hairline px-2 py-1 text-xs font-mono rounded text-text"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 3. BOTTOM PART: Footer */}
+                  <div className="border border-hairline rounded-lg p-3.5 bg-ivory/60 space-y-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded bg-gold/15 text-gold">
+                        Bottom Part
+                      </span>
+                      <span className="text-xs font-serif text-text font-medium">Footer &amp; Policies Area</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* Footer Background */}
+                      <div>
+                        <label className="block text-[11px] font-medium text-text mb-1">
+                          Footer Background
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="color"
+                            value={settingsForm.theme?.bottomBackground || DEFAULT_THEME.bottomBackground}
+                            onChange={(e) => handleUpdateThemeColor('bottomBackground', e.target.value)}
+                            className="w-8 h-8 rounded border border-hairline cursor-pointer p-0 bg-transparent flex-shrink-0"
+                          />
+                          <input
+                            type="text"
+                            value={settingsForm.theme?.bottomBackground || DEFAULT_THEME.bottomBackground}
+                            onChange={(e) => handleUpdateThemeColor('bottomBackground', e.target.value)}
+                            className="w-full bg-ivory/80 border border-hairline px-2 py-1 text-xs font-mono rounded text-text"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Footer Text */}
+                      <div>
+                        <label className="block text-[11px] font-medium text-text mb-1">
+                          Footer Text &amp; Links
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="color"
+                            value={settingsForm.theme?.bottomText || DEFAULT_THEME.bottomText}
+                            onChange={(e) => handleUpdateThemeColor('bottomText', e.target.value)}
+                            className="w-8 h-8 rounded border border-hairline cursor-pointer p-0 bg-transparent flex-shrink-0"
+                          />
+                          <input
+                            type="text"
+                            value={settingsForm.theme?.bottomText || DEFAULT_THEME.bottomText}
+                            onChange={(e) => handleUpdateThemeColor('bottomText', e.target.value)}
+                            className="w-full bg-ivory/80 border border-hairline px-2 py-1 text-xs font-mono rounded text-text"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 4. ACCENTS & BORDERS */}
+                  <div className="border border-hairline rounded-lg p-3.5 bg-ivory/60 space-y-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded bg-gold/15 text-gold">
+                        Accents &amp; Borders
+                      </span>
+                      <span className="text-xs font-serif text-text font-medium">Bespoke Gold &amp; Dividers</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      {/* Primary Accent */}
+                      <div>
+                        <label className="block text-[11px] font-medium text-text mb-1">
+                          Primary Accent (Gold / Buttons)
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="color"
+                            value={settingsForm.theme?.primary || DEFAULT_THEME.primary}
+                            onChange={(e) => handleUpdateThemeColor('primary', e.target.value)}
+                            className="w-8 h-8 rounded border border-hairline cursor-pointer p-0 bg-transparent flex-shrink-0"
+                          />
+                          <input
+                            type="text"
+                            value={settingsForm.theme?.primary || DEFAULT_THEME.primary}
+                            onChange={(e) => handleUpdateThemeColor('primary', e.target.value)}
+                            className="w-full bg-ivory/80 border border-hairline px-2 py-1 text-xs font-mono rounded text-text"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Secondary Accent */}
+                      <div>
+                        <label className="block text-[11px] font-medium text-text mb-1">
+                          Secondary Accent (Luminous / Hover)
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="color"
+                            value={settingsForm.theme?.secondary || DEFAULT_THEME.secondary}
+                            onChange={(e) => handleUpdateThemeColor('secondary', e.target.value)}
+                            className="w-8 h-8 rounded border border-hairline cursor-pointer p-0 bg-transparent flex-shrink-0"
+                          />
+                          <input
+                            type="text"
+                            value={settingsForm.theme?.secondary || DEFAULT_THEME.secondary}
+                            onChange={(e) => handleUpdateThemeColor('secondary', e.target.value)}
+                            className="w-full bg-ivory/80 border border-hairline px-2 py-1 text-xs font-mono rounded text-text"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Hairline Borders */}
+                      <div>
+                        <label className="block text-[11px] font-medium text-text mb-1">
+                          Hairline Dividers &amp; Borders
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="color"
+                            value={settingsForm.theme?.border || DEFAULT_THEME.border}
+                            onChange={(e) => handleUpdateThemeColor('border', e.target.value)}
+                            className="w-8 h-8 rounded border border-hairline cursor-pointer p-0 bg-transparent flex-shrink-0"
+                          />
+                          <input
+                            type="text"
+                            value={settingsForm.theme?.border || DEFAULT_THEME.border}
+                            onChange={(e) => handleUpdateThemeColor('border', e.target.value)}
+                            className="w-full bg-ivory/80 border border-hairline px-2 py-1 text-xs font-mono rounded text-text"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Live 3-Zone Website Sample Preview */}
+                <div className="mt-4 rounded-lg overflow-hidden border border-hairline shadow-sm text-xs">
+                  {/* Top Preview */}
+                  <div
+                    className="px-4 py-2.5 flex items-center justify-between border-b border-hairline transition-colors"
+                    style={{
+                      backgroundColor: settingsForm.theme?.topBackground || settingsForm.theme?.background || DEFAULT_THEME.topBackground,
+                      color: settingsForm.theme?.topText || settingsForm.theme?.text || DEFAULT_THEME.topText,
+                    }}
+                  >
+                    <div className="flex items-center gap-2 font-serif font-medium">
+                      <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: settingsForm.theme?.primary || DEFAULT_THEME.primary }} />
+                      <span>TOP PART: Header Preview</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-[11px] opacity-80">
+                      <span>Collection</span>
+                      <span>Our story</span>
+                      <span>Contact</span>
+                    </div>
+                  </div>
+
+                  {/* Middle Canvas Preview */}
+                  <div
+                    className="p-5 space-y-3 transition-colors"
+                    style={{
+                      backgroundColor: settingsForm.theme?.background || DEFAULT_THEME.background,
+                      color: settingsForm.theme?.text || DEFAULT_THEME.text,
+                    }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-serif text-lg font-medium">
+                        MIDDLE PART: Main Page Canvas
+                      </h4>
+                      <span
+                        className="text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded"
+                        style={{
+                          backgroundColor: `${settingsForm.theme?.primary || DEFAULT_THEME.primary}25`,
+                          color: settingsForm.theme?.primary || DEFAULT_THEME.primary,
+                        }}
+                      >
+                        Sample Badge
+                      </span>
+                    </div>
+                    <p
+                      className="text-xs leading-relaxed"
+                      style={{ color: settingsForm.theme?.muted || DEFAULT_THEME.muted }}
+                    >
+                      This preview demonstrates your active background, typography, borders, and accent contrast in real-time.
+                    </p>
+                    <div className="pt-1 flex gap-2">
+                      <button
+                        type="button"
+                        className="text-xs px-3.5 py-1.5 rounded font-medium shadow-sm transition-opacity"
+                        style={{
+                          background: `linear-gradient(135deg, ${settingsForm.theme?.primary || DEFAULT_THEME.primary}, ${settingsForm.theme?.secondary || DEFAULT_THEME.secondary})`,
+                          color: '#FFFFFF',
+                        }}
+                      >
+                        Sample Button
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Bottom Footer Preview */}
+                  <div
+                    className="px-4 py-3 flex flex-wrap items-center justify-between gap-2 border-t border-hairline transition-colors text-[11px]"
+                    style={{
+                      backgroundColor: settingsForm.theme?.bottomBackground || DEFAULT_THEME.bottomBackground,
+                      color: settingsForm.theme?.bottomText || DEFAULT_THEME.bottomText,
+                    }}
+                  >
+                    <span className="font-serif">BOTTOM PART: Footer &bull; Global Luxury Emporium Ltd</span>
+                    <span className="opacity-75">London, United Kingdom</span>
+                  </div>
                 </div>
               </div>
             </div>

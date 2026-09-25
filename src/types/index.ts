@@ -53,6 +53,8 @@ export interface DeliveryZone {
   price: number;
 }
 
+import { ColorTheme } from '../lib/theme';
+
 export interface Settings {
   id: string;
   currency: string;
@@ -65,6 +67,7 @@ export interface Settings {
   personalisation: PersonalisationSettings;
   requirements: RequirementsSettings;
   delivery_zones: DeliveryZone[];
+  theme?: ColorTheme;
 }
 
 export interface OrderAddress {

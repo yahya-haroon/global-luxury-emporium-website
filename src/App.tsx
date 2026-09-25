@@ -31,7 +31,7 @@ export const App: React.FC = () => {
       <AuthProvider>
         <DataProvider>
           <ScrollToTop />
-          <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--iv)', color: 'var(--ink)' }}>
             <Header />
             <div style={{ flex: '1 0 auto' }}>
               <Routes>

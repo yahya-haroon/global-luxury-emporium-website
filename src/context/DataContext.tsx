@@ -2,6 +2,8 @@ import React, { createContext, useContext, useEffect, useState, useCallback } fr
 import { supabase, isSupabaseConfigured, defaultSeedProducts, defaultSeedSettings } from '../lib/supabase';
 import { normalizeProductOptions } from '../lib/options';
 import { Product, Settings, Order, OrderStatus, Review, FeaturedImage } from '../types';
+import { HomepageImage, fetchHomepageImages } from '../lib/homepageImages';
+import { DEFAULT_THEME, applyThemeToDocument } from '../lib/theme';
 import { useAuth } from './AuthContext';
 
 interface DataContextType {
@@ -10,6 +12,8 @@ interface DataContextType {
   orders: Order[];
   reviews: Review[];
   featuredImages: FeaturedImage[];
+  homepageImages: HomepageImage[];
+  homepageSlots: Record<string, HomepageImage>;
   loading: boolean;
   error: string | null;
   activeCategory: string;
@@ -21,6 +25,7 @@ interface DataContextType {
   refreshOrders: () => Promise<void>;
   refreshReviews: () => Promise<void>;
   refreshFeaturedImages: () => Promise<void>;
+  refreshHomepageImages: () => Promise<void>;
   saveProduct: (productData: Partial<Product> & { id?: string }) => Promise<{ error?: string; product?: Product }>;
   deleteProduct: (id: string) => Promise<{ error?: string }>;
   toggleProductVisibility: (id: string, isVisible: boolean) => Promise<{ error?: string }>;
@@ -33,6 +38,10 @@ interface DataContextType {
   updateFeaturedImage: (id: string, patch: Partial<Pick<FeaturedImage, 'alt_text' | 'is_active' | 'sort_order'>>) => Promise<{ error?: string }>;
   deleteFeaturedImage: (id: string) => Promise<{ error?: string }>;
   reorderFeaturedImages: (orderedIds: string[]) => Promise<{ error?: string }>;
+  saveHomepageSlot: (
+    slotKey: string,
+    patch: Partial<Pick<HomepageImage, 'image_url' | 'storage_path' | 'alt_text' | 'title' | 'description' | 'product_id' | 'is_active' | 'sort_order' | 'media_type'>>
+  ) => Promise<{ error?: string }>;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -44,6 +53,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [orders, setOrders] = useState<Order[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [featuredImages, setFeaturedImages] = useState<FeaturedImage[]>([]);
+  const [homepageImages, setHomepageImages] = useState<HomepageImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>('All');
@@ -80,6 +90,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
 
+    const parsedTheme =
+      data.theme && typeof data.theme === 'object'
+        ? { ...DEFAULT_THEME, ...data.theme }
+        : defaultSeedSettings.theme || DEFAULT_THEME;
+
     return {
       id: data.id,
       currency: data.currency || '£',
@@ -104,6 +119,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         hint: data.requirements_hint || 'Anything else we should know (up to 110 characters)',
       },
       delivery_zones: parsedDeliveryZones,
+      theme: parsedTheme,
     };
   }, []);
 
@@ -287,6 +303,48 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setFeaturedImages(await fetchFeaturedImages());
     }
   }, [fetchFeaturedImages, user?.isOwner]);
+
+  // ---- Homepage image configuration (public read; RLS limits anon to active rows) ----
+  const refreshHomepageImages = useCallback(async () => {
+    setHomepageImages(await fetchHomepageImages());
+  }, []);
+
+  const saveHomepageSlot = useCallback(
+    async (
+      slotKey: string,
+      patch: Partial<
+        Pick<
+          HomepageImage,
+          'image_url' | 'storage_path' | 'alt_text' | 'title' | 'description' | 'product_id' | 'is_active' | 'sort_order' | 'media_type'
+        >
+      >
+    ): Promise<{ error?: string }> => {
+      if (!isSupabaseConfigured) return { error: 'Supabase is not configured.' };
+      if (!user?.isOwner) return { error: 'Unauthorized. Only the owner can change homepage images.' };
+
+      try {
+        const { error: upsertErr } = await supabase
+          .from('homepage_images')
+          .upsert(
+            {
+              slot_key: slotKey,
+              ...patch,
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: 'slot_key' }
+          );
+
+        if (upsertErr) throw upsertErr;
+
+        await refreshHomepageImages();
+        return {};
+      } catch (err: any) {
+        console.error('Error saving homepage slot:', err);
+        return { error: err.message || 'Failed to save homepage image slot.' };
+      }
+    },
+    [refreshHomepageImages, user?.isOwner]
+  );
 
   // ---- Mutation: order delivery status ----
   const updateOrderStatus = useCallback(
@@ -525,14 +583,16 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setOrders([]);
         setReviews([]);
         setFeaturedImages([]);
+        setHomepageImages([]);
       } else {
         // Fetch real Supabase data
-        const [loadedSettings, loadedProducts, loadedOrders, loadedReviews, loadedFeatured] = await Promise.all([
+        const [loadedSettings, loadedProducts, loadedOrders, loadedReviews, loadedFeatured, loadedHomepage] = await Promise.all([
           fetchSettings(),
           fetchProducts(Boolean(user?.isOwner)),
           fetchOrders(),
           fetchReviews(),
           fetchFeaturedImages(),
+          fetchHomepageImages(),
         ]);
 
         if (loadedSettings) {
@@ -543,6 +603,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setOrders(loadedOrders);
         setReviews(loadedReviews);
         setFeaturedImages(loadedFeatured);
+        setHomepageImages(loadedHomepage);
       }
     } catch (err: any) {
       console.error('Data loading error:', err);
@@ -556,11 +617,25 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     refreshData();
   }, [refreshData]);
 
+  // Dynamically apply active color theme whenever settings are loaded or updated
+  useEffect(() => {
+    applyThemeToDocument(settings.theme);
+  }, [settings.theme]);
+
   // Derive categories list from current products
   const categories = [
     'All',
     ...Array.from(new Set(products.map((p) => p.category))),
   ];
+
+  // Active homepage image configuration keyed by slot (storefront consumers
+  // filter here so an owner browsing while signed in never sees draft rows).
+  const homepageSlots: Record<string, HomepageImage> = {};
+  for (const row of homepageImages) {
+    if (row.is_active) {
+      homepageSlots[row.slot_key] = row;
+    }
+  }
 
   // Save or edit product
   const saveProduct = async (
@@ -764,6 +839,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           newSettings.requirements.hint || '',
 
         delivery_zones: newSettings.delivery_zones || defaultSeedSettings.delivery_zones,
+        theme: newSettings.theme || DEFAULT_THEME,
 
         updated_at: new Date().toISOString(),
       };
@@ -778,6 +854,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (upsertErr) throw upsertErr;
 
       setSettings(newSettings);
+      applyThemeToDocument(newSettings.theme);
       return {};
     } catch (err: any) {
       console.error('Error updating settings:', err);
@@ -795,6 +872,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         orders,
         reviews,
         featuredImages,
+        homepageImages,
+        homepageSlots,
         loading,
         error,
         activeCategory,
@@ -806,6 +885,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         refreshOrders,
         refreshReviews,
         refreshFeaturedImages,
+        refreshHomepageImages,
         saveProduct,
         deleteProduct,
         toggleProductVisibility,
@@ -818,6 +898,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updateFeaturedImage,
         deleteFeaturedImage,
         reorderFeaturedImages,
+        saveHomepageSlot,
       }}
     >
       {children}

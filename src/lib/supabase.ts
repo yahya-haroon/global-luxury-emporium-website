@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { Product, Settings } from '../types';
+import { DEFAULT_THEME } from './theme';
 
 export const OWNER_EMAIL = 'yahyaharoon77@gmail.com';
 
@@ -54,6 +55,7 @@ export const defaultSeedSettings: Settings = {
     { id: 'uk', name: 'United Kingdom', price: 0 },
     { id: 'row', name: 'Rest of world', price: 35 },
   ],
+  theme: DEFAULT_THEME,
 };
 
 // Default seed products matching specifications

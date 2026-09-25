@@ -7,16 +7,16 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: '#FFFFFF',
-        ivory: '#FAF6EC',
-        text: '#1D1810',
-        muted: '#6C624F',
-        hairline: '#E6DECE',
+        background: 'var(--iv, #F7F3EA)',
+        ivory: 'var(--iv, #F7F3EA)',
+        text: 'var(--ink, #141210)',
+        muted: 'var(--mu, #6D6558)',
+        hairline: 'var(--ln, #DDD5C4)',
         gold: {
-          DEFAULT: '#9A7628',
-          dark: '#7A5A1A',
-          light: '#F3DC9B',
-          accent: '#B98D35',
+          DEFAULT: 'var(--au, #9A7628)',
+          dark: 'var(--au, #7A5A1A)',
+          light: 'var(--au2, #C9A24A)',
+          accent: 'var(--au2, #B98D35)',
         },
       },
       fontFamily: {
