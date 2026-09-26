@@ -1,6 +1,6 @@
 import { loadStripe, Stripe } from '@stripe/stripe-js';
 import { supabase, isSupabaseConfigured } from './supabase';
-import { OrderAddress } from '../types';
+import { OrderAddress, CartItem } from '../types';
 
 const publishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_placeholder_gle';
 
@@ -14,8 +14,10 @@ export function getStripe(): Promise<Stripe | null> {
 }
 
 export interface CreatePaymentIntentPayload {
-  productId: string;
-  size: string;
+  items?: CartItem[];
+  // Legacy fields for direct 1-product checkout
+  productId?: string;
+  size?: string;
   selectedOptions?: Record<string, string>;
   personalisationText?: string;
   requirementsText?: string;
@@ -67,14 +69,31 @@ export async function createPaymentIntent(
  * Development fallback when Supabase Edge Functions are not deployed locally.
  */
 async function mockCreatePaymentIntent(
-  _payload: CreatePaymentIntentPayload
+  payload: CreatePaymentIntentPayload
 ): Promise<CreatePaymentIntentResponse> {
   const mockId = `mock_pi_${Date.now()}`;
   const mockSecret = `${mockId}_secret_test`;
 
+  let total = 0;
+  if (payload.items && payload.items.length > 0) {
+    const itemsTotal = payload.items.reduce(
+      (sum, item) =>
+        sum +
+        (item.price * (item.quantity || 1)) +
+        ((item.personalisationFee || 0) * (item.quantity || 1)) +
+        ((item.requirementsFee || 0) * (item.quantity || 1)),
+      0
+    );
+    // Flat delivery fee (defaults to 15 if zone id not resolved locally)
+    const delivery = 15;
+    total = itemsTotal + delivery;
+  } else {
+    total = 349;
+  }
+
   return {
     clientSecret: mockSecret,
     orderId: `ord_${Date.now()}`,
-    amount: 349,
+    amount: total,
   };
 }

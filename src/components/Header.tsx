@@ -1,15 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Search, X } from 'lucide-react';
+import { Search, X, ShoppingBag, Menu } from 'lucide-react';
 import { useData } from '../context/DataContext';
+import { useCart } from '../context/CartContext';
 
 export const Header: React.FC = () => {
   const [hasShadow, setHasShadow] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { searchQuery, setSearchQuery, homepageSlots } = useData();
+  const { totalCount, openCart } = useCart();
 
   const searchWrapRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -58,6 +61,11 @@ export const Header: React.FC = () => {
     document.addEventListener('mousedown', onDocClick);
     return () => document.removeEventListener('mousedown', onDocClick);
   }, [searchOpen]);
+
+  // Close mobile navigation drawer on route changes
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
 
   const scrollToCollection = () => {
     const shopEl = document.getElementById('shop');
@@ -200,8 +208,92 @@ export const Header: React.FC = () => {
               <Search className="w-[18px] h-[18px]" />
             </button>
           </div>
+
+          {/* Shopping Bag / Cart Trigger */}
+          <button
+            type="button"
+            onClick={openCart}
+            className="cart-toggle relative p-1.5 text-inherit hover:text-gold transition-colors flex items-center justify-center"
+            aria-label={`Shopping bag, ${totalCount} ${totalCount === 1 ? 'item' : 'items'}`}
+          >
+            <ShoppingBag className="w-[19px] h-[19px]" />
+            {totalCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-gold text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-sm">
+                {totalCount}
+              </span>
+            )}
+          </button>
+
+          {/* Mobile Navigation Toggle (Visible on mobile screens) */}
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen((prev) => !prev)}
+            className="md:hidden p-1.5 text-inherit hover:text-gold transition-colors flex items-center justify-center -mr-1"
+            aria-label={mobileMenuOpen ? 'Close menu' : 'Open navigation menu'}
+            aria-expanded={mobileMenuOpen}
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
         </div>
       </header>
+
+      {/* Mobile Slide-down Navigation Panel */}
+      {mobileMenuOpen && (
+        <div
+          className="md:hidden border-b border-hairline px-6 py-5 space-y-4 animate-fade-in shadow-lg"
+          style={{
+            backgroundColor: 'var(--top-bg, var(--iv))',
+            color: 'var(--top-text, var(--ink))',
+          }}
+        >
+          <nav className="flex flex-col space-y-3 font-serif text-base tracking-wide">
+            <a
+              href="#shop"
+              onClick={(e) => {
+                handleNavClick(e, 'shop');
+                setMobileMenuOpen(false);
+              }}
+              className="py-1 hover:text-gold transition-colors border-b border-hairline/40 pb-2"
+            >
+              Collection
+            </a>
+            <a
+              href="#story"
+              onClick={(e) => {
+                handleNavClick(e, 'story');
+                setMobileMenuOpen(false);
+              }}
+              className="py-1 hover:text-gold transition-colors border-b border-hairline/40 pb-2"
+            >
+              Our Story
+            </a>
+            <a
+              href="#contact"
+              onClick={(e) => {
+                handleNavClick(e, 'contact');
+                setMobileMenuOpen(false);
+              }}
+              className="py-1 hover:text-gold transition-colors border-b border-hairline/40 pb-2"
+            >
+              Contact
+            </a>
+            <Link
+              to="/delivery"
+              onClick={() => setMobileMenuOpen(false)}
+              className="py-1 text-xs text-muted hover:text-gold transition-colors"
+            >
+              Delivery &amp; Shipping Policy
+            </Link>
+            <Link
+              to="/returns"
+              onClick={() => setMobileMenuOpen(false)}
+              className="py-1 text-xs text-muted hover:text-gold transition-colors"
+            >
+              Returns &amp; Exchanges
+            </Link>
+          </nav>
+        </div>
+      )}
     </>
   );
 };

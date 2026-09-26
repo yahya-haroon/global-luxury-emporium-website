@@ -2,8 +2,10 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { DataProvider } from './context/DataContext';
+import { CartProvider } from './context/CartContext';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
+import { CartDrawer } from './components/CartDrawer';
 
 // Pages
 import { HomePage } from './pages/HomePage';
@@ -30,22 +32,25 @@ export const App: React.FC = () => {
     <BrowserRouter>
       <AuthProvider>
         <DataProvider>
-          <ScrollToTop />
-          <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--iv)', color: 'var(--ink)' }}>
-            <Header />
-            <div style={{ flex: '1 0 auto' }}>
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/product/:id" element={<ProductPage />} />
-                <Route path="/admin" element={<AdminPage />} />
-                <Route path="/delivery" element={<DeliveryPage />} />
-                <Route path="/returns" element={<ReturnsPage />} />
-                <Route path="/privacy" element={<PrivacyPage />} />
-                <Route path="*" element={<NotFoundPage />} />
-              </Routes>
+          <CartProvider>
+            <ScrollToTop />
+            <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--iv)', color: 'var(--ink)' }}>
+              <Header />
+              <div style={{ flex: '1 0 auto' }}>
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/product/:id" element={<ProductPage />} />
+                  <Route path="/admin" element={<AdminPage />} />
+                  <Route path="/delivery" element={<DeliveryPage />} />
+                  <Route path="/returns" element={<ReturnsPage />} />
+                  <Route path="/privacy" element={<PrivacyPage />} />
+                  <Route path="*" element={<NotFoundPage />} />
+                </Routes>
+              </div>
+              <Footer />
             </div>
-            <Footer />
-          </div>
+            <CartDrawer />
+          </CartProvider>
         </DataProvider>
       </AuthProvider>
     </BrowserRouter>

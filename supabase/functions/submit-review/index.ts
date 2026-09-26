@@ -68,7 +68,7 @@ Deno.serve(async (req) => {
     // ---------------------------------------------------------------
     const { data: order, error: orderErr } = await supabase
       .from('orders')
-      .select('id, product_id, email, status, customer_name')
+      .select('id, product_id, email, status, customer_name, items')
       .eq('id', orderId)
       .maybeSingle();
 
@@ -85,15 +85,21 @@ Deno.serve(async (req) => {
       return json({ eligible: false, reason: 'order_not_found' }, 200);
     }
 
-    if (String(order.product_id) !== productId) {
+    const matchesProduct =
+      String(order.product_id) === productId ||
+      (Array.isArray(order.items) &&
+        order.items.some((i: any) => String(i.productId || i.product_id) === productId));
+
+    if (!matchesProduct) {
       return json({ eligible: false, reason: 'product_mismatch' }, 200);
     }
 
-    // Look up any existing review for this order once.
+    // Look up any existing review for this order and product once.
     const { data: existing, error: existingErr } = await supabase
       .from('reviews')
       .select('id, rating, review, verified, created_at, updated_at')
       .eq('order_id', orderId)
+      .eq('product_id', productId)
       .maybeSingle();
 
     if (existingErr) {

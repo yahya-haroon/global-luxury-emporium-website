@@ -7,7 +7,8 @@ import { normalizeProductOptions } from '../lib/options';
 import { getStripe, createPaymentIntent } from '../lib/stripePayment';
 import { countryNameToIso2 } from '../lib/countryUtils';
 import { ProductReviews } from '../components/ProductReviews';
-import { ArrowLeft, AlertCircle, CheckCircle2, Loader2, ShieldCheck } from 'lucide-react';
+import { useCart } from '../context/CartContext';
+import { ArrowLeft, AlertCircle, CheckCircle2, Loader2, ShieldCheck, ShoppingBag, Truck } from 'lucide-react';
 
 const CARD_ELEMENT_OPTIONS = {
   style: {
@@ -209,6 +210,8 @@ const ProductPageContent: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [completedOrder, setCompletedOrder] = useState<CompletedOrderDetails | null>(null);
+  const { addItem } = useCart();
+  const [addedToCartToast, setAddedToCartToast] = useState(false);
 
   // Initialize delivery zone when settings load
   useEffect(() => {
@@ -398,6 +401,42 @@ const ProductPageContent: React.FC = () => {
     }
 
     return true;
+  };
+
+  const handleAddToBag = () => {
+    setErrorMessage(null);
+
+    // 1. Required product options
+    for (const option of productOptions) {
+      const val = (selectedOptions[option.name] || '').trim();
+      if (option.required && !val) {
+        setErrorMessage(`Please select or enter ${option.label || option.name}.`);
+        return;
+      }
+    }
+
+    // 2. Size
+    if (!selectedSize) {
+      setErrorMessage('Please select a jacket size before adding to bag.');
+      return;
+    }
+
+    addItem({
+      productId: product.id,
+      productName: product.name,
+      price: productPrice,
+      image: selectedImage || product.images[0] || '/assets/products/shearling-aviator-jacket-main.png',
+      size: selectedSize,
+      selectedOptions,
+      personalisationText: personalisationText.trim(),
+      personalisationFee,
+      requirementsText: requirementsText.trim(),
+      requirementsFee,
+      quantity: 1,
+    });
+
+    setAddedToCartToast(true);
+    setTimeout(() => setAddedToCartToast(false), 2500);
   };
 
   const handlePaymentSubmit = async (e: React.FormEvent) => {
@@ -880,8 +919,35 @@ const ProductPageContent: React.FC = () => {
             </div>
           )}
 
+          {/* MULTI-ITEM CART: ADD TO SHOPPING BAG ACTION */}
+          <div className="border-t border-hairline pt-6 space-y-3">
+            <button
+              type="button"
+              onClick={handleAddToBag}
+              className="btn-gold w-full py-3.5 flex items-center justify-center gap-2.5 text-sm uppercase tracking-wider font-semibold shadow-md transition-transform hover:-translate-y-0.5"
+            >
+              <ShoppingBag className="w-4 h-4" />
+              <span>{addedToCartToast ? 'Added to Bag ✓' : 'Add to Shopping Bag'}</span>
+            </button>
+
+            <p className="text-center text-[11px] text-muted font-light flex items-center justify-center gap-1.5">
+              <Truck className="w-3.5 h-3.5 text-gold flex-shrink-0" />
+              <span>
+                <strong>Flat Delivery:</strong> Buy multiple products in one order with single flat-rate shipping.
+              </span>
+            </p>
+
+            <div className="relative flex py-2 items-center">
+              <div className="flex-grow border-t border-hairline"></div>
+              <span className="flex-shrink mx-3 text-[10px] uppercase tracking-widest text-muted font-medium">
+                Or Instant Single-Jacket Checkout
+              </span>
+              <div className="flex-grow border-t border-hairline"></div>
+            </div>
+          </div>
+
           {/* ORDER FORM & ON-SITE STRIPE CHECKOUT */}
-          <form onSubmit={handlePaymentSubmit} className="border-t border-hairline pt-6 space-y-6">
+          <form onSubmit={handlePaymentSubmit} className="pt-2 space-y-6">
             <div>
               <h3 className="sm text-text mb-1" style={{ letterSpacing: '0.18em' }}>
                 Delivery & Contact Details

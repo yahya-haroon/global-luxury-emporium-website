@@ -1598,54 +1598,106 @@ export const AdminPage: React.FC = () => {
 
                           {/* Column 2: Jacket & Bespoke Options */}
                           <div className="space-y-3">
-                            <h4 className="uppercase tracking-wider text-[10px] font-semibold text-gold-dark border-b border-hairline pb-1">
-                              Bespoke Specification
-                            </h4>
-                            <div>
-                              <p className="font-serif text-base text-text font-medium">{order.product_name}</p>
-                              <p className="text-xs text-muted mt-0.5">
-                                Size: <span className="font-semibold text-text uppercase px-1.5 py-0.5 bg-ivory rounded border border-hairline ml-1">{order.size}</span>
-                              </p>
+                            <div className="flex items-center justify-between border-b border-hairline pb-1">
+                              <h4 className="uppercase tracking-wider text-[10px] font-semibold text-gold-dark">
+                                Bespoke Specification
+                              </h4>
+                              {order.items && order.items.length > 1 && (
+                                <span className="text-[10px] bg-gold/15 text-gold-dark px-1.5 py-0.5 rounded font-semibold">
+                                  {order.items.reduce((acc, i) => acc + (i.quantity || 1), 0)} items
+                                </span>
+                              )}
                             </div>
 
-                            {/* Dynamically selected product options (e.g. Color) */}
-                            {order.selected_options && Object.keys(order.selected_options).length > 0 && (
-                              <div className="space-y-1 pt-1">
-                                {Object.entries(order.selected_options).map(([optName, optVal]) => (
-                                  <p key={optName} className="text-muted">
-                                    <span className="font-medium text-text">{optName}:</span> {optVal}
-                                  </p>
+                            {order.items && order.items.length > 0 ? (
+                              <div className="space-y-3 divide-y divide-hairline/60">
+                                {order.items.map((item, idx) => (
+                                  <div key={idx} className="pt-2 first:pt-0 space-y-1.5">
+                                    <div className="flex justify-between items-start gap-2">
+                                      <p className="font-serif text-sm text-text font-medium">
+                                        {item.productName}
+                                      </p>
+                                      <span className="text-gold font-medium">
+                                        {settings.currency}{(item.price * (item.quantity || 1)).toFixed(2)}
+                                      </span>
+                                    </div>
+
+                                    <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+                                      <span className="font-semibold text-text uppercase px-1.5 py-0.5 bg-ivory rounded border border-hairline">
+                                        Size: {item.size}
+                                      </span>
+                                      <span className="text-muted px-1.5 py-0.5 bg-ivory rounded border border-hairline">
+                                        Qty: {item.quantity || 1}
+                                      </span>
+                                      {item.selectedOptions &&
+                                        Object.entries(item.selectedOptions).map(([k, v]) => (
+                                          <span key={k} className="text-muted px-1.5 py-0.5 bg-ivory rounded border border-hairline">
+                                            {k}: {v}
+                                          </span>
+                                        ))}
+                                    </div>
+
+                                    {item.personalisationText && (
+                                      <p className="text-[11px] text-gold-dark italic font-serif">
+                                        Monogram: "{item.personalisationText}"
+                                        {item.personalisationFee ? ` (+${settings.currency}${item.personalisationFee.toFixed(2)})` : ''}
+                                      </p>
+                                    )}
+
+                                    {item.requirementsText && (
+                                      <p className="text-[10px] text-muted whitespace-pre-wrap">
+                                        Note: {item.requirementsText}
+                                      </p>
+                                    )}
+                                  </div>
                                 ))}
                               </div>
+                            ) : (
+                              <div>
+                                <div>
+                                  <p className="font-serif text-base text-text font-medium">{order.product_name}</p>
+                                  <p className="text-xs text-muted mt-0.5">
+                                    Size: <span className="font-semibold text-text uppercase px-1.5 py-0.5 bg-ivory rounded border border-hairline ml-1">{order.size}</span>
+                                  </p>
+                                </div>
+
+                                {order.selected_options && Object.keys(order.selected_options).length > 0 && (
+                                  <div className="space-y-1 pt-1">
+                                    {Object.entries(order.selected_options).map(([optName, optVal]) => (
+                                      <p key={optName} className="text-muted">
+                                        <span className="font-medium text-text">{optName}:</span> {optVal}
+                                      </p>
+                                    ))}
+                                  </div>
+                                )}
+
+                                <div className="pt-1">
+                                  <span className="text-[10px] uppercase tracking-wider text-muted font-medium block">
+                                    Personalisation
+                                  </span>
+                                  {order.personalisation_text ? (
+                                    <p className="italic text-text font-serif text-sm bg-ivory/60 p-2 rounded border border-hairline mt-1">
+                                      "{order.personalisation_text}"
+                                    </p>
+                                  ) : (
+                                    <p className="text-muted text-[11px] italic mt-0.5">None requested</p>
+                                  )}
+                                </div>
+
+                                <div className="pt-1">
+                                  <span className="text-[10px] uppercase tracking-wider text-muted font-medium block">
+                                    Additional Requirements
+                                  </span>
+                                  {order.requirements_text ? (
+                                    <p className="text-text text-xs bg-ivory/60 p-2 rounded border border-hairline mt-1 whitespace-pre-wrap">
+                                      {order.requirements_text}
+                                    </p>
+                                  ) : (
+                                    <p className="text-muted text-[11px] italic mt-0.5">None requested</p>
+                                  )}
+                                </div>
+                              </div>
                             )}
-
-                            {/* Personalisation */}
-                            <div className="pt-1">
-                              <span className="text-[10px] uppercase tracking-wider text-muted font-medium block">
-                                Personalisation
-                              </span>
-                              {order.personalisation_text ? (
-                                <p className="italic text-text font-serif text-sm bg-ivory/60 p-2 rounded border border-hairline mt-1">
-                                  "{order.personalisation_text}"
-                                </p>
-                              ) : (
-                                <p className="text-muted text-[11px] italic mt-0.5">None requested</p>
-                              )}
-                            </div>
-
-                            {/* Requirements */}
-                            <div className="pt-1">
-                              <span className="text-[10px] uppercase tracking-wider text-muted font-medium block">
-                                Additional Requirements
-                              </span>
-                              {order.requirements_text ? (
-                                <p className="text-text text-xs bg-ivory/60 p-2 rounded border border-hairline mt-1 whitespace-pre-wrap">
-                                  {order.requirements_text}
-                                </p>
-                              ) : (
-                                <p className="text-muted text-[11px] italic mt-0.5">None requested</p>
-                              )}
-                            </div>
                           </div>
 
                           {/* Column 3: Itemised Charges & Stripe Intent */}
@@ -1655,7 +1707,9 @@ export const AdminPage: React.FC = () => {
                             </h4>
                             <div className="space-y-1.5 divide-y divide-hairline/60">
                               <div className="flex justify-between items-center py-1">
-                                <span className="text-muted">Jacket Price:</span>
+                                <span className="text-muted">
+                                  {order.items && order.items.length > 1 ? 'Jackets Subtotal:' : 'Jacket Price:'}
+                                </span>
                                 <span className="text-text font-medium">
                                   {settings.currency}{order.product_price.toFixed(2)}
                                 </span>
@@ -1680,7 +1734,7 @@ export const AdminPage: React.FC = () => {
                               )}
 
                               <div className="flex justify-between items-center py-1">
-                                <span className="text-muted">Delivery ({order.delivery_zone}):</span>
+                                <span className="text-muted">Delivery ({order.delivery_zone} — Flat Rate):</span>
                                 <span className="text-text font-medium">
                                   {order.delivery_price > 0
                                     ? `${settings.currency}${order.delivery_price.toFixed(2)}`

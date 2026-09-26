@@ -77,6 +77,21 @@ export interface OrderAddress {
   country: string;
 }
 
+export interface CartItem {
+  id: string; // unique line ID based on product, size, options
+  productId: string;
+  productName: string;
+  price: number;
+  image: string;
+  size: string;
+  selectedOptions?: Record<string, string>;
+  personalisationText?: string;
+  personalisationFee?: number;
+  requirementsText?: string;
+  requirementsFee?: number;
+  quantity: number;
+}
+
 export interface Order {
   id: string;
   product_id: string;
@@ -97,6 +112,7 @@ export interface Order {
   address: OrderAddress;
   status: OrderStatus;
   stripe_payment_intent_id: string;
+  items?: CartItem[];
   created_at: string;
   updated_at?: string;
 }

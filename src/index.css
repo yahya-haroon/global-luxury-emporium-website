@@ -317,6 +317,47 @@ nav.main-nav a:hover::after, nav.main-nav button:hover::after {
   }
 }
 
+@media (max-width: 639px) {
+  .wm {
+    gap: 8px;
+  }
+  .wm span {
+    font-size: 13px;
+    letter-spacing: .18em;
+  }
+  .wm img {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+/* Drawer & Modal Animations */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
 /* Hero Opening Curtain & Banner */
 .bn {
   position: relative;
