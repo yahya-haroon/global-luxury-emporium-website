@@ -15,7 +15,20 @@ export const Collection: React.FC<CollectionProps> = () => {
   const sectionRef = useRef<HTMLElement | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
 
-  const categories = ['All', 'Women', 'Men'];
+  const categories = React.useMemo(() => {
+    const set = new Set<string>();
+    set.add('All');
+    products.forEach((p) => {
+      if (p.category && p.category.trim()) {
+        set.add(p.category.trim());
+      }
+    });
+    if (set.size === 1) {
+      set.add('Women');
+      set.add('Men');
+    }
+    return Array.from(set);
+  }, [products]);
 
   // Build a lowercase searchable string from existing product fields only
   // (name, description, category, sizes, and option names/labels/values).
@@ -34,7 +47,8 @@ export const Collection: React.FC<CollectionProps> = () => {
 
   const filteredProducts = products.filter((p) => {
     const matchesCategory =
-      activeCategory === 'All' || p.category.toLowerCase() === activeCategory.toLowerCase();
+      activeCategory === 'All' ||
+      (p.category && p.category.trim().toLowerCase() === activeCategory.trim().toLowerCase());
     if (!matchesCategory) return false;
     if (tokens.length === 0) return true;
     const haystack = buildHaystack(p);

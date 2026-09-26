@@ -7,31 +7,40 @@ export const CategoryGrid: React.FC = () => {
   const { products, setActiveCategory, homepageSlots } = useData();
   const tiles = products.slice(0, 4);
 
-  const goCategory = (category: string) => {
-    setActiveCategory(category);
-    document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
-
   const menSlot = homepageSlots.category_men;
   const menSrc = menSlot?.image_url || '/assets/products/product-3-detail.jpg';
   const menIsVideo = isVideoMedia(menSlot);
+  const menTitle = menSlot?.title?.trim() || "Men's jackets";
 
   const womenSlot = homepageSlots.category_women;
   const womenSrc = womenSlot?.image_url || '/assets/products/product-2-detail.jpg';
   const womenIsVideo = isVideoMedia(womenSlot);
+  const womenTitle = womenSlot?.title?.trim() || "Women's jackets";
 
-  const tileImage = (index: number, product: (typeof tiles)[number]) =>
-    homepageSlots[`category_${index + 1}`]?.image_url ||
-    DEFAULT_CATEGORY_TILE_IMAGES[product.id] ||
-    product.images[0];
-
-  const tileAlt = (index: number, product: (typeof tiles)[number]) =>
-    homepageSlots[`category_${index + 1}`]?.alt_text || product.name;
+  const goCategory = (categoryTitle: string) => {
+    // Check if category title directly matches any product's category
+    const directMatch = products.find(
+      (p) => p.category?.trim().toLowerCase() === categoryTitle.trim().toLowerCase()
+    );
+    if (directMatch) {
+      setActiveCategory(directMatch.category);
+    } else {
+      const lower = categoryTitle.toLowerCase();
+      if (lower.includes('women') || lower.includes('ladies')) {
+        setActiveCategory('Women');
+      } else if (lower.includes('men') || lower.includes('gent')) {
+        setActiveCategory('Men');
+      } else {
+        setActiveCategory(categoryTitle);
+      }
+    }
+    document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   return (
     <section className="cat-sec" aria-label="Shop by category">
       <div className="cat-grid">
-        <button type="button" className="cat-tile wide" onClick={() => goCategory('Men')}>
+        <button type="button" className="cat-tile wide" onClick={() => goCategory(menTitle)}>
           {menIsVideo ? (
             <video
               src={menSrc}
@@ -49,10 +58,10 @@ export const CategoryGrid: React.FC = () => {
             />
           )}
           <span className="cat-shade" aria-hidden="true" />
-          <span className="cat-label sm">Men&rsquo;s jackets</span>
+          <span className="cat-label sm">{menTitle}</span>
         </button>
 
-        <button type="button" className="cat-tile wide" onClick={() => goCategory('Women')}>
+        <button type="button" className="cat-tile wide" onClick={() => goCategory(womenTitle)}>
           {womenIsVideo ? (
             <video
               src={womenSrc}
@@ -70,16 +79,28 @@ export const CategoryGrid: React.FC = () => {
             />
           )}
           <span className="cat-shade" aria-hidden="true" />
-          <span className="cat-label sm">Women&rsquo;s jackets</span>
+          <span className="cat-label sm">{womenTitle}</span>
         </button>
 
         {tiles.map((product, index) => {
           const tileSlot = homepageSlots[`category_${index + 1}`];
-          const src = tileImage(index, product);
+          const assignedProduct =
+            tileSlot?.product_id
+              ? products.find((p) => p.id === tileSlot.product_id)
+              : product;
+          const currentProduct = assignedProduct || product;
+
+          const src =
+            tileSlot?.image_url ||
+            DEFAULT_CATEGORY_TILE_IMAGES[currentProduct.id] ||
+            currentProduct.images[0];
+
           const isVideo = isVideoMedia(tileSlot) || (typeof src === 'string' && /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(src));
+          const tileTitle = tileSlot?.title?.trim() || currentProduct.name;
+          const tileAlt = tileSlot?.alt_text || currentProduct.name;
 
           return (
-            <Link key={product.id} className="cat-tile" to={`/product/${product.id}`}>
+            <Link key={currentProduct.id} className="cat-tile" to={`/product/${currentProduct.id}`}>
               {isVideo ? (
                 <video
                   src={src}
@@ -92,12 +113,12 @@ export const CategoryGrid: React.FC = () => {
               ) : (
                 <img
                   src={src}
-                  alt={tileAlt(index, product)}
+                  alt={tileAlt}
                   loading="lazy"
                 />
               )}
               <span className="cat-shade" aria-hidden="true" />
-              <span className="cat-label sm">{product.name}</span>
+              <span className="cat-label sm">{tileTitle}</span>
             </Link>
           );
         })}

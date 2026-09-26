@@ -26,12 +26,16 @@ import {
   BadgeCheck,
   ArrowUp,
   ArrowDown,
+  ArrowLeft,
+  ArrowRight,
+  GripVertical,
   Image as ImageIcon,
   RotateCcw,
   Check,
   Palette,
   Video,
   Link2,
+  Tag,
 } from 'lucide-react';
 import {
   ColorTheme,
@@ -44,6 +48,7 @@ import {
   HOMEPAGE_SLOT_SECTIONS,
   DEFAULT_WHY_SLIDES,
   DEFAULT_FEATURED_IMAGES,
+  DEFAULT_CATEGORY_TILE_IMAGES,
   uploadHomepageImage,
   deleteHomepageImageObject,
   validateHomepageImageFile,
@@ -358,6 +363,14 @@ export const AdminPage: React.FC = () => {
     Record<string, { product_id?: string; alt_text?: string }>
   >({});
   const [altEdits, setAltEdits] = useState<Record<string, string>>({});
+  const [categoryTitleEdits, setCategoryTitleEdits] = useState<Record<string, string>>({});
+
+  // Category renaming across products
+  const [isRenameCategoryOpen, setIsRenameCategoryOpen] = useState(false);
+  const [renameCategoryFrom, setRenameCategoryFrom] = useState('');
+  const [renameCategoryTo, setRenameCategoryTo] = useState('');
+  const [isRenamingCategory, setIsRenamingCategory] = useState(false);
+  const [renameCategoryMsg, setRenameCategoryMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const [urlInputSlotKey, setUrlInputSlotKey] = useState<string | null>(null);
   const [urlInputValue, setUrlInputValue] = useState('');
@@ -580,6 +593,87 @@ export const AdminPage: React.FC = () => {
     }
   };
 
+  const handleSaveCategoryTitle = async (slotDef: HomepageSlotDef) => {
+    setIsSavingSlotKey(slotDef.key);
+    setHomepageMsg(null);
+    try {
+      const existing = homepageImages.find((r) => r.slot_key === slotDef.key);
+      const categoryTileIndex =
+        slotDef.key.startsWith('category_') && !['category_men', 'category_women'].includes(slotDef.key)
+          ? parseInt(slotDef.key.replace('category_', ''), 10) - 1
+          : -1;
+      const defaultCategoryProduct = categoryTileIndex >= 0 ? products[categoryTileIndex] : undefined;
+      const defaultTitle =
+        slotDef.key === 'category_men'
+          ? "Men's jackets"
+          : slotDef.key === 'category_women'
+          ? "Women's jackets"
+          : (defaultCategoryProduct?.name || slotDef.label);
+
+      const edits = categoryTitleEdits[slotDef.key];
+      const title = edits !== undefined ? edits : (existing?.title ?? defaultTitle);
+
+      const selectedProductId =
+        featuredEdits[slotDef.key]?.product_id !== undefined
+          ? featuredEdits[slotDef.key].product_id
+          : (existing?.product_id || (defaultCategoryProduct?.id ?? null));
+
+      const result = await saveHomepageSlot(slotDef.key, {
+        title,
+        product_id: selectedProductId || null,
+      });
+      if (result.error) throw new Error(result.error);
+      setHomepageMsg({ type: 'success', text: `Tag & details saved for "${slotDef.label}".` });
+    } catch (err: any) {
+      setHomepageMsg({ type: 'error', text: err.message || 'Failed to save tag.' });
+    } finally {
+      setIsSavingSlotKey(null);
+    }
+  };
+
+  const handleRenameCategorySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!renameCategoryFrom.trim() || !renameCategoryTo.trim()) {
+      setRenameCategoryMsg({ type: 'error', text: 'Please choose an existing category and enter the new category title.' });
+      return;
+    }
+    if (renameCategoryFrom.trim().toLowerCase() === renameCategoryTo.trim().toLowerCase()) {
+      setRenameCategoryMsg({ type: 'error', text: 'New category title must be different.' });
+      return;
+    }
+
+    setIsRenamingCategory(true);
+    setRenameCategoryMsg(null);
+    try {
+      const targets = products.filter(
+        (p) => p.category?.trim().toLowerCase() === renameCategoryFrom.trim().toLowerCase()
+      );
+      if (targets.length === 0) {
+        setRenameCategoryMsg({ type: 'error', text: `No products currently have category "${renameCategoryFrom}".` });
+        return;
+      }
+
+      for (const p of targets) {
+        await saveProduct({ id: p.id, category: renameCategoryTo.trim() });
+      }
+
+      setRenameCategoryMsg({
+        type: 'success',
+        text: `Successfully updated ${targets.length} product(s) to "${renameCategoryTo.trim()}".`,
+      });
+      setTimeout(() => {
+        setIsRenameCategoryOpen(false);
+        setRenameCategoryFrom('');
+        setRenameCategoryTo('');
+        setRenameCategoryMsg(null);
+      }, 1500);
+    } catch (err: any) {
+      setRenameCategoryMsg({ type: 'error', text: err.message || 'Failed to rename category across products.' });
+    } finally {
+      setIsRenamingCategory(false);
+    }
+  };
+
   const addDeliveryZone = () => {
     const newZone = {
       id: `zone_${Date.now()}`,
@@ -697,10 +791,16 @@ export const AdminPage: React.FC = () => {
     }
   };
 
-  // Handle Multi-image selection & client compression
-  const handleImageFilesSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length === 0) return;
+  // Drag and drop state for desktop file dropzone
+  const [isDraggingFiles, setIsDraggingFiles] = useState(false);
+
+  // Drag and drop state for thumbnail reordering
+  const [draggedImageIndex, setDraggedImageIndex] = useState<number | null>(null);
+  const [dragOverImageIndex, setDragOverImageIndex] = useState<number | null>(null);
+
+  // Process & Upload Image Files (shared between file picker and drag-and-drop dropzone)
+  const processAndUploadImageFiles = async (files: File[]) => {
+    if (!files || files.length === 0) return;
 
     const currentImages = currentProduct.images || [];
     const availableSlots = 8 - currentImages.length;
@@ -744,8 +844,90 @@ export const AdminPage: React.FC = () => {
       setProductFormError(`Failed to process images: ${err.message}`);
     } finally {
       setIsUploadingImages(false);
-      if (e.target) e.target.value = '';
     }
+  };
+
+  const handleImageFilesSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    await processAndUploadImageFiles(files);
+    if (e.target) e.target.value = '';
+  };
+
+  // Dropzone drag-and-drop file upload handlers
+  const handleDropzoneDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isDraggingFiles) setIsDraggingFiles(true);
+  };
+
+  const handleDropzoneDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingFiles(false);
+  };
+
+  const handleDropzoneDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingFiles(false);
+
+    const droppedFiles = Array.from(e.dataTransfer.files || []).filter((f) =>
+      f.type.startsWith('image/')
+    );
+
+    if (droppedFiles.length === 0) {
+      setProductFormError('Please drop valid image files (JPG, PNG, WebP).');
+      return;
+    }
+
+    await processAndUploadImageFiles(droppedFiles);
+  };
+
+  // Thumbnail drag-and-drop reorder handlers
+  const handleThumbnailDragStart = (e: React.DragEvent, index: number) => {
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', String(index));
+    setDraggedImageIndex(index);
+  };
+
+  const handleThumbnailDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (dragOverImageIndex !== index) {
+      setDragOverImageIndex(index);
+    }
+  };
+
+  const handleThumbnailDragEnd = () => {
+    setDraggedImageIndex(null);
+    setDragOverImageIndex(null);
+  };
+
+  const handleThumbnailDrop = (e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (draggedImageIndex === null || draggedImageIndex === targetIndex) {
+      setDraggedImageIndex(null);
+      setDragOverImageIndex(null);
+      return;
+    }
+
+    const imgs = [...(currentProduct.images || [])];
+    const [moved] = imgs.splice(draggedImageIndex, 1);
+    imgs.splice(targetIndex, 0, moved);
+
+    setCurrentProduct((prev) => ({ ...prev, images: imgs }));
+    setDraggedImageIndex(null);
+    setDragOverImageIndex(null);
+  };
+
+  const handleMoveImage = (fromIndex: number, delta: number) => {
+    const toIndex = fromIndex + delta;
+    const imgs = [...(currentProduct.images || [])];
+    if (toIndex < 0 || toIndex >= imgs.length) return;
+    const [moved] = imgs.splice(fromIndex, 1);
+    imgs.splice(toIndex, 0, moved);
+    setCurrentProduct((prev) => ({ ...prev, images: imgs }));
   };
 
   const handleMakeMainImage = (index: number) => {
@@ -1264,16 +1446,26 @@ export const AdminPage: React.FC = () => {
         {/* TAB 1: PRODUCTS MANAGEMENT */}
         {activeTab === 'products' && (
           <div>
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
               <p className="text-muted text-sm font-light">
                 Manage your bespoke jacket catalog, photos, sizes, and custom options.
               </p>
-              <button
-                onClick={() => openEditModal()}
-                className="btn-gold text-xs py-2 px-4 flex items-center gap-1.5"
-              >
-                <Plus className="w-4 h-4" /> Add product
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsRenameCategoryOpen(true)}
+                  className="btn-ghost text-xs py-2 px-3 flex items-center gap-1.5"
+                  title="Rename category across catalog"
+                >
+                  <Tag className="w-3.5 h-3.5" /> Rename Category
+                </button>
+                <button
+                  onClick={() => openEditModal()}
+                  className="btn-gold text-xs py-2 px-4 flex items-center gap-1.5"
+                >
+                  <Plus className="w-4 h-4" /> Add product
+                </button>
+              </div>
             </div>
 
             {/* Products Table/List */}
@@ -2377,29 +2569,50 @@ export const AdminPage: React.FC = () => {
                         const isActive = configured?.is_active ?? true;
                         const isWhyChoose = slot.section === 'Why Choose';
                         const isFeatured = slot.section === 'Featured Products';
+                        const isCategories = slot.section === 'Categories';
                         const fallbackWhy = DEFAULT_WHY_SLIDES.find((d) => d.key === slot.key);
 
-                        // Selected product for featured highlight
+                        // Category tile detection (category_1, category_2, category_3, category_4)
+                        const categoryTileIndex =
+                          slot.key.startsWith('category_') && !['category_men', 'category_women'].includes(slot.key)
+                            ? parseInt(slot.key.replace('category_', ''), 10) - 1
+                            : -1;
+                        const defaultCategoryProduct = categoryTileIndex >= 0 ? products[categoryTileIndex] : undefined;
+
+                        // Selected product for featured highlight or category tile
                         const selectedProductId =
                           featuredEdits[slot.key]?.product_id !== undefined
                             ? featuredEdits[slot.key].product_id
                             : configured?.product_id;
+
                         const assignedProduct = isFeatured
-                          ? products.find((p) => p.id === selectedProductId)
-                          : undefined;
+                          ? (selectedProductId ? products.find((p) => p.id === selectedProductId) : undefined)
+                          : (categoryTileIndex >= 0
+                              ? (selectedProductId ? products.find((p) => p.id === selectedProductId) : defaultCategoryProduct)
+                              : undefined);
 
                         // Resolved image preview URL
                         const resolvedUrl =
                           configured?.image_url ||
                           (isFeatured && assignedProduct
                             ? (DEFAULT_FEATURED_IMAGES[assignedProduct.id] || assignedProduct.images[1] || assignedProduct.images[0])
-                            : slot.defaultUrl);
+                            : (categoryTileIndex >= 0 && assignedProduct
+                                ? (DEFAULT_CATEGORY_TILE_IMAGES[assignedProduct.id] || assignedProduct.images[0])
+                                : slot.defaultUrl));
 
                         // Resolved alt text
                         const resolvedAlt =
                           altEdits[slot.key] !== undefined
                             ? altEdits[slot.key]
-                            : (configured?.alt_text ?? (isWhyChoose ? fallbackWhy?.alt : slot.defaultAlt) ?? '');
+                            : (configured?.alt_text ?? (isWhyChoose ? fallbackWhy?.alt : (assignedProduct?.name || slot.defaultAlt)) ?? '');
+
+                        // Resolved default tag for categories
+                        const defaultTag =
+                          slot.key === 'category_men'
+                            ? "Men's jackets"
+                            : slot.key === 'category_women'
+                            ? "Women's jackets"
+                            : (assignedProduct?.name || (categoryTileIndex >= 0 ? `Category Tile ${categoryTileIndex + 1}` : slot.label));
 
                         // Current title & description for Why Choose
                         const currentTitle =
@@ -2421,7 +2634,11 @@ export const AdminPage: React.FC = () => {
                             {/* Card top bar */}
                             <div className="flex items-start justify-between gap-2">
                               <div>
-                                <h3 className="font-serif text-base text-text font-medium">{slot.label}</h3>
+                                <h3 className="font-serif text-base text-text font-medium">
+                                  {categoryTileIndex >= 0 && assignedProduct
+                                    ? `${slot.label} (${assignedProduct.name})`
+                                    : slot.label}
+                                </h3>
                                 <code className="text-[10px] bg-ivory px-1.5 py-0.5 rounded text-muted font-mono inline-block mt-0.5">
                                   {slot.key}
                                 </code>
@@ -2712,6 +2929,84 @@ export const AdminPage: React.FC = () => {
                                     <span>Save Highlight</span>
                                   </button>
                                 </div>
+                              </div>
+                            )}
+
+                            {/* Categories specific controls: Tag on Image and Optional Product Link */}
+                            {isCategories && (
+                              <div className="pt-3 border-t border-hairline/80 space-y-3">
+                                <div>
+                                  <label className="block text-[11px] uppercase tracking-wider font-semibold text-black mb-1">
+                                    Tag / Label on Image
+                                  </label>
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="text"
+                                      value={
+                                        categoryTitleEdits[slot.key] !== undefined
+                                          ? categoryTitleEdits[slot.key]
+                                          : (configured?.title ?? defaultTag)
+                                      }
+                                      onChange={(e) =>
+                                        setCategoryTitleEdits((prev) => ({
+                                          ...prev,
+                                          [slot.key]: e.target.value,
+                                        }))
+                                      }
+                                      placeholder={defaultTag}
+                                      className="flex-1 bg-white border border-neutral-300 text-black px-2.5 py-1.5 text-xs rounded focus:outline-none focus:border-black font-medium"
+                                    />
+                                    <button
+                                      type="button"
+                                      onClick={() => handleSaveCategoryTitle(slot)}
+                                      disabled={isSavingSlotKey === slot.key}
+                                      className="btn-gold text-xs py-1.5 px-3 flex items-center gap-1 flex-shrink-0"
+                                    >
+                                      {isSavingSlotKey === slot.key ? (
+                                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                      ) : (
+                                        <Check className="w-3.5 h-3.5" />
+                                      )}
+                                      <span>Save Tag</span>
+                                    </button>
+                                  </div>
+                                  <p className="text-[10px] text-neutral-600 mt-1">
+                                    This text appears in the dark label tag overlay on the category image (e.g. &quot;Quilted Leather Jacket&quot;).
+                                  </p>
+                                </div>
+
+                                {categoryTileIndex >= 0 && (
+                                  <div>
+                                    <label className="block text-[11px] uppercase tracking-wider font-semibold text-black mb-1">
+                                      Linked Jacket in Catalog
+                                    </label>
+                                    <select
+                                      value={selectedProductId || (defaultCategoryProduct?.id ?? '')}
+                                      onChange={(e) => {
+                                        const newPid = e.target.value;
+                                        setFeaturedEdits((prev) => ({
+                                          ...prev,
+                                          [slot.key]: { ...prev[slot.key], product_id: newPid },
+                                        }));
+                                        const chosen = products.find((p) => p.id === newPid);
+                                        if (chosen && !configured?.title && categoryTitleEdits[slot.key] === undefined) {
+                                          setCategoryTitleEdits((prev) => ({
+                                            ...prev,
+                                            [slot.key]: chosen.name,
+                                          }));
+                                        }
+                                      }}
+                                      className="w-full bg-white border border-neutral-300 text-black px-2.5 py-1.5 text-xs rounded focus:outline-none focus:border-black"
+                                    >
+                                      <option value="">-- Choose Jacket --</option>
+                                      {products.map((p) => (
+                                        <option key={p.id} value={p.id}>
+                                          {p.name} ({settings.currency}{p.price.toFixed(2)})
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                )}
                               </div>
                             )}
 
@@ -3585,8 +3880,8 @@ export const AdminPage: React.FC = () => {
             if (e.target === e.currentTarget) setIsEditingProduct(false);
           }}
         >
-          <div className="relative w-full max-w-2xl max-h-[92vh] overflow-y-auto bg-white border border-hairline rounded-lg p-6 sm:p-8 shadow-2xl">
-            <h2 className="font-serif text-2xl sm:text-3xl text-gradient-gold mb-4">
+          <div className="relative w-full max-w-2xl max-h-[92vh] overflow-y-auto bg-white border border-hairline rounded-lg p-6 sm:p-8 shadow-2xl text-black">
+            <h2 className="font-serif text-2xl sm:text-3xl text-black font-semibold mb-4">
               {currentProduct.id ? 'Edit Product' : 'Add New Jacket'}
             </h2>
 
@@ -3596,68 +3891,177 @@ export const AdminPage: React.FC = () => {
               </div>
             )}
 
-            <form onSubmit={handleSaveProduct} className="space-y-4">
-              {/* Multi-Image Upload & Thumbnails */}
-              <div>
-                <label className="block text-xs uppercase tracking-wider font-medium text-text mb-1">
-                  Photos (First is main photo, second shows on hover, up to 8 photos)
-                </label>
-
-                {/* Existing thumbnails */}
-                <div className="flex flex-wrap gap-3 mb-3">
-                  {(currentProduct.images || []).map((img, idx) => (
-                    <div key={idx} className="relative w-20 h-24 border border-hairline rounded overflow-hidden group bg-ivory">
-                      <img src={img} alt={`Upload ${idx + 1}`} className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1 p-1">
-                        {idx !== 0 ? (
-                          <button
-                            type="button"
-                            onClick={() => handleMakeMainImage(idx)}
-                            className="text-[9px] bg-gold text-black px-1.5 py-0.5 rounded uppercase font-semibold"
-                          >
-                            Main
-                          </button>
-                        ) : (
-                          <span className="text-[9px] text-white uppercase font-bold tracking-wider">
-                            Main
-                          </span>
-                        )}
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveImage(idx)}
-                          className="text-[9px] bg-red-600 text-white px-1.5 py-0.5 rounded"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+            <form onSubmit={handleSaveProduct} className="space-y-4 text-black">
+              {/* Drag-and-Drop Photo Manager */}
+              <div className="space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-1">
+                  <label className="block text-xs uppercase tracking-wider font-semibold text-black">
+                    Product Photos ({(currentProduct.images || []).length}/8)
+                  </label>
+                  <span className="text-[11px] text-black font-normal">
+                    Drag photos to rearrange &bull; 1st photo is main thumbnail
+                  </span>
                 </div>
 
-                {/* Upload Button */}
+                {/* Dropzone Area for Dragging & Dropping Files from Computer */}
                 {(currentProduct.images || []).length < 8 && (
-                  <div className="relative">
-                    <label className="btn-ghost inline-flex items-center gap-2 cursor-pointer text-xs">
-                      {isUploadingImages ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin text-gold" />
-                          <span>Compressing & Uploading...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Upload className="w-4 h-4" />
-                          <span>Upload Photos (Max 8)</span>
-                        </>
-                      )}
-                      <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        disabled={isUploadingImages}
-                        onChange={handleImageFilesSelected}
-                        className="hidden"
-                      />
-                    </label>
+                  <div
+                    onDragOver={handleDropzoneDragOver}
+                    onDragLeave={handleDropzoneDragLeave}
+                    onDrop={handleDropzoneDrop}
+                    className={`relative border-2 border-dashed rounded-lg p-5 text-center transition-all duration-200 cursor-pointer ${
+                      isDraggingFiles
+                        ? 'border-gold bg-gold/15 scale-[1.01] shadow-md'
+                        : 'border-hairline hover:border-gold/60 bg-ivory/50'
+                    }`}
+                  >
+                    <input
+                      type="file"
+                      id="product-photo-file-input"
+                      accept="image/*"
+                      multiple
+                      disabled={isUploadingImages}
+                      onChange={handleImageFilesSelected}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    />
+
+                    {isUploadingImages ? (
+                      <div className="flex flex-col items-center justify-center py-2 space-y-2">
+                        <Loader2 className="w-8 h-8 animate-spin text-gold" />
+                        <span className="text-xs font-semibold text-black">
+                          Compressing &amp; uploading photos to storage...
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center py-2 space-y-1.5 pointer-events-none">
+                        <div className="w-10 h-10 rounded-full bg-gold/10 text-gold flex items-center justify-center mb-1">
+                          <Upload className="w-5 h-5" />
+                        </div>
+                        <p className="text-xs font-semibold text-black">
+                          <span className="text-gold font-bold">Drag &amp; drop product photos here</span>, or click to browse
+                        </p>
+                        <p className="text-[11px] text-black font-normal">
+                          Supports JPG, PNG, WebP &bull; Auto-compressed to 1200px (Max 8 photos)
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Draggable Reorderable Thumbnails Grid */}
+                {(currentProduct.images || []).length > 0 && (
+                  <div className="space-y-2 pt-1">
+                    <p className="text-[10px] uppercase tracking-wider text-black font-bold">
+                      Arrangement (Drag cards or use arrows to rearrange):
+                    </p>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      {(currentProduct.images || []).map((img, idx) => (
+                        <div
+                          key={`${img}-${idx}`}
+                          draggable
+                          onDragStart={(e) => handleThumbnailDragStart(e, idx)}
+                          onDragOver={(e) => handleThumbnailDragOver(e, idx)}
+                          onDragEnd={handleThumbnailDragEnd}
+                          onDrop={(e) => handleThumbnailDrop(e, idx)}
+                          className={`relative border rounded-lg overflow-hidden group bg-ivory transition-all duration-200 cursor-grab active:cursor-grabbing select-none ${
+                            draggedImageIndex === idx
+                              ? 'opacity-30 scale-95 border-gold ring-2 ring-gold/40'
+                              : dragOverImageIndex === idx
+                              ? 'border-gold ring-2 ring-gold scale-[1.03] shadow-md'
+                              : 'border-hairline hover:border-gold/70 hover:shadow-sm'
+                          }`}
+                        >
+                          {/* Image Container with 4:5 ratio */}
+                          <div className="aspect-[4/5] bg-ivory relative">
+                            <img
+                              src={img}
+                              alt={`Product photo ${idx + 1}`}
+                              className="w-full h-full object-cover pointer-events-none"
+                            />
+
+                            {/* Position Badge */}
+                            <div className="absolute top-1.5 left-1.5 z-10">
+                              {idx === 0 ? (
+                                <span className="text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded shadow-sm bg-gold text-white flex items-center gap-1">
+                                  ★ Main
+                                </span>
+                              ) : idx === 1 ? (
+                                <span className="text-[9px] uppercase font-semibold tracking-wider px-1.5 py-0.5 rounded shadow-sm bg-black/75 text-white/90">
+                                  Hover
+                                </span>
+                              ) : (
+                                <span className="text-[9px] font-mono px-1.5 py-0.5 rounded shadow-sm bg-black/60 text-white">
+                                  #{idx + 1}
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Drag Grip Indicator */}
+                            <div className="absolute top-1.5 right-1.5 z-10 opacity-70 group-hover:opacity-100 bg-black/50 text-white p-0.5 rounded">
+                              <GripVertical className="w-3.5 h-3.5" />
+                            </div>
+
+                            {/* Hover Overlay with Action Buttons */}
+                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1.5 p-2">
+                              {idx !== 0 && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleMakeMainImage(idx);
+                                  }}
+                                  className="text-[10px] bg-gold hover:bg-gold-light text-black px-2.5 py-1 rounded font-semibold uppercase tracking-wider w-full shadow-sm transition-colors"
+                                >
+                                  Make Main
+                                </button>
+                              )}
+
+                              {/* Left / Right arrow shift controls */}
+                              <div className="flex items-center gap-1 w-full justify-center">
+                                <button
+                                  type="button"
+                                  disabled={idx === 0}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleMoveImage(idx, -1);
+                                  }}
+                                  className="p-1 bg-white/20 hover:bg-white/40 disabled:opacity-30 text-white rounded text-xs transition-colors"
+                                  title="Move Left"
+                                >
+                                  <ArrowLeft className="w-3.5 h-3.5" />
+                                </button>
+
+                                <button
+                                  type="button"
+                                  disabled={idx === (currentProduct.images || []).length - 1}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleMoveImage(idx, 1);
+                                  }}
+                                  className="p-1 bg-white/20 hover:bg-white/40 disabled:opacity-30 text-white rounded text-xs transition-colors"
+                                  title="Move Right"
+                                >
+                                  <ArrowRight className="w-3.5 h-3.5" />
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleRemoveImage(idx);
+                                  }}
+                                  className="p-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs transition-colors ml-1"
+                                  title="Remove Image"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
@@ -3665,7 +4069,7 @@ export const AdminPage: React.FC = () => {
               {/* Name & Price */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="sm:col-span-2">
-                  <label className="block text-xs uppercase tracking-wider font-medium text-text mb-1">
+                  <label className="block text-xs uppercase tracking-wider font-semibold text-black mb-1">
                     Jacket Name
                   </label>
                   <input
@@ -3673,12 +4077,12 @@ export const AdminPage: React.FC = () => {
                     required
                     value={currentProduct.name || ''}
                     onChange={(e) => setCurrentProduct({ ...currentProduct, name: e.target.value })}
-                    className="w-full bg-white border border-hairline px-3 py-2 text-sm rounded focus:border-gold"
+                    className="w-full bg-white border border-neutral-300 text-black placeholder:text-neutral-500 px-3 py-2 text-sm rounded focus:border-black focus:ring-1 focus:ring-black outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs uppercase tracking-wider font-medium text-text mb-1">
+                  <label className="block text-xs uppercase tracking-wider font-semibold text-black mb-1">
                     Price ({settings.currency})
                   </label>
                   <input
@@ -3688,7 +4092,7 @@ export const AdminPage: React.FC = () => {
                     step="0.01"
                     value={currentProduct.price ?? ''}
                     onChange={(e) => setCurrentProduct({ ...currentProduct, price: parseFloat(e.target.value) || 0 })}
-                    className="w-full bg-white border border-hairline px-3 py-2 text-sm rounded focus:border-gold"
+                    className="w-full bg-white border border-neutral-300 text-black placeholder:text-neutral-500 px-3 py-2 text-sm rounded focus:border-black focus:ring-1 focus:ring-black outline-none"
                   />
                 </div>
               </div>
@@ -3696,25 +4100,26 @@ export const AdminPage: React.FC = () => {
               {/* Category & Sizes */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs uppercase tracking-wider font-medium text-text mb-1">
-                    Category
+                  <label className="block text-xs uppercase tracking-wider font-semibold text-black mb-1">
+                    Category Title
                   </label>
                   <input
                     type="text"
                     list="category-options"
                     value={currentProduct.category || ''}
                     onChange={(e) => setCurrentProduct({ ...currentProduct, category: e.target.value })}
-                    className="w-full bg-white border border-hairline px-3 py-2 text-sm rounded focus:border-gold"
+                    placeholder="e.g. Women, Men, Unisex..."
+                    className="w-full bg-white border border-neutral-300 text-black placeholder:text-neutral-500 px-3 py-2 text-sm rounded focus:border-black focus:ring-1 focus:ring-black outline-none"
                   />
                   <datalist id="category-options">
-                    <option value="Women" />
-                    <option value="Men" />
-                    <option value="Unisex" />
+                    {Array.from(new Set(['Women', 'Men', 'Unisex', ...products.map((p) => p.category).filter(Boolean)])).map((cat) => (
+                      <option key={cat} value={cat} />
+                    ))}
                   </datalist>
                 </div>
 
                 <div>
-                  <label className="block text-xs uppercase tracking-wider font-medium text-text mb-1">
+                  <label className="block text-xs uppercase tracking-wider font-semibold text-black mb-1">
                     Sizes (comma-separated)
                   </label>
                   <input
@@ -3722,28 +4127,28 @@ export const AdminPage: React.FC = () => {
                     value={currentProduct.sizes || ''}
                     onChange={(e) => setCurrentProduct({ ...currentProduct, sizes: e.target.value })}
                     placeholder="XS, S, M, L, XL"
-                    className="w-full bg-white border border-hairline px-3 py-2 text-sm rounded focus:border-gold"
+                    className="w-full bg-white border border-neutral-300 text-black placeholder:text-neutral-500 px-3 py-2 text-sm rounded focus:border-black focus:ring-1 focus:ring-black outline-none"
                   />
                 </div>
               </div>
 
               {/* Description */}
               <div>
-                <label className="block text-xs uppercase tracking-wider font-medium text-text mb-1">
+                <label className="block text-xs uppercase tracking-wider font-semibold text-black mb-1">
                   Description
                 </label>
                 <textarea
                   rows={3}
                   value={currentProduct.description || ''}
                   onChange={(e) => setCurrentProduct({ ...currentProduct, description: e.target.value })}
-                  className="w-full bg-white border border-hairline px-3 py-2 text-sm rounded focus:border-gold resize-none"
+                  className="w-full bg-white border border-neutral-300 text-black placeholder:text-neutral-500 px-3 py-2 text-sm rounded focus:border-black focus:ring-1 focus:ring-black outline-none resize-none"
                 />
               </div>
 
               {/* Sort Order & Visibility Switch (Requirement 5) */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-3 bg-ivory/60 rounded border border-hairline">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-3 bg-neutral-50 rounded border border-neutral-200">
                 <div>
-                  <label className="block text-xs uppercase tracking-wider font-medium text-text mb-1">
+                  <label className="block text-xs uppercase tracking-wider font-semibold text-black mb-1">
                     Sort Order
                   </label>
                   <input
@@ -3751,17 +4156,17 @@ export const AdminPage: React.FC = () => {
                     min={0}
                     value={currentProduct.sort_order ?? 1}
                     onChange={(e) => setCurrentProduct({ ...currentProduct, sort_order: parseInt(e.target.value) || 0 })}
-                    className="w-full bg-white border border-hairline px-3 py-1.5 text-sm rounded focus:border-gold"
+                    className="w-full bg-white border border-neutral-300 text-black px-3 py-1.5 text-sm rounded focus:border-black focus:ring-1 focus:ring-black outline-none"
                   />
                 </div>
 
                 <div className="flex items-center pt-5">
-                  <label className="flex items-center gap-2 cursor-pointer select-none text-sm text-text">
+                  <label className="flex items-center gap-2 cursor-pointer select-none text-sm text-black font-medium">
                     <input
                       type="checkbox"
                       checked={currentProduct.is_visible ?? true}
                       onChange={(e) => setCurrentProduct({ ...currentProduct, is_visible: e.target.checked })}
-                      className="rounded border-hairline text-gold focus:ring-gold"
+                      className="rounded border-neutral-300 text-black focus:ring-black"
                     />
                     <span>Visible in collection</span>
                   </label>
@@ -3769,27 +4174,27 @@ export const AdminPage: React.FC = () => {
               </div>
 
               {/* Flexible Product Options */}
-              <div className="pt-4 border-t border-hairline space-y-4">
+              <div className="pt-4 border-t border-neutral-200 space-y-4">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <h4 className="text-xs uppercase tracking-wider font-semibold text-gold-dark">
+                    <h4 className="text-xs uppercase tracking-wider font-bold text-black">
                       Product Options
                     </h4>
-                    <p className="text-[11px] text-muted mt-1">
+                    <p className="text-[11px] text-black mt-1">
                       Add options such as Color, Leather Type, Lining, Style, or any other customer choice.
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={addProductOption}
-                    className="btn-ghost text-xs py-1.5 px-3 flex items-center gap-1.5"
+                    className="border border-neutral-300 hover:border-black text-black text-xs py-1.5 px-3 flex items-center gap-1.5 rounded transition-colors font-medium"
                   >
-                    <Plus className="w-3.5 h-3.5" /> Add option
+                    <Plus className="w-3.5 h-3.5 text-black" /> Add option
                   </button>
                 </div>
 
                 {productOptions.length === 0 ? (
-                  <div className="p-4 bg-ivory/60 border border-hairline rounded text-xs text-muted">
+                  <div className="p-4 bg-neutral-50 border border-neutral-200 rounded text-xs text-black">
                     No extra options configured. The existing Size selector will still be shown to customers.
                   </div>
                 ) : (
@@ -3800,16 +4205,16 @@ export const AdminPage: React.FC = () => {
                       return (
                         <div
                           key={optionIndex}
-                          className="border border-hairline rounded-lg p-4 bg-ivory/30 space-y-3"
+                          className="border border-neutral-300 rounded-lg p-4 bg-neutral-50/60 space-y-3"
                         >
                           <div className="flex items-center justify-between gap-2">
-                            <span className="text-xs font-semibold text-text">
+                            <span className="text-xs font-bold text-black">
                               Option {optionIndex + 1}
                             </span>
                             <button
                               type="button"
                               onClick={() => removeProductOption(optionIndex)}
-                              className="text-xs text-red-600 hover:text-red-700 flex items-center gap-1"
+                              className="text-xs text-red-600 hover:text-red-700 flex items-center gap-1 font-medium"
                             >
                               <Trash2 className="w-3.5 h-3.5" /> Remove
                             </button>
@@ -3817,7 +4222,7 @@ export const AdminPage: React.FC = () => {
 
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
-                              <label className="block text-[11px] uppercase tracking-wider font-medium text-text mb-1">
+                              <label className="block text-[11px] uppercase tracking-wider font-semibold text-black mb-1">
                                 Option Name
                               </label>
                               <input
@@ -3827,12 +4232,12 @@ export const AdminPage: React.FC = () => {
                                   updateProductOption(optionIndex, { name: e.target.value })
                                 }
                                 placeholder="e.g. Color"
-                                className="w-full bg-white border border-hairline px-3 py-2 text-sm rounded focus:border-gold"
+                                className="w-full bg-white border border-neutral-300 text-black placeholder:text-neutral-500 px-3 py-2 text-sm rounded focus:border-black focus:ring-1 focus:ring-black outline-none"
                               />
                             </div>
 
                             <div>
-                              <label className="block text-[11px] uppercase tracking-wider font-medium text-text mb-1">
+                              <label className="block text-[11px] uppercase tracking-wider font-semibold text-black mb-1">
                                 Input Type
                               </label>
                               <select
@@ -3843,7 +4248,7 @@ export const AdminPage: React.FC = () => {
                                     e.target.value as ProductOptionType
                                   )
                                 }
-                                className="w-full bg-white border border-hairline px-3 py-2 text-sm rounded focus:border-gold"
+                                className="w-full bg-white border border-neutral-300 text-black px-3 py-2 text-sm rounded focus:border-black focus:ring-1 focus:ring-black outline-none"
                               >
                                 <option value="select">Dropdown</option>
                                 <option value="radio">Buttons</option>
@@ -3856,7 +4261,7 @@ export const AdminPage: React.FC = () => {
 
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
-                              <label className="block text-[11px] uppercase tracking-wider font-medium text-text mb-1">
+                              <label className="block text-[11px] uppercase tracking-wider font-semibold text-black mb-1">
                                 Customer-Facing Label
                               </label>
                               <input
@@ -3866,12 +4271,12 @@ export const AdminPage: React.FC = () => {
                                   updateProductOption(optionIndex, { label: e.target.value })
                                 }
                                 placeholder={option.name || 'Optional label'}
-                                className="w-full bg-white border border-hairline px-3 py-2 text-sm rounded focus:border-gold"
+                                className="w-full bg-white border border-neutral-300 text-black placeholder:text-neutral-500 px-3 py-2 text-sm rounded focus:border-black focus:ring-1 focus:ring-black outline-none"
                               />
                             </div>
 
                             <div>
-                              <label className="block text-[11px] uppercase tracking-wider font-medium text-text mb-1">
+                              <label className="block text-[11px] uppercase tracking-wider font-semibold text-black mb-1">
                                 Placeholder
                               </label>
                               <input
@@ -3881,33 +4286,33 @@ export const AdminPage: React.FC = () => {
                                   updateProductOption(optionIndex, { placeholder: e.target.value })
                                 }
                                 placeholder="Optional"
-                                className="w-full bg-white border border-hairline px-3 py-2 text-sm rounded focus:border-gold"
+                                className="w-full bg-white border border-neutral-300 text-black placeholder:text-neutral-500 px-3 py-2 text-sm rounded focus:border-black focus:ring-1 focus:ring-black outline-none"
                               />
                             </div>
                           </div>
 
-                          <label className="flex items-center gap-2 text-xs text-text cursor-pointer">
+                          <label className="flex items-center gap-2 text-xs text-black font-medium cursor-pointer">
                             <input
                               type="checkbox"
                               checked={option.required}
                               onChange={(e) =>
                                 updateProductOption(optionIndex, { required: e.target.checked })
                               }
-                              className="rounded border-hairline text-gold focus:ring-gold"
+                              className="rounded border-neutral-300 text-black focus:ring-black"
                             />
-                            Required option
+                            <span>Required option</span>
                           </label>
 
                           {usesValues && (
                             <div className="space-y-2">
                               <div className="flex items-center justify-between">
-                                <label className="block text-[11px] uppercase tracking-wider font-medium text-text">
+                                <label className="block text-[11px] uppercase tracking-wider font-semibold text-black">
                                   Option Values
                                 </label>
                                 <button
                                   type="button"
                                   onClick={() => addOptionValue(optionIndex)}
-                                  className="text-[11px] text-gold hover:underline"
+                                  className="text-[11px] text-black font-bold hover:underline"
                                 >
                                   + Add value
                                 </button>
@@ -3923,7 +4328,7 @@ export const AdminPage: React.FC = () => {
                                         onChange={(e) =>
                                           updateOptionValue(optionIndex, valueIndex, e.target.value)
                                         }
-                                        className="w-9 h-9 p-0.5 bg-white border border-hairline rounded cursor-pointer"
+                                        className="w-9 h-9 p-0.5 bg-white border border-neutral-300 rounded cursor-pointer"
                                         title="Choose color"
                                       />
                                     )}
@@ -3938,13 +4343,13 @@ export const AdminPage: React.FC = () => {
                                           ? 'e.g. Black or #000000'
                                           : 'e.g. Black'
                                       }
-                                      className="flex-1 bg-white border border-hairline px-3 py-2 text-sm rounded focus:border-gold"
+                                      className="flex-1 bg-white border border-neutral-300 text-black placeholder:text-neutral-500 px-3 py-2 text-sm rounded focus:border-black focus:ring-1 focus:ring-black outline-none"
                                     />
                                     <button
                                       type="button"
                                       onClick={() => removeOptionValue(optionIndex, valueIndex)}
                                       disabled={(option.values || []).length <= 1}
-                                      className="p-2 text-muted hover:text-red-600 disabled:opacity-30 disabled:cursor-not-allowed"
+                                      className="p-2 text-neutral-600 hover:text-red-600 disabled:opacity-30 disabled:cursor-not-allowed"
                                       title="Remove value"
                                     >
                                       <Trash2 className="w-4 h-4" />
@@ -3956,7 +4361,7 @@ export const AdminPage: React.FC = () => {
                           )}
 
                           {(option.type === 'text' || option.type === 'textarea') && (
-                            <p className="text-[11px] text-muted">
+                            <p className="text-[11px] text-black font-normal">
                               Customers will enter their own value for this option.
                             </p>
                           )}
@@ -3969,35 +4374,33 @@ export const AdminPage: React.FC = () => {
 
               {/* Feature Checkboxes */}
               <div className="space-y-2 pt-2">
-                <label className="flex items-center gap-2 text-sm text-text cursor-pointer">
+                <label className="flex items-center gap-2 text-sm text-black font-medium cursor-pointer">
                   <input
                     type="checkbox"
                     checked={Boolean(currentProduct.allow_personalisation)}
                     onChange={(e) => setCurrentProduct({ ...currentProduct, allow_personalisation: e.target.checked })}
-                    className="rounded border-hairline text-gold focus:ring-gold"
+                    className="rounded border-neutral-300 text-black focus:ring-black"
                   />
                   <span>Allow personalisation on this jacket</span>
                 </label>
 
-                <label className="flex items-center gap-2 text-sm text-text cursor-pointer">
+                <label className="flex items-center gap-2 text-sm text-black font-medium cursor-pointer">
                   <input
                     type="checkbox"
                     checked={Boolean(currentProduct.allow_requirements)}
                     onChange={(e) => setCurrentProduct({ ...currentProduct, allow_requirements: e.target.checked })}
-                    className="rounded border-hairline text-gold focus:ring-gold"
+                    className="rounded border-neutral-300 text-black focus:ring-black"
                   />
                   <span>Allow additional requirements box on this jacket</span>
                 </label>
               </div>
-
-
 
               {/* Form Buttons */}
               <div className="pt-4 flex items-center justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => setIsEditingProduct(false)}
-                  className="btn-ghost text-xs"
+                  className="px-4 py-2 border border-neutral-300 text-black hover:bg-neutral-100 rounded text-xs font-semibold uppercase tracking-wider transition-colors"
                 >
                   Cancel
                 </button>
@@ -4008,6 +4411,101 @@ export const AdminPage: React.FC = () => {
                 >
                   {isSavingProduct && <Loader2 className="w-4 h-4 animate-spin" />}
                   Save product
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 5. RENAME CATEGORY MODAL */}
+      {isRenameCategoryOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsRenameCategoryOpen(false);
+          }}
+        >
+          <div className="relative w-full max-w-md bg-white border border-hairline rounded-lg p-6 shadow-2xl text-black space-y-4">
+            <div className="flex items-center justify-between border-b border-hairline pb-3">
+              <h3 className="font-serif text-xl font-semibold text-black">Rename Category Title</h3>
+              <button
+                type="button"
+                onClick={() => setIsRenameCategoryOpen(false)}
+                className="text-neutral-400 hover:text-black p-1 text-base font-bold leading-none"
+              >
+                &times;
+              </button>
+            </div>
+
+            <p className="text-xs text-neutral-600">
+              Rename a category title across all jackets in your store. All matching products and collection filters will update automatically.
+            </p>
+
+            {renameCategoryMsg && (
+              <div
+                className={`p-3 text-xs rounded border ${
+                  renameCategoryMsg.type === 'success'
+                    ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                    : 'bg-red-50 border-red-200 text-red-800'
+                }`}
+              >
+                {renameCategoryMsg.text}
+              </div>
+            )}
+
+            <form onSubmit={handleRenameCategorySubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs uppercase tracking-wider font-semibold text-black mb-1">
+                  Current Category
+                </label>
+                <select
+                  value={renameCategoryFrom}
+                  onChange={(e) => setRenameCategoryFrom(e.target.value)}
+                  className="w-full bg-white border border-neutral-300 text-black px-3 py-2 text-sm rounded focus:border-black outline-none"
+                  required
+                >
+                  <option value="">Select category to rename...</option>
+                  {Array.from(new Set(products.map((p) => p.category?.trim()).filter(Boolean))).map((cat) => {
+                    const count = products.filter((p) => p.category?.trim().toLowerCase() === cat.toLowerCase()).length;
+                    return (
+                      <option key={cat} value={cat}>
+                        {cat} ({count} {count === 1 ? 'jacket' : 'jackets'})
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs uppercase tracking-wider font-semibold text-black mb-1">
+                  New Category Title
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={renameCategoryTo}
+                  onChange={(e) => setRenameCategoryTo(e.target.value)}
+                  placeholder="e.g. Women's Jackets"
+                  className="w-full bg-white border border-neutral-300 text-black placeholder:text-neutral-500 px-3 py-2 text-sm rounded focus:border-black outline-none"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsRenameCategoryOpen(false)}
+                  className="px-3 py-1.5 border border-neutral-300 text-black hover:bg-neutral-100 rounded text-xs uppercase tracking-wider font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isRenamingCategory || !renameCategoryFrom || !renameCategoryTo.trim()}
+                  className="btn-gold text-xs py-1.5 px-4 flex items-center gap-1.5 disabled:opacity-50"
+                >
+                  {isRenamingCategory && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  <span>Update All Jackets</span>
                 </button>
               </div>
             </form>
