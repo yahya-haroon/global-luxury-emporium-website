@@ -1,10 +1,20 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, AlertCircle } from 'lucide-react';
+import { SEO } from '../components/SEO';
 
 export const ReturnsPage: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <SEO
+        title="Returns, Exchanges & Quality Guarantee"
+        description="Global Luxury Emporium provides 14-day hassle-free worldwide returns and size exchanges on non-customized handcrafted leather garments. Complete customer satisfaction guaranteed."
+        canonical="/returns"
+        breadcrumbs={[
+          { name: 'Home', item: '/' },
+          { name: 'Returns & Exchanges', item: '/returns' },
+        ]}
+      />
       <Link
         to="/"
         className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-muted hover:text-gold transition-colors mb-8 focus:outline-none focus-visible:text-gold"

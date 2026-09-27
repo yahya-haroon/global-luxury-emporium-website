@@ -1,5 +1,27 @@
+# https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Allow: /
 Disallow: /admin
+Disallow: /admin/
+Disallow: /*?*checkout=*
+
+User-agent: Googlebot
+Allow: /
+Disallow: /admin
+Disallow: /admin/
+
+User-agent: Googlebot-Image
+Allow: /assets/
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+Disallow: /admin
+Disallow: /admin/
+
+User-agent: Applebot
+Allow: /
+Disallow: /admin
+Disallow: /admin/
 
 Sitemap: https://www.globalluxuryemporium.com/sitemap.xml

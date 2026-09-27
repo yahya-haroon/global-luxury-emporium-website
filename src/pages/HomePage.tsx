@@ -13,12 +13,20 @@ import { Testimonials } from '../components/Testimonials';
 import { Faq } from '../components/Faq';
 import { ContactSection } from '../components/ContactSection';
 import { useData } from '../context/DataContext';
+import { SEO } from '../components/SEO';
 
 export const HomePage: React.FC = () => {
   const { error } = useData();
 
   return (
     <>
+      <SEO
+        title="Global Luxury Emporium | Handcrafted Leather Jackets & Coats"
+        description="Discover handcrafted luxury leather jackets and coats for men and women. Designed in London, tailored from finest calfskin, shearling & lambskin. Free worldwide delivery."
+        canonical="/"
+        ogType="website"
+      />
+
       {/* Pop-in Page Loader */}
       <PageLoader />
 

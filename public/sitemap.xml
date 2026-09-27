@@ -1,67 +1,957 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 
-  <!-- Homepage -->
+  <!-- Core Brand Pages -->
   <url>
     <loc>https://www.globalluxuryemporium.com/</loc>
-    <lastmod>2026-09-24</lastmod>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
   </url>
-
-  <!-- Information Pages -->
   <url>
     <loc>https://www.globalluxuryemporium.com/delivery</loc>
-    <lastmod>2026-09-24</lastmod>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
-
   <url>
     <loc>https://www.globalluxuryemporium.com/returns</loc>
-    <lastmod>2026-09-24</lastmod>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
-
   <url>
     <loc>https://www.globalluxuryemporium.com/privacy</loc>
-    <lastmod>2026-09-24</lastmod>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
   </url>
 
-  <!-- Products -->
+  <!-- All 50 Handcrafted Leather Products -->
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/8c9685af-8d9f-4aff-8d02-1dda5b163d29</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790526474473-Premium-Goose-Bomber-With-Hood-1.jpg</image:loc>
+      <image:title>Premium Goose Leather V Bomber Jacket With Hood</image:title>
+      <image:caption>Product Specification:
+
+Premium Lamb Skin Leather
+Goose Down Fill
+Durable 100% Viscose Lining
+Detachable brown Fox Collar Trim
+Detachable Stud-Fastened Chin-Gua</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/6bfdae5c-0979-40c7-b586-e14ed02525bd</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790525642364-Mens-G1-Aviator-Distressed-Brown-Pilot-Leather-Jacket-for-Mens.jpg</image:loc>
+      <image:title>Mens G1 Aviator Distressed Brown Leather Jacket</image:title>
+      <image:caption>SPECIFICATION:
+
+Material: Real Leather
+Internal: Polyester Lining
+Collar: Fur Collar
+Closure: Front Zipper Closure
+Color: Distressed Brown</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/5542f4fe-bc3d-4966-92e2-eec513695958</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790524932799-ChatGPT_Image_Sep_27__2026__08_56_12_PM.png</image:loc>
+      <image:title>Women Blingsoul Brown Shearling Jacket</image:title>
+      <image:caption>Material: Real Leather
+Internal: Viscose Lining
+Collar: Lapel Style Collar
+Closure: Zipper Style Closure
+Color: Brown
+
+For this jacket style, we advise you to b</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/1a1172a6-b692-43b9-837d-37fbe302df79</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790523462594-saada-blue.2.jpg</image:loc>
+      <image:title>Royal Blue Casual Leather Jacket</image:title>
+      <image:caption>Product Specification:
+
+Outer Shell: Real Leather
+Leather Type: Sheepskin
+Leather Finish: Semi-aniline
+Inner Shell: Viscous Lining
+Collar Style: Folded
+Outside </image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/b8487e90-d279-4dfe-a7d8-eca783bdb855</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790523375720-brita-red-lady-595x793.jpg</image:loc>
+      <image:title>Red Leather Jacket For Women</image:title>
+      <image:caption>Outer Shell: Real Leather
+
+Leather Type: Sheepskin
+
+Leather Finish: Napa
+
+Inner Shell: Viscous Lining
+
+Closure Style: Zipper and Button
+
+Collar Style: Shirt
+
+Cu</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/c59b62d9-4e1a-42e1-ac9c-206d7a66e785</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790523293447-Red-lady-biker1.jpg</image:loc>
+      <image:title>Red Biker Jacket For Women</image:title>
+      <image:caption>Outer Shell: Real Leather
+
+Leather Type: Sheepskin
+
+Leather Finish: Semi-aniline
+
+Inner Shell: Viscous Lining
+
+Closure Style: Zipper
+
+Collar Style: Notch
+
+Cuffs</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/8101e1db-260a-48ba-8818-ba0111e9a39f</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790523224533-purple-lady-jkt.jpg</image:loc>
+      <image:title>Ladies Blue Leather Jacket</image:title>
+      <image:caption>Outer Shell: Real Leather
+
+Leather Type: Sheepskin
+
+Leather Finish: Napa
+
+Inner Shell: Viscous Lining
+
+Closure Style: Zipper
+
+Collar Style: Stand
+
+Cuffs Style: </image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/624295a6-30cb-4cd0-8d8e-4eb2ff5bb045</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790523115755-Green-brita.jpg</image:loc>
+      <image:title>Green Leather Coats For Women</image:title>
+      <image:caption>Outer Shell: Real Leather
+Leather Type: Sheepskin
+Leather Finish: Napa
+Inner Shell: Viscous Lining
+Outside Pockets: Four
+Color: Green
+For this jacket style, we </image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/3eb9335f-ceeb-4396-ba6e-b9fbd10f70fd</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790523012954-brown-waxy-lady.jpg</image:loc>
+      <image:title>Distressed Brown Ladies Leather Jackets</image:title>
+      <image:caption>Outer Shell: Real Leather
+Leather Type: Sheepskin
+Leather Finish: Aniline
+Inner Shell: Polyester Lining
+Closure Style: Snap
+Collar Style: Varsity
+Cuffs Style: O</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/652385a9-25b2-4f43-a405-dbfbe4a3bdc7</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790522939268-green-lady.jpg</image:loc>
+      <image:title>Dark Green Women Leather Jacket</image:title>
+      <image:caption>Outer Shell: Real Leather
+Leather Type: Sheepskin
+Leather Finish: Napa
+Inner Shell: Viscous Lining
+Outside Pockets: Four
+Color: Green
+For this jacket style, we </image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/363e9bcd-38da-4d66-9413-f592432387db</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790522815735-lady-conic.jpg</image:loc>
+      <image:title>Classic Tan Leather Jacket for Women</image:title>
+      <image:caption>Outer Shell: Real Leather
+
+Leather Type: Sheepskin
+
+Leather Finish: Semi-aniline
+
+Inner Shell: Viscous Lining
+
+Closure Style: Zipper
+
+Collar Style: Shirt Collar</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/f59a95b4-c428-43ae-ae39-b4ae8d270869</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790522722782-tan-lady.jpg</image:loc>
+      <image:title>Cognac Leather Jacket For Women</image:title>
+      <image:caption>Outer Shell: Real Leather
+Leather Type: Sheepskin
+Leather Finish: Analine
+Inner Shell: Polyester Lining
+Closure Style: Snap
+Collar Style: Varsity
+Cuffs Style: Z</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/368defc4-42eb-46a6-9c13-7c3a5d4f935a</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790522650797-lady-conic.jpg</image:loc>
+      <image:title>Classic Tan Leather Jacket for Women</image:title>
+      <image:caption>Outer Shell: Real Leather
+
+Leather Type: Sheepskin
+
+Leather Finish: Semi-aniline
+
+Inner Shell: Viscous Lining
+
+Closure Style: Zipper
+
+Collar Style: Shirt Collar</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/88b177fc-9943-424d-9082-e095c8b93925</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790522556832-maroon-lady-595x793.jpg</image:loc>
+      <image:title>Classic Burgundy Leather Jacket For Women</image:title>
+      <image:caption>Outer Shell: Real Leather
+
+Leather Type: Sheepskin
+
+Leather Finish: Semi-aniline
+
+Inner Shell: Polyester Lining
+
+Closure Style: Zipper
+
+Collar Style: Round
+
+Cuf</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/c0f489a0-cc46-4819-8a97-d20754d13f42</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790522470310-blk-wilson-lady.jpg</image:loc>
+      <image:title>Classic Black Leather Four Pockets Women Jacket</image:title>
+      <image:caption>Outer Shell: Real Leather
+
+Leather Type: Sheepskin
+
+Leather Finish: Napa
+
+Inner Shell: Viscous Lining
+
+Collar Style: One snap Stand collar
+
+Cuffs Style: Zipper
+</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/d5cfa128-1e91-4bb1-b6cc-2ad6f36483de</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790522360751-bodo-lady-normal.jpg</image:loc>
+      <image:title>Burgundy Leather Jackets Women</image:title>
+      <image:caption>Outer Shell: Real Leather
+Leather Type: Sheepskin
+Leather Finish: Semi-aniline
+Inner Shell: Polyester Lining
+Closure Style: Zipper
+Collar Style: Stand
+Cuffs Sty</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/cf9db77c-b775-4e78-a9e7-22e2b07dabea</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790522294881-brown-half-coat-lady-595x793.jpg</image:loc>
+      <image:title>Brown Leather Jacket For Women</image:title>
+      <image:caption>Outer Shell: Real Leather
+
+Leather Type: Sheepskin
+
+Leather Finish: Semi-aniline
+
+Inner Shell: Viscous Lining
+
+Closure Style: Zipper
+
+Collar Style: Stand Collar</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/f1b3063d-a40e-4c34-bdf8-d2fd216e0d32</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790522190643-ChatGPT_Image_Sep_27__2026__08_13_32_PM.png</image:loc>
+      <image:title>Brown Leather Jacket For Women</image:title>
+      <image:caption>Outer Shell: Real Leather
+
+Leather Type: Sheepskin
+
+Leather Finish: Semi-aniline
+
+Inner Shell: Viscous Lining
+
+Closure Style: Zipper
+
+Collar Style: Stand Collar</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/fa33eb2a-ca72-413d-be16-29ea3640f38b</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790521148550-light-blue-lady-595x921.jpg</image:loc>
+      <image:title>Bolt Light Blue Leather Jacket For Ladies</image:title>
+      <image:caption>Outer Shell: Real Leather
+
+Leather Type: Sheepskin
+
+Leather Finish: Napa waxy
+
+Inner Shell: Viscous Lining
+
+Collar Style: One snap Stand collar
+
+Cuffs Style: Zi</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/4b64213c-9ad2-4653-9ae1-a044dacc71ff</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790521065813-crust-blue-lady.jpg</image:loc>
+      <image:title>Blue Leather Jacket For Women</image:title>
+      <image:caption>Outer Shell: Real Leather
+
+Leather Type: Sheepskin
+
+Leather Finish: Napa waxy
+
+Inner Shell: Viscous Lining
+
+Collar Style: One snap Stand collar
+
+Cuffs Style: Zi</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/6e31e835-415a-4f6b-a4bc-1449a527e914</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790520987150-black-lady-elastic.jpg</image:loc>
+      <image:title>Black Leather Jacket For Ladies</image:title>
+      <image:caption>Outer Shell: Real Leather
+
+Leather Type: Sheepskin
+
+Leather Finish: Napa
+
+Inner Shell: Viscous Lining
+
+Closure Style: Zipper
+
+Collar Style: Circular U Shape
+
+Cu</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/c2616146-100d-4643-a4a9-bab9c5b21498</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790520902610-black-normal-1-595x793.jpg</image:loc>
+      <image:title>Black Casual Leather Jacket</image:title>
+      <image:caption>Outer Shell: Real Leather
+
+Leather Type: Sheepskin
+
+Leather Finish: Semi-aniline
+
+Inner Shell: Viscous Lining
+
+Collar Style: Folded
+
+Outside Pockets: Two
+
+Color</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/ceae0eb5-7ccf-4353-9297-8d6bf75ad04b</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790519683732-ChatGPT_Image_Sep_27__2026__07_31_45_PM.png</image:loc>
+      <image:title>Black Leather All Saints Jacket For Men</image:title>
+      <image:caption>Outer Shell: Real Leather
+Leather Type: Sheep skin
+Leather Finish: Waxed
+Inner Shell: Viscose lining
+Closure Style: Zipper
+Collar Style: Stand
+Inside Pockets: T</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/e96176af-0a70-4b3c-a031-91ef0ce5d9a2</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790519354391-ChatGPT_Image_Sep_27__2026__07_26_55_PM.png</image:loc>
+      <image:title>Black Bomber Hooded Baseball Leather Jacket for Men</image:title>
+      <image:caption>Front-zip closure
+100 % Real Lamb Leather
+Fixed Hooded
+Long sleeves
+Lycra Leather Cuffs and Belt
+2 Frontal pockets;
+2 Inside pocket;
+Black Color
+
+For this jacke</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/05b9ebbf-ea7b-4c7a-a50b-2c30c60cad33</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790519019086-atlanta-1-595x793.jpg</image:loc>
+      <image:title>Atlanta Antique Leather Jacket for Men</image:title>
+      <image:caption>Outer Shell: Real Leather
+Leather Type: Sheep skin
+Leather Finish: Snuff article
+Inner Shell: Quilted viscose lining
+Closure Style: Zipper
+Collar Style: Shirt
+C</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/c3c7bc4d-568a-4f89-8988-04b390c661f6</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790518940169-antique-distressed-brown-leater-jacket-2.jpg</image:loc>
+      <image:title>Antique Distressed Brown Leather Jacket</image:title>
+      <image:caption>MENS DESIGNER LEATHER JACKETS
+Outer Shell: Real Leather
+Leather Type: Lamb Skin
+Leather Finish: Antique
+Inner Shell: Viscose lining
+Closure Style: Zipper
+Collar</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/a2488948-d965-48e6-af85-4116ba373ea7</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790518825458-ali-blk.jpg</image:loc>
+      <image:title>Airin D-12 Leather Black Jacket For Men</image:title>
+      <image:caption>Outer Shell: Real Leather
+Leather Type: Sheep skin
+Leather Finish: Napa
+Inner Shell:? Viscose lining
+Closure Style: Zipper
+Collar Style: Stand
+Inside Pockets: T</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/31fa6433-9b28-429e-9235-fae5aad64a12</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790518754082-ChatGPT_Image_Sep_27__2026__07_15_46_PM.png</image:loc>
+      <image:title>Men’s Red Leather Jacket Stand Collar Genuine Leather Motorcycle Jacket</image:title>
+      <image:caption>Outer Shell: Real Leather
+Leather Type: Lamb Skin
+Leather Finish: Napa
+Inner Shell: Viscose lining
+Closure Style: Zipper
+Collar Style: Stand Collar
+Inside Pocke</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/2f49ff38-cbb0-46c8-ae02-847f97968e35</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790518283035-WhatsApp-Image-2025-05-05-at-12.53.05-PM.jpg</image:loc>
+      <image:title>Men Leather Biker Jacket</image:title>
+      <image:caption>Outer Shell: Real Leather
+Leather Type: Cow Skin
+Inner Shell: Viscose lining
+Closure Style: Zipper
+Cuffs Style: Zipper
+Inside Pockets: Two
+Outside Pockets: Thre</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/4d534e26-f335-4651-bd3d-28ff74f0cdd7</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790518163499-pixnova_e345504920b16513518b7d2cac61d9fd.jpg</image:loc>
+      <image:title>Men Brown Leather Jacket</image:title>
+      <image:caption>Outer Shell: Real Leather
+Leather Type: Lamb Skin
+Leather Finish: Nappa Waxed
+Inner Shell: Viscose lining
+Closure Style: Zipper
+Collar Style: Notch
+Inside Pocke</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/a10e7681-e608-4faf-b0ba-62365cd27b91</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790518091611-WhatsApp-Image-2025-05-05-at-1.07.09-PM.jpg</image:loc>
+      <image:title>Men Brown Leather Jacket</image:title>
+      <image:caption>Front-zip closure
+100 % Real Lamb Leather
+Long sleeves
+2 Frontal pockets;
+2 Inside pocket;
+Brown Color
+
+For this jacket style, we advise you to buy a larger siz</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/f2f238f2-3b3e-4390-8b7e-6df5e2c9849a</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790517986383-ChatGPT_Image_Sep_27__2026__07_03_34_PM.png</image:loc>
+      <image:title>Men Brown Leather Bomber Jacket</image:title>
+      <image:caption>Front-zip closure
+100 % Real Lamb Leather
+Long sleeves
+Rib Cuffs and Belt
+2 Frontal pockets;
+2 Inside pocket;
+Brown Color
+
+For this jacket style, we advise you </image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/1e69d858-9981-49c0-9ec9-1019b1e735e5</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790517594216-Mens-Brown-Leather-Biker-Jacket.jpg</image:loc>
+      <image:title>Men Brown Leather Biker Jacket</image:title>
+      <image:caption>SPECIFICATION:
+
+Material: Real Leather
+Internal: Polyester Lining
+Collar: Notch Collar
+Closure: Front Zipper Closure
+Color: Brown</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/239a7f1c-2e60-4aa5-bd34-279c8142c22c</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790517125340-8e197e3c-d8cb-4168-b0f8-234957e39e8d.png</image:loc>
+      <image:title>Men Black Leather Jacket With Hood</image:title>
+      <image:caption>Front-zip closure
+100 % Real Lamb Leather
+Detachable Hooded
+Long sleeves
+4 Frontal pockets;
+2 Inside pocket;
+Black Color
+
+For this jacket style, we advise you t</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/5f622cf6-105b-411b-b125-d1e359dc8793</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790516819208-pixnova_15d9fad7b75022d0244233cef7857ff0.jpg</image:loc>
+      <image:title>Leather Biker Jacket</image:title>
+      <image:caption>Outer Shell: Real Leather
+Leather Type: Sheepskin
+Leather Finish: Napa
+Inner Shell: Viscose lining
+Closure Style: Zipper
+Collar Style: Stand
+Inside Pockets: Two</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/991f780d-1e8e-480a-a667-f04f6584991c</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790516672407-ChatGPT_Image_Sep_27__2026__06_42_55_PM.png</image:loc>
+      <image:title>Lambskin Leather Jacket</image:title>
+      <image:caption>BLACK LEATHER JACKET FOR MENS
+
+Outer Shell: Real Leather
+Leather Type: Lamb Skin
+Leather Finish: Napa
+Inner Shell: Viscose lining
+Closure Style: Zipper
+Collar S</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/048e8927-6cc7-4d5e-a384-7740639446c1</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790516291647-wmremove-transformed-2.webp</image:loc>
+      <image:title>Green Leather Jacket</image:title>
+      <image:caption>Outer Shell: Real Leather
+Leather Type: Sheepskin
+Leather Finish: Napa waxed
+Inner Shell: Viscose lining
+Closure Style: Zipper
+Zipper Sleeves
+Inside Pockets: Tw</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/36a2e6f6-f96c-4825-823f-1652d614c053</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790514925907-ChatGPT_Image_Sep_27__2026__06_10_28_PM.png</image:loc>
+      <image:title>Distressed Leather Jacket</image:title>
+      <image:caption>Outer Shell: Real Leather
+Leather Type: Lamb Skin
+Leather Finish: Nappa Waxed
+Inner Shell: Viscose lining
+Closure Style: Zipper
+Collar Style: Stand Collar
+Insid</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/22fae56f-a906-4e8c-948a-45d90fcac916</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790514334542-wmremove-transformed.webp</image:loc>
+      <image:title>Brown Leather Jacket</image:title>
+      <image:caption>Product Specification:
+
+Outer Shell: Real Leather
+Leather Type: Sheepskin
+Leather Finish: Napa waxed
+Inner Shell: Viscose lining
+Closure Style: Zipper
+Collar St</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/a6e8d4c1-e0e0-41eb-a601-eac39c134132</loc>
+    <lastmod>2026-09-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790427037389-6811d675-daf7-4785-b6c4-8f74cc684e84.jpg</image:loc>
+      <image:title>Brown Leather Jacket Men</image:title>
+      <image:caption>Outer Shell: Real Leather
+Leather Type: Sheepskin
+Leather Finish: Napa waxed
+Inner Shell: Viscose lining
+Closure Style: Zipper
+Collar Style: Stand
+Inside Pocket</image:caption>
+    </image:image>
+  </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/product/7603af3f-9fe3-46b7-a2be-2d4718871385</loc>
+    <lastmod>2026-09-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790263198476-Product1.jpg</image:loc>
+      <image:title>Black &amp; Beige Motorcycle Rider Jacket</image:title>
+      <image:caption>Outer Shell: Real Leather
+Leather Type: Sheepskin
+Leather Finish: Napa
+Inner Shell: Viscose lining
+Closure Style: Zipper
+Collar Style: Stand
+Inside Pockets: Two</image:caption>
+    </image:image>
   </url>
-
   <url>
     <loc>https://www.globalluxuryemporium.com/product/f16a3372-1695-4447-8d55-c97b86b52334</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790515093507-jb1.png</image:loc>
+      <image:title>B3 RAF Black Aviator Bomber Jacket</image:title>
+      <image:caption>Material: Real Leather
+Internal: Shearling Lining
+Collar: Fur Collar
+Closure: Front Zipper Closure
+Color: Black</image:caption>
+    </image:image>
   </url>
-
   <url>
     <loc>https://www.globalluxuryemporium.com/product/2db0dcef-0e76-4086-9641-253d072f9d89</loc>
+    <lastmod>2026-09-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790260749048-ChatGPT_Image_Sep_24__2026__07_29_00_PM21.png</image:loc>
+      <image:title>Light Brown Suede Leather Coat Women</image:title>
+      <image:caption>Outer Shell: Real Leather
+Leather Type: Sheepskin
+Leather Finish: Suede
+Inner Shell: Polyester Lining
+Outside Pockets: Two
+Color: Light Brown
+For this jacket st</image:caption>
+    </image:image>
   </url>
-
   <url>
     <loc>https://www.globalluxuryemporium.com/product/36d2c044-447e-4254-9e1c-9fa188940895</loc>
-  </url>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790429031028-ChatGPT_Image_Sep_26__2026__02_51_30_AM.png</image:loc>
+      <image:title>Black Quilted Biker Leather Jacket</image:title>
+      <image:caption>Product Description:
 
+Outer Shell: Real Leather
+Leather Type: Lamb Skin
+Leather Finish: Nappa
+Inner Shell: Viscose lining
+Closure Style: Zipper
+Collar Style: St</image:caption>
+    </image:image>
+  </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/product/6ebdf95f-6d2c-4f06-ae70-69796d1e4b78</loc>
-  </url>
+    <lastmod>2026-09-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790428803348-ChatGPT_Image_Sep_26__2026__04_34_30_PM.png</image:loc>
+      <image:title>Black Shearling Aviator Jacket</image:title>
+      <image:caption>Product Specification:
 
+External: Real Leather
+Internal: Complete Shearling Lining
+Front Closure: Full Zipper Conclusion
+Cuffs: Zipped Cuffs
+Pockets: Two Waist </image:caption>
+    </image:image>
+  </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/product/b24b8265-5edd-4684-bff0-690677c9296b</loc>
+    <lastmod>2026-09-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790428860585-ChatGPT_Image_Sep_26__2026__02_53_24_AM.png</image:loc>
+      <image:title>Quilted Leather Jacket</image:title>
+      <image:caption>Outer Shell: Real Leather
+Leather Type: Sheepskin
+Leather Finish: Aniline
+Inner Shell: Viscose lining
+Closure Style: Zipper
+Collar Style: Band
+Cuffs Style: Zipp</image:caption>
+    </image:image>
   </url>
-
   <url>
     <loc>https://www.globalluxuryemporium.com/product/b3e1d493-8c60-469d-8281-48d17bb7c844</loc>
-  </url>
+    <lastmod>2026-09-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790257088376-Mens-B3-Aviator-Flying-Pilot-Bomber-Jacket.jpg</image:loc>
+      <image:title>B3 Aviator Flying Pilot Bomber Jacket</image:title>
+      <image:caption>SPECIFICATION:
 
+Material: Real Leather
+Internal: Faux Shearling Lining
+Collar: Faux Shearling Collar
+Closure: Front Zipper Closure
+Color: Brown</image:caption>
+    </image:image>
+  </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/product/0b392748-5b6f-4ac0-8a11-e94b15b5349d</loc>
+    <lastmod>2026-09-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790256725977-ChatGPT_Image_Sep_24__2026__06_29_39_PM.png</image:loc>
+      <image:title>Leather biker vest</image:title>
+      <image:caption>Outer Shell: Real Leather
+Leather Type: Sheepskin
+Leather Finish: Napa
+Inner Shell: Viscose lining
+Closure Style: Zipper
+Inside Pockets: Two
+Outside Pockets: Te</image:caption>
+    </image:image>
   </url>
-
   <url>
     <loc>https://www.globalluxuryemporium.com/product/fd2605b8-8fc0-4580-8c28-1f6fb5b61310</loc>
+    <lastmod>2026-09-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790255620545-pixnova_163589763644e3d13781a45b2cca0032.jpg</image:loc>
+      <image:title>Men Black Leather Jacket</image:title>
+      <image:caption>Outer Shell: Real Leather
+Leather Type: Sheep skin
+Leather Finish: Napa
+Inner Shell: Viscose lining
+Closure Style: Zipper
+Collar Style: Notch
+Inside Pockets: Tw</image:caption>
+    </image:image>
   </url>
-
   <url>
     <loc>https://www.globalluxuryemporium.com/product/6d62d04f-048d-42ce-a716-896c1cc7a62d</loc>
+    <lastmod>2026-09-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790257262034-ChatGPT_Image_Sep_19__2026__04_55_58_PM.png</image:loc>
+      <image:title>Custom Leather Puffer Jacket: Sheepskin, Viscose Lining, Colorblock Design</image:title>
+      <image:caption>Outer Shell: Real Leather
+Leather Type: Sheepskin
+Inner Shell: Viscose lining
+Closure Style: Zipper
+Collar Style: Shirt
+Cuffs Style: Open hem
+Inside Pockets: Tw</image:caption>
+    </image:image>
   </url>
-
 </urlset>

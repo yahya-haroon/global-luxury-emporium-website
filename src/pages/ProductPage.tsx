@@ -7,6 +7,7 @@ import { normalizeProductOptions } from '../lib/options';
 import { getStripe, createPaymentIntent } from '../lib/stripePayment';
 import { countryNameToIso2 } from '../lib/countryUtils';
 import { ProductReviews } from '../components/ProductReviews';
+import { SEO } from '../components/SEO';
 import { useCart } from '../context/CartContext';
 import { ArrowLeft, AlertCircle, CheckCircle2, Loader2, ShieldCheck, ShoppingBag, Truck } from 'lucide-react';
 
@@ -67,129 +68,128 @@ export const ProductPage: React.FC = () => {
 
 const ProductPageContent: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { products, settings, loading } = useData();
+  const { products, settings, loading, reviews } = useData();
   const navigate = useNavigate();
 
   const stripe = useStripe();
   const elements = useElements();
 
   const product = products.find((p) => p.id === id);
-    // Dynamic SEO metadata and Product structured data
-  useEffect(() => {
-    if (!product) return;
 
-    const siteUrl = 'https://www.globalluxuryemporium.com';
-    const productUrl = `${siteUrl}/product/${product.id}`;
-    const productImage = product.images?.[0]
-      ? new URL(product.images[0], siteUrl).href
-      : `${siteUrl}/assets/banner.png`;
+  const productReviews = (reviews || []).filter((r) => r.product_id === product?.id && r.published);
+  const averageRating =
+    productReviews.length > 0
+      ? productReviews.reduce((sum, r) => sum + r.rating, 0) / productReviews.length
+      : 5;
 
-    const description = product.description?.trim()
-      ? product.description.trim().replace(/\s+/g, ' ').slice(0, 160)
-      : `Shop the ${product.name} from Global Luxury Emporium. Premium handcrafted leather fashion designed in London and crafted in Pakistan.`;
+  const siteUrl = 'https://www.globalluxuryemporium.com';
+  const productUrl = product ? `${siteUrl}/product/${product.id}` : siteUrl;
+  const productImage = product?.images?.[0]
+    ? product.images[0].startsWith('http')
+      ? product.images[0]
+      : `${siteUrl}${product.images[0].startsWith('/') ? product.images[0] : `/${product.images[0]}`}`
+    : `${siteUrl}/assets/banner.png`;
 
-    const currencyMap: Record<string, string> = {
-      '£': 'GBP',
-      '$': 'USD',
-      '€': 'EUR',
-      'GBP': 'GBP',
-      'USD': 'USD',
-      'EUR': 'EUR',
-      'CAD': 'CAD',
-      'AUD': 'AUD',
-    };
+  const description = product?.description?.trim()
+    ? product.description.trim().replace(/\s+/g, ' ').slice(0, 160)
+    : product
+      ? `Shop the ${product.name} from Global Luxury Emporium. Premium handcrafted leather fashion designed in London and crafted in Pakistan.`
+      : '';
 
-    const priceCurrency =
-      currencyMap[settings.currency] ||
-      currencyMap[settings.currency?.toUpperCase?.()] ||
-      'GBP';
+  const currencyMap: Record<string, string> = {
+    '£': 'GBP',
+    $: 'USD',
+    '€': 'EUR',
+    GBP: 'GBP',
+    USD: 'USD',
+    EUR: 'EUR',
+    CAD: 'CAD',
+    AUD: 'AUD',
+  };
 
-    document.title = `${product.name} | Global Luxury Emporium`;
+  const priceCurrency =
+    currencyMap[settings.currency] ||
+    currencyMap[settings.currency?.toUpperCase?.()] ||
+    'GBP';
 
-    const setMeta = (
-      selector: string,
-      attribute: 'name' | 'property',
-      value: string,
-    ) => {
-      let element = document.querySelector<HTMLMetaElement>(selector);
-
-      if (!element) {
-        element = document.createElement('meta');
-        element.setAttribute(attribute, '');
-        document.head.appendChild(element);
+  const productStructuredData = product
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        name: product.name,
+        description,
+        image: product.images?.length
+          ? product.images.map((img) =>
+              img.startsWith('http') ? img : `${siteUrl}${img.startsWith('/') ? img : `/${img}`}`
+            )
+          : [productImage],
+        sku: product.id,
+        mpn: product.id,
+        brand: {
+          '@type': 'Brand',
+          name: 'Global Luxury Emporium',
+        },
+        manufacturer: {
+          '@type': 'Organization',
+          name: 'Global Luxury Emporium Ltd',
+        },
+        category: product.category,
+        offers: {
+          '@type': 'Offer',
+          url: productUrl,
+          priceCurrency,
+          price: Number(product.price).toFixed(2),
+          availability: 'https://schema.org/InStock',
+          itemCondition: 'https://schema.org/NewCondition',
+          seller: {
+            '@type': 'Organization',
+            name: 'Global Luxury Emporium',
+          },
+          hasMerchantReturnPolicy: {
+            '@type': 'MerchantReturnPolicy',
+            applicableCountry: 'GB',
+            returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+            merchantReturnDays: 14,
+            returnMethod: 'https://schema.org/ReturnByMail',
+            returnFees: 'https://schema.org/FreeReturn',
+          },
+        },
+        ...(productReviews.length > 0
+          ? {
+              aggregateRating: {
+                '@type': 'AggregateRating',
+                ratingValue: averageRating.toFixed(1),
+                reviewCount: productReviews.length,
+                bestRating: '5',
+                worstRating: '1',
+              },
+              review: productReviews.slice(0, 5).map((r) => ({
+                '@type': 'Review',
+                author: {
+                  '@type': 'Person',
+                  name: r.customer_name || 'Verified Customer',
+                },
+                datePublished: r.created_at ? r.created_at.split('T')[0] : '2026-09-01',
+                reviewBody: r.review,
+                reviewRating: {
+                  '@type': 'Rating',
+                  ratingValue: r.rating,
+                  bestRating: '5',
+                  worstRating: '1',
+                },
+              })),
+            }
+          : {}),
       }
+    : undefined;
 
-      element.setAttribute(attribute, element.getAttribute(attribute) || '');
-      element.setAttribute('content', value);
-    };
-
-    setMeta('meta[name="description"]', 'name', description);
-    setMeta('meta[property="og:title"]', 'property', `${product.name} | Global Luxury Emporium`);
-    setMeta('meta[property="og:description"]', 'property', description);
-    setMeta('meta[property="og:url"]', 'property', productUrl);
-    setMeta('meta[property="og:image"]', 'property', productImage);
-    setMeta('meta[name="twitter:title"]', 'name', `${product.name} | Global Luxury Emporium`);
-    setMeta('meta[name="twitter:description"]', 'name', description);
-    setMeta('meta[name="twitter:image"]', 'name', productImage);
-    setMeta('meta[name="twitter:url"]', 'name', productUrl);
-
-    let canonical = document.querySelector<HTMLLinkElement>(
-      'link[rel="canonical"]',
-    );
-
-    if (!canonical) {
-      canonical = document.createElement('link');
-      canonical.rel = 'canonical';
-      document.head.appendChild(canonical);
-    }
-
-    canonical.href = productUrl;
-
-    const structuredData = {
-      '@context': 'https://schema.org',
-      '@type': 'Product',
-      name: product.name,
-      description,
-      image: product.images?.length
-        ? product.images.map((image) => new URL(image, siteUrl).href)
-        : [productImage],
-      sku: product.id,
-      brand: {
-        '@type': 'Brand',
-        name: 'Global Luxury Emporium',
-      },
-      category: product.category,
-      offers: {
-        '@type': 'Offer',
-        url: productUrl,
-        priceCurrency,
-        price: Number(product.price).toFixed(2),
-        availability: 'https://schema.org/InStock',
-        itemCondition: 'https://schema.org/NewCondition',
-      },
-    };
-
-    let structuredDataScript = document.querySelector<HTMLScriptElement>(
-      'script[data-product-schema="true"]',
-    );
-
-    if (!structuredDataScript) {
-      structuredDataScript = document.createElement('script');
-      structuredDataScript.type = 'application/ld+json';
-      structuredDataScript.setAttribute('data-product-schema', 'true');
-      document.head.appendChild(structuredDataScript);
-    }
-
-    structuredDataScript.textContent = JSON.stringify(structuredData);
-
-    return () => {
-      const existingSchema = document.querySelector(
-        'script[data-product-schema="true"]',
-      );
-
-      existingSchema?.remove();
-    };
-  }, [product, settings.currency]);
+  const breadcrumbs = product
+    ? [
+        { name: 'Home', item: '/' },
+        { name: product.category || 'Collection', item: `/?category=${encodeURIComponent(product.category || 'All')}` },
+        { name: product.name, item: `/product/${product.id}` },
+      ]
+    : undefined;
 
   const [selectedImage, setSelectedImage] = useState<string>('');
   const [selectedSize, setSelectedSize] = useState<string>('');
@@ -267,6 +267,7 @@ const ProductPageContent: React.FC = () => {
   if (!product) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-24 text-center space-y-4">
+        <SEO title="Product Not Found" noIndex={true} />
         <h2 className="font-serif text-3xl text-gradient-gold">
           Product Not Found
         </h2>
@@ -675,6 +676,16 @@ const ProductPageContent: React.FC = () => {
   // MAIN FULL PRODUCT PAGE EDITORIAL VIEW
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 animate-fade-in">
+      <SEO
+        title={product.name}
+        description={description}
+        canonical={`/product/${product.id}`}
+        image={productImage}
+        ogType="product"
+        breadcrumbs={breadcrumbs}
+        structuredData={productStructuredData}
+      />
+
       {/* Back to Collection Navigation */}
       <button
         onClick={() => navigate('/')}

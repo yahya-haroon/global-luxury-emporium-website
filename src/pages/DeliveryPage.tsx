@@ -1,10 +1,20 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, AlertCircle } from 'lucide-react';
+import { SEO } from '../components/SEO';
 
 export const DeliveryPage: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <SEO
+        title="Worldwide Shipping & Delivery Information"
+        description="Global Luxury Emporium delivers handcrafted luxury leather jackets across the globe with tracked DHL Express & FedEx couriers. Dispatch schedules, transit times and custom duties."
+        canonical="/delivery"
+        breadcrumbs={[
+          { name: 'Home', item: '/' },
+          { name: 'Delivery Information', item: '/delivery' },
+        ]}
+      />
       <Link
         to="/"
         className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-muted hover:text-gold transition-colors mb-8 focus:outline-none focus-visible:text-gold"

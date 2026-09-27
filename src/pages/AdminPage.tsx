@@ -36,7 +36,11 @@ import {
   Video,
   Link2,
   Tag,
+  Globe,
+  Download,
+  ExternalLink,
 } from 'lucide-react';
+import { generateSitemapXml } from '../lib/sitemapGenerator';
 import {
   ColorTheme,
   THEME_PRESETS,
@@ -343,6 +347,19 @@ export const AdminPage: React.FC = () => {
       setIsUploadingFeatured(false);
       if (e.target) e.target.value = '';
     }
+  };
+
+  const handleDownloadSitemap = () => {
+    const xml = generateSitemapXml(products);
+    const blob = new Blob([xml], { type: 'application/xml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'sitemap.xml';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   // Quick-add an existing product image to the featured gallery.
@@ -3931,6 +3948,78 @@ export const AdminPage: React.FC = () => {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* Search Engine Optimization (SEO) & Sitemaps */}
+            <div className="space-y-4 pt-4 border-t border-hairline">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-hairline pb-2">
+                <div>
+                  <h3 className="text-xs uppercase tracking-wider font-semibold text-gold-dark flex items-center gap-1.5">
+                    <Globe className="w-3.5 h-3.5" />
+                    Search Engine Optimization (SEO) &amp; Sitemap
+                  </h3>
+                  <p className="text-[11px] text-muted mt-0.5">
+                    Manage Google indexing, structured data, canonical tags, and search engine discovery.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleDownloadSitemap}
+                  className="btn-ghost text-xs py-1.5 px-3 flex items-center gap-1.5 text-gold hover:text-gold-dark border border-gold/40 hover:border-gold"
+                  title="Download an updated sitemap.xml with all your current products"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Export sitemap.xml</span>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                <div className="bg-ivory/50 border border-hairline p-3 rounded space-y-1">
+                  <span className="text-[10px] uppercase tracking-wider text-muted font-medium">Canonical Domain</span>
+                  <p className="font-mono text-text font-medium truncate">https://www.globalluxuryemporium.com</p>
+                </div>
+                <div className="bg-ivory/50 border border-hairline p-3 rounded space-y-1">
+                  <span className="text-[10px] uppercase tracking-wider text-muted font-medium">Sitemap Status</span>
+                  <a
+                    href="/sitemap.xml"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-mono text-gold hover:underline flex items-center gap-1"
+                  >
+                    /sitemap.xml <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+                <div className="bg-ivory/50 border border-hairline p-3 rounded space-y-1">
+                  <span className="text-[10px] uppercase tracking-wider text-muted font-medium">Robots Directives</span>
+                  <a
+                    href="/robots.txt"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-mono text-gold hover:underline flex items-center gap-1"
+                  >
+                    /robots.txt <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3 pt-1">
+                <a
+                  href="https://search.google.com/test/rich-results?url=https%3A%2F%2Fwww.globalluxuryemporium.com"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn-ghost text-xs py-1.5 px-3 inline-flex items-center gap-1.5"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" /> Test on Google Rich Results
+                </a>
+                <a
+                  href="https://search.google.com/search-console"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn-ghost text-xs py-1.5 px-3 inline-flex items-center gap-1.5"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" /> Google Search Console
+                </a>
               </div>
             </div>
 
