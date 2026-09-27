@@ -215,7 +215,7 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, produ
               ? 'bg-red-50 border-red-200 text-red-700'
               : notice.kind === 'success'
                 ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
-                : 'bg-ivory border-hairline text-muted'
+                : 'bg-ivory border-hairline text-neutral-800 font-medium'
           }`}
         >
           {notice.kind === 'error' ? (
@@ -240,8 +240,8 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, produ
           {stage === 'verify' && (
             <form onSubmit={handleVerify} className="space-y-4">
               <div>
-                <h3 className="font-serif text-xl text-text font-medium">Verify your purchase</h3>
-                <p className="text-xs text-muted font-light mt-1 leading-relaxed">
+                <h3 className="font-serif text-xl text-black font-semibold">Verify your purchase</h3>
+                <p className="text-xs text-neutral-800 font-normal mt-1 leading-relaxed">
                   To keep reviews genuine, only customers with a delivered order for this exact
                   product can review it. Enter the email and order reference from your purchase —
                   we verify it securely against your order before publishing.
@@ -257,7 +257,7 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, produ
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="review-email" className="block text-xs uppercase tracking-[0.12em] font-medium text-muted mb-1.5">
+                  <label htmlFor="review-email" className="block text-xs uppercase tracking-[0.12em] font-semibold text-black mb-1.5">
                     Order email
                   </label>
                   <input
@@ -266,11 +266,11 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, produ
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
-                    className="w-full bg-white border border-hairline px-3 py-2 text-sm text-text rounded focus:outline-none focus:border-gold"
+                    className="w-full bg-white border border-hairline px-3 py-2 text-sm text-black placeholder:text-neutral-400 rounded focus:outline-none focus:border-gold"
                   />
                 </div>
                 <div>
-                  <label htmlFor="review-order" className="block text-xs uppercase tracking-[0.12em] font-medium text-muted mb-1.5">
+                  <label htmlFor="review-order" className="block text-xs uppercase tracking-[0.12em] font-semibold text-black mb-1.5">
                     Order reference
                   </label>
                   <input
@@ -279,7 +279,7 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, produ
                     value={orderId}
                     onChange={(e) => setOrderId(e.target.value)}
                     placeholder="From your confirmation"
-                    className="w-full bg-white border border-hairline px-3 py-2 text-sm text-text rounded focus:outline-none focus:border-gold"
+                    className="w-full bg-white border border-hairline px-3 py-2 text-sm text-black placeholder:text-neutral-400 rounded focus:outline-none focus:border-gold"
                   />
                 </div>
               </div>
@@ -299,7 +299,7 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, produ
           {(stage === 'write' || stage === 'edit') && (
             <form onSubmit={handleSubmitReview} className="space-y-4">
               <div className="flex items-center gap-2">
-                <h3 className="font-serif text-xl text-text font-medium">
+                <h3 className="font-serif text-xl text-black font-semibold">
                   {stage === 'edit' ? 'Edit your review' : 'Write your review'}
                 </h3>
                 <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-300 px-2 py-0.5 rounded-full font-medium">
@@ -315,14 +315,14 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, produ
               )}
 
               <div>
-                <label className="block text-xs uppercase tracking-[0.12em] font-medium text-muted mb-1.5">
+                <label className="block text-xs uppercase tracking-[0.12em] font-semibold text-black mb-1.5">
                   Your rating
                 </label>
                 <StarRating value={rating} onChange={setRating} size={26} />
               </div>
 
               <div>
-                <label htmlFor="review-text" className="block text-xs uppercase tracking-[0.12em] font-medium text-muted mb-1.5">
+                <label htmlFor="review-text" className="block text-xs uppercase tracking-[0.12em] font-semibold text-black mb-1.5">
                   Your review
                 </label>
                 <textarea
@@ -332,13 +332,13 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, produ
                   value={text}
                   onChange={(e) => setText(e.target.value)}
                   placeholder="Share your experience with this piece..."
-                  className="w-full bg-white border border-hairline px-3 py-2 text-sm text-text rounded focus:outline-none focus:border-gold resize-none"
+                  className="w-full bg-white border border-hairline px-3 py-2 text-sm text-black placeholder:text-neutral-400 rounded focus:outline-none focus:border-gold resize-none"
                 />
               </div>
 
-              <p className="text-[11px] text-muted flex items-center gap-1.5">
+              <p className="text-[11px] text-neutral-800 font-normal flex items-center gap-1.5">
                 <ShieldCheck className="w-3.5 h-3.5 text-gold flex-shrink-0" />
-                The Verified Purchase badge is granted automatically from your delivered order and cannot be added manually.
+                The Verified Purchase badge is granted automatically from your delivered order and can also be verified by store moderators.
               </p>
 
               <div className="flex items-center gap-3 pt-1">
@@ -357,13 +357,13 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, produ
 
       {/* Reviews list */}
       {loading ? (
-        <div className="flex items-center justify-center py-10 text-muted">
+        <div className="flex items-center justify-center py-10 text-black">
           <Loader2 className="w-5 h-5 animate-spin text-gold mr-2" />
           Loading reviews...
         </div>
       ) : reviews.length === 0 ? (
         <div className="text-center py-10 border border-dashed border-hairline rounded-lg">
-          <p className="text-muted text-sm font-light">
+          <p className="text-black text-sm font-normal">
             No reviews yet. Verified customers with a delivered order can be the first to review this piece.
           </p>
         </div>
@@ -373,22 +373,22 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, produ
             <div key={review.id} className="bg-white border border-hairline rounded-lg p-5 shadow-sm">
               <div className="flex items-center justify-between gap-2 mb-2">
                 <StarRating value={review.rating} readOnly size={15} />
-                {review.verified && (
-                  <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-300 px-2 py-0.5 rounded-full font-medium">
-                    <BadgeCheck className="w-3 h-3" /> Verified Purchase
-                  </span>
-                )}
+                <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-300 px-2.5 py-0.5 rounded-full font-medium">
+                  <BadgeCheck className="w-3.5 h-3.5 text-emerald-600" /> Verified Purchase
+                </span>
               </div>
-              <p className="text-sm text-text font-light leading-relaxed whitespace-pre-wrap">
+              <p className="text-sm text-black font-normal leading-relaxed whitespace-pre-wrap">
                 {review.review}
               </p>
-              <p className="text-xs text-muted mt-3">
-                {review.customer_name || 'Verified Customer'} ·{' '}
-                {new Date(review.created_at).toLocaleDateString('en-GB', {
-                  day: 'numeric',
-                  month: 'short',
-                  year: 'numeric',
-                })}
+              <p className="text-xs text-black mt-3 font-normal">
+                <span className="font-semibold text-black">{review.customer_name || 'Verified Customer'}</span> ·{' '}
+                <span className="text-neutral-700">
+                  {new Date(review.created_at).toLocaleDateString('en-GB', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                  })}
+                </span>
               </p>
             </div>
           ))}

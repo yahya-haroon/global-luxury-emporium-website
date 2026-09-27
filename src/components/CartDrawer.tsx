@@ -20,6 +20,8 @@ import {
   CheckCircle2,
   Loader2,
   Lock,
+  Copy,
+  Check,
 } from 'lucide-react';
 
 const CARD_ELEMENT_OPTIONS = {
@@ -98,6 +100,7 @@ const CartDrawerContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [completedOrder, setCompletedOrder] = useState<CompletedCartOrder | null>(null);
+  const [copiedRef, setCopiedRef] = useState(false);
 
   const [orderForm, setOrderForm] = useState<OrderFormState>({
     fullName: '',
@@ -710,9 +713,28 @@ const CartDrawerContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   <p className="text-xs text-muted mt-1 font-light">
                     Order confirmation reference:
                   </p>
-                  <span className="font-mono text-sm font-bold text-gold inline-block mt-0.5 bg-ivory px-3 py-1 rounded border border-hairline">
-                    #{completedOrder.orderId.slice(0, 8)}
-                  </span>
+                  <div className="flex items-center justify-center gap-2 mt-1.5">
+                    <span className="font-mono text-base font-bold text-gold inline-block bg-ivory px-3.5 py-1.5 rounded border border-hairline tracking-wider">
+                      #{completedOrder.orderId.replace(/^#/, '').replace(/^ord_/, '').slice(0, 8).toUpperCase()}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const ref = `#${completedOrder.orderId.replace(/^#/, '').replace(/^ord_/, '').slice(0, 8).toUpperCase()}`;
+                        navigator.clipboard.writeText(ref);
+                        setCopiedRef(true);
+                        setTimeout(() => setCopiedRef(false), 2000);
+                      }}
+                      className="text-xs border border-hairline hover:border-gold px-2.5 py-1.5 rounded bg-white text-muted hover:text-text transition-colors flex items-center gap-1 font-medium shadow-sm"
+                      title="Copy reference number"
+                    >
+                      {copiedRef ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span>{copiedRef ? 'Copied' : 'Copy'}</span>
+                    </button>
+                  </div>
+                  <p className="text-[11px] text-muted mt-2 max-w-xs mx-auto">
+                    An itemised receipt and reference number have been sent to <strong className="text-text font-medium">{completedOrder.email}</strong>.
+                  </p>
                 </div>
 
                 {/* Items Purchased List */}

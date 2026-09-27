@@ -74,11 +74,9 @@ export const Testimonials: React.FC = () => {
             <div className="testi-meta">
               <span className="testi-name">{review.customer_name || 'Customer'}</span>
               <span className="testi-product sm">{productName(review.product_id)}</span>
-              {review.verified && (
-                <span className="testi-verified sm">
-                  <BadgeCheck className="w-3 h-3" /> Verified Purchase
-                </span>
-              )}
+              <span className="testi-verified sm">
+                <BadgeCheck className="w-3 h-3" /> Verified Purchase
+              </span>
             </div>
           </article>
         ))}

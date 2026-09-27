@@ -31,8 +31,8 @@ interface DataContextType {
   toggleProductVisibility: (id: string, isVisible: boolean) => Promise<{ error?: string }>;
   saveSettings: (newSettings: Settings) => Promise<{ error?: string }>;
   updateOrderStatus: (orderId: string, status: OrderStatus) => Promise<{ error?: string }>;
-  createReview: (input: { product_id: string; customer_name: string; rating: number; review: string; published: boolean }) => Promise<{ error?: string }>;
-  saveReviewEdits: (reviewId: string, edits: { rating?: number; review?: string; published?: boolean; product_id?: string; customer_name?: string }) => Promise<{ error?: string }>;
+  createReview: (input: { product_id: string; customer_name: string; rating: number; review: string; published: boolean; verified?: boolean }) => Promise<{ error?: string }>;
+  saveReviewEdits: (reviewId: string, edits: { rating?: number; review?: string; published?: boolean; product_id?: string; customer_name?: string; verified?: boolean }) => Promise<{ error?: string }>;
   deleteReview: (reviewId: string) => Promise<{ error?: string }>;
   addFeaturedImage: (image: { image_url: string; alt_text?: string }) => Promise<{ error?: string }>;
   updateFeaturedImage: (id: string, patch: Partial<Pick<FeaturedImage, 'alt_text' | 'is_active' | 'sort_order'>>) => Promise<{ error?: string }>;
@@ -371,9 +371,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 
   // ---- Mutation: admin creates a review manually ----
-  // Admin-created reviews are NEVER tied to an order and NEVER verified:
-  // we omit `verified` (column default false) and `order_id` (nullable).
-  // The Verified Purchase flag stays server-authoritative via submit-review.
   const createReview = useCallback(
     async (input: {
       product_id: string;
@@ -381,6 +378,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       rating: number;
       review: string;
       published: boolean;
+      verified?: boolean;
     }): Promise<{ error?: string }> => {
       if (!isSupabaseConfigured) return { error: 'Supabase is not configured.' };
       if (!user?.isOwner) return { error: 'Unauthorized. Only the owner can add reviews.' };
@@ -394,6 +392,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             rating: input.rating,
             review: input.review,
             published: input.published,
+            verified: input.verified ?? false,
           }]);
 
         if (insErr) throw insErr;
@@ -408,11 +407,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     [refreshReviews, user?.isOwner]
   );
 
-  // ---- Mutation: review moderation (edit text/rating/product/name, publish/unpublish) ----
+  // ---- Mutation: review moderation (edit text/rating/product/name, verified, publish/unpublish) ----
   const saveReviewEdits = useCallback(
     async (
       reviewId: string,
-      edits: { rating?: number; review?: string; published?: boolean; product_id?: string; customer_name?: string }
+      edits: { rating?: number; review?: string; published?: boolean; product_id?: string; customer_name?: string; verified?: boolean }
     ): Promise<{ error?: string }> => {
       if (!isSupabaseConfigured) return { error: 'Supabase is not configured.' };
       if (!user?.isOwner) return { error: 'Unauthorized. Only the owner can moderate reviews.' };
@@ -424,6 +423,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (edits.published !== undefined) payload.published = edits.published;
         if (edits.product_id !== undefined) payload.product_id = edits.product_id;
         if (edits.customer_name !== undefined) payload.customer_name = edits.customer_name;
+        if (edits.verified !== undefined) payload.verified = edits.verified;
 
         const { error: updErr } = await supabase
           .from('reviews')

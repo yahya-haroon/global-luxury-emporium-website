@@ -258,14 +258,18 @@ Deno.serve(async (req) => {
     }
 
     const amountInPence = Math.round(totalAmount * 100);
+    const orderId = crypto.randomUUID();
+    const orderRef = orderId.slice(0, 8).toUpperCase();
 
-    // 3. Create Stripe PaymentIntent
+    // 3. Create Stripe PaymentIntent with Order Reference
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountInPence,
       currency: 'gbp',
       receipt_email: email,
-      description,
+      description: `Order #${orderRef}: ${description}`,
       metadata: {
+        order_reference: `#${orderRef}`,
+        order_id: orderId,
         customer_name: customerName,
         delivery_zone: deliveryZoneName,
         total_amount: totalAmount.toFixed(2),
@@ -273,6 +277,7 @@ Deno.serve(async (req) => {
     });
 
     // 4. Record order in 'orders' table as 'pending'
+    orderRecord.id = orderId;
     orderRecord.stripe_payment_intent_id = paymentIntent.id;
     orderRecord.created_at = new Date().toISOString();
     orderRecord.updated_at = new Date().toISOString();

@@ -58,6 +58,7 @@ Deno.serve(async (req) => {
     }
 
     const order = updatedOrder || {
+      id: paymentIntent.metadata?.order_id || paymentIntentId,
       product_name: paymentIntent.metadata?.product_name || 'Bespoke Leather Jacket',
       size: paymentIntent.metadata?.size || 'Standard',
       product_price: paymentIntent.metadata?.total_amount || (paymentIntent.amount / 100),
@@ -74,16 +75,19 @@ Deno.serve(async (req) => {
       address: { line1: '', city: '', postal_code: '', country: '' },
     };
 
+    const rawRef = order.id || paymentIntent.metadata?.order_id || paymentIntent.metadata?.order_reference || paymentIntentId;
+    const orderRef = String(rawRef).replace(/^#/, '').replace(/^ord_/, '').slice(0, 8).toUpperCase();
+
     // 2. Send itemised confirmation and notification emails via Resend
     if (resendApiKey) {
-      const emailHtml = generateItemisedEmailHtml(order);
+      const emailHtml = generateItemisedEmailHtml(order, orderRef);
 
       // Customer confirmation
       if (order.email) {
         await sendResendEmail({
           apiKey: resendApiKey,
           to: order.email,
-          subject: `Order Confirmation — Global Luxury Emporium Ltd`,
+          subject: `Order Confirmation #${orderRef} — Global Luxury Emporium Ltd`,
           html: emailHtml,
         });
       }
@@ -92,7 +96,7 @@ Deno.serve(async (req) => {
       await sendResendEmail({
         apiKey: resendApiKey,
         to: OWNER_EMAIL,
-        subject: `New Paid Order: ${order.product_name} (£${Number(order.total_amount).toFixed(2)})`,
+        subject: `New Paid Order #${orderRef}: ${order.product_name} (£${Number(order.total_amount).toFixed(2)})`,
         html: emailHtml,
       });
     }
@@ -115,7 +119,7 @@ Deno.serve(async (req) => {
   });
 });
 
-function generateItemisedEmailHtml(order: any): string {
+function generateItemisedEmailHtml(order: any, orderRef: string): string {
   const currency = order.currency || '£';
   const address = typeof order.address === 'string' ? JSON.parse(order.address) : (order.address || {});
 
@@ -158,7 +162,14 @@ function generateItemisedEmailHtml(order: any): string {
   return `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #F7F3EA; padding: 36px; border: 1px solid #DDD5C4;">
       <h1 style="font-family: Georgia, serif; font-size: 26px; color: #141210; margin-top: 0;">Global Luxury Emporium Ltd</h1>
-      <p style="color: #6D6558; font-size: 14px; margin-bottom: 24px;">Thank you for your order, ${order.customer_name}. Your jacket has been received and scheduled for handcrafted finishing in our dedicated factory.</p>
+      <p style="color: #6D6558; font-size: 14px; margin-bottom: 20px;">Thank you for your order, ${order.customer_name}. Your jacket has been received and scheduled for handcrafted finishing in our dedicated factory.</p>
+
+      <!-- Prominent Order Reference Box -->
+      <div style="background: #ffffff; padding: 18px 24px; border: 1px solid #DDD5C4; border-left: 4px solid #9A7628; margin-bottom: 24px;">
+        <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; color: #6D6558; margin-bottom: 4px;">Order Reference Number</div>
+        <div style="font-family: monospace; font-size: 22px; font-weight: bold; color: #9A7628; letter-spacing: 0.05em;">#${orderRef}</div>
+        <div style="font-size: 11px; color: #6D6558; margin-top: 4px;">Quote this reference for delivery tracking, concierge customer service, and verified product reviews.</div>
+      </div>
 
       <div style="background: #ffffff; padding: 24px; border: 1px solid #DDD5C4; margin-bottom: 24px;">
         <h3 style="margin-top: 0; font-size: 14px; text-transform: uppercase; letter-spacing: 0.14em; color: #9A7628;">Itemised Order Summary</h3>

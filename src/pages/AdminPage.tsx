@@ -130,6 +130,7 @@ export const AdminPage: React.FC = () => {
   const [editReviewText, setEditReviewText] = useState('');
   const [editReviewProductId, setEditReviewProductId] = useState('');
   const [editReviewName, setEditReviewName] = useState('');
+  const [editReviewVerified, setEditReviewVerified] = useState(false);
   const [reviewActionBusy, setReviewActionBusy] = useState<string | null>(null);
   const [reviewFilter, setReviewFilter] = useState<'all' | 'published' | 'hidden'>('all');
 
@@ -140,6 +141,7 @@ export const AdminPage: React.FC = () => {
   const [newReviewRating, setNewReviewRating] = useState(5);
   const [newReviewText, setNewReviewText] = useState('');
   const [newReviewPublished, setNewReviewPublished] = useState(true);
+  const [newReviewVerified, setNewReviewVerified] = useState(true);
 
   // Featured gallery tab state
   const [isUploadingFeatured, setIsUploadingFeatured] = useState(false);
@@ -215,6 +217,7 @@ export const AdminPage: React.FC = () => {
     setEditReviewText(review.review);
     setEditReviewProductId(review.product_id);
     setEditReviewName(review.customer_name || '');
+    setEditReviewVerified(review.verified ?? false);
   };
 
   const handleSaveReviewEdits = async (reviewId: string) => {
@@ -232,6 +235,7 @@ export const AdminPage: React.FC = () => {
       review: editReviewText.trim(),
       product_id: editReviewProductId,
       customer_name: editReviewName.trim(),
+      verified: editReviewVerified,
     });
     setReviewActionBusy(null);
     if (result.error) {
@@ -247,6 +251,7 @@ export const AdminPage: React.FC = () => {
     setNewReviewRating(5);
     setNewReviewText('');
     setNewReviewPublished(true);
+    setNewReviewVerified(true);
   };
 
   const handleCreateReview = async () => {
@@ -265,6 +270,7 @@ export const AdminPage: React.FC = () => {
       rating: newReviewRating,
       review: newReviewText.trim(),
       published: newReviewPublished,
+      verified: newReviewVerified,
     });
     setReviewActionBusy(null);
     if (result.error) {
@@ -281,6 +287,15 @@ export const AdminPage: React.FC = () => {
     setReviewActionBusy(null);
     if (result.error) {
       alert(`Could not update review visibility: ${result.error}`);
+    }
+  };
+
+  const handleToggleReviewVerified = async (review: Review) => {
+    setReviewActionBusy(review.id);
+    const result = await saveReviewEdits(review.id, { verified: !review.verified });
+    setReviewActionBusy(null);
+    if (result.error) {
+      alert(`Could not update verified status: ${result.error}`);
     }
   };
 
@@ -1982,6 +1997,29 @@ export const AdminPage: React.FC = () => {
                   <Plus className="w-3.5 h-3.5" />
                   <span>{isAddingReview ? 'Close' : 'Add review'}</span>
                 </button>
+                {reviews.some((r) => !r.verified) && (
+                  <button
+                    onClick={async () => {
+                      const unverified = reviews.filter((r) => !r.verified);
+                      setReviewActionBusy('all-verified');
+                      for (const r of unverified) {
+                        await saveReviewEdits(r.id, { verified: true });
+                      }
+                      setReviewActionBusy(null);
+                    }}
+                    disabled={reviewActionBusy === 'all-verified'}
+                    className="btn-ghost text-xs py-2 px-3 flex items-center gap-1.5 text-emerald-700 hover:text-emerald-800"
+                    title="Mark all existing reviews as verified"
+                  >
+                    {reviewActionBusy === 'all-verified' ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <BadgeCheck className="w-3.5 h-3.5 text-emerald-600" />
+                    )}
+                    <span>Verify all reviews</span>
+                  </button>
+                )}
+
                 <button
                   onClick={refreshReviews}
                   className="btn-ghost text-xs py-2 px-3 flex items-center gap-1.5"
@@ -1997,12 +2035,12 @@ export const AdminPage: React.FC = () => {
               <div className="bg-white border border-hairline rounded-lg p-4 sm:p-5 shadow-sm space-y-4">
                 <div className="flex items-center gap-2">
                   <h3 className="font-serif text-lg text-text font-medium">Add a review</h3>
-                  <span className="text-[10px] uppercase tracking-wider bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium">
-                    Not verified
+                  <span className="text-[10px] uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-300 px-2 py-0.5 rounded-full font-medium inline-flex items-center gap-1">
+                    <BadgeCheck className="w-3 h-3" /> Verified by default
                   </span>
                 </div>
                 <p className="text-[11px] text-muted -mt-2">
-                  Manually added reviews are never marked as a Verified Purchase. That badge is granted only by the server after it confirms a delivered, matching order.
+                  Create and publish a client review with an optional Verified Purchase badge.
                 </p>
 
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -2072,15 +2110,28 @@ export const AdminPage: React.FC = () => {
                   />
                 </div>
 
-                <label className="flex items-center gap-2 text-sm text-text cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={newReviewPublished}
-                    onChange={(e) => setNewReviewPublished(e.target.checked)}
-                    className="accent-gold w-4 h-4"
-                  />
-                  Published (visible on the product page)
-                </label>
+                <div className="flex flex-wrap items-center gap-6">
+                  <label className="flex items-center gap-2 text-sm text-text cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={newReviewPublished}
+                      onChange={(e) => setNewReviewPublished(e.target.checked)}
+                      className="accent-gold w-4 h-4"
+                    />
+                    Published (visible on the product page)
+                  </label>
+
+                  <label className="flex items-center gap-2 text-sm text-text cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={newReviewVerified}
+                      onChange={(e) => setNewReviewVerified(e.target.checked)}
+                      className="accent-gold w-4 h-4"
+                    />
+                    <BadgeCheck className="w-4 h-4 text-emerald-600" />
+                    Publish as Verified Purchase
+                  </label>
+                </div>
 
                 <div className="flex items-center gap-2">
                   <button
@@ -2149,16 +2200,25 @@ export const AdminPage: React.FC = () => {
                             <span className="font-serif text-base text-text font-medium">
                               {productNameById(review.product_id)}
                             </span>
-                            {review.verified && (
-                              <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-300 px-2 py-0.5 rounded-full font-medium">
-                                <BadgeCheck className="w-3 h-3" /> Verified Purchase
-                              </span>
-                            )}
-                            {!review.verified && (
-                              <span className="text-[10px] uppercase tracking-wider bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium">
-                                Not verified
-                              </span>
-                            )}
+                            <button
+                              type="button"
+                              onClick={() => handleToggleReviewVerified(review)}
+                              disabled={reviewActionBusy === review.id}
+                              title="Click to toggle Verified Purchase badge"
+                              className={`inline-flex items-center gap-1 text-[10px] uppercase tracking-wider px-2.5 py-0.5 rounded-full font-medium transition-all cursor-pointer ${
+                                review.verified
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-300 hover:bg-emerald-100'
+                                  : 'bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200'
+                              }`}
+                            >
+                              {review.verified ? (
+                                <>
+                                  <BadgeCheck className="w-3 h-3 text-emerald-600" /> Verified Purchase
+                                </>
+                              ) : (
+                                'Not verified (click to verify)'
+                              )}
+                            </button>
                             {!review.published && (
                               <span className="text-[10px] uppercase tracking-wider bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium">
                                 Hidden
@@ -2196,6 +2256,15 @@ export const AdminPage: React.FC = () => {
                         </div>
 
                         <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleToggleReviewVerified(review)}
+                            disabled={reviewActionBusy === review.id}
+                            className={`btn-ghost text-xs py-1.5 px-3 flex items-center gap-1.5 ${review.verified ? 'text-emerald-700 hover:text-emerald-800' : 'text-muted'}`}
+                            title={review.verified ? 'Remove verified badge' : 'Mark as verified purchase'}
+                          >
+                            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                            {review.verified ? 'Unverify' : 'Verify'}
+                          </button>
                           <button
                             onClick={() => handleToggleReviewPublished(review)}
                             disabled={reviewActionBusy === review.id}
@@ -2237,7 +2306,7 @@ export const AdminPage: React.FC = () => {
                               >
                                 <option value="">Select a product…</option>
                                 {products.map((p) => (
-                                  <option key={p.id} value={p.id}>
+                                   <option key={p.id} value={p.id}>
                                     {p.name}
                                   </option>
                                 ))}
@@ -2287,9 +2356,16 @@ export const AdminPage: React.FC = () => {
                               className="w-full bg-white border border-hairline px-3 py-2 text-sm rounded focus:border-gold resize-none"
                             />
                           </div>
-                          <p className="text-[11px] text-muted">
-                            The order link and Verified Purchase status cannot be changed here — the badge is server-authoritative.
-                          </p>
+                          <label className="flex items-center gap-2 text-sm text-text cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={editReviewVerified}
+                              onChange={(e) => setEditReviewVerified(e.target.checked)}
+                              className="accent-gold w-4 h-4"
+                            />
+                            <BadgeCheck className="w-4 h-4 text-emerald-600" />
+                            Mark as Verified Purchase
+                          </label>
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => handleSaveReviewEdits(review.id)}
@@ -2308,7 +2384,7 @@ export const AdminPage: React.FC = () => {
                           </div>
                         </div>
                       ) : (
-                        <p className="mt-3 text-sm text-text font-light whitespace-pre-wrap">
+                        <p className="mt-3 text-sm text-black font-normal whitespace-pre-wrap">
                           {review.review}
                         </p>
                       )}
