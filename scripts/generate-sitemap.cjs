@@ -2,7 +2,7 @@ const https = require('https');
 const fs = require('fs');
 const path = require('path');
 
-const url = 'https://zwmpibunoyyqvagebotn.supabase.co/rest/v1/products?select=id,name,category,description,images,is_visible,created_at,updated_at&order=created_at.desc';
+const url = 'https://zwmpibunoyyqvagebotn.supabase.co/rest/v1/products?select=id,name,category,description,images,is_visible,created_at,updated_at&order=created_at.desc&limit=1000';
 const options = {
   headers: {
     'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3bXBpYnVub3l5cXZhZ2Vib3RuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NzYzNzgsImV4cCI6MjEwNTU1MjM3OH0.Je7lwQ7RyIwHy1y40vUMoR3mPZQ43a9qo2lACQuH0mY',
