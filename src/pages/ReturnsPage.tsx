@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, AlertCircle } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { SEO } from '../components/SEO';
 
 export const ReturnsPage: React.FC = () => {
@@ -22,16 +22,11 @@ export const ReturnsPage: React.FC = () => {
         <ArrowLeft className="w-4 h-4" /> Back to collection
       </Link>
 
-      <div className="mb-6 inline-flex items-center gap-2 px-3 py-1.5 bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded-full font-medium">
-        <AlertCircle className="w-3.5 h-3.5" />
-        <span>Draft, owner to review</span>
-      </div>
-
       <h1 className="font-serif text-3xl sm:text-4xl text-text font-medium mb-6">
         Returns, Exchanges & Guarantee
       </h1>
 
-      <div className="prose prose-stone text-muted space-y-4 font-light leading-relaxed">
+      <div className="text-stone-700 space-y-5 font-normal leading-relaxed text-sm sm:text-base">
         <p>
           We stand by the craftsmanship of every garment crafted in our factory. If you are not entirely satisfied with your purchase, we provide comprehensive return and exchange services.
         </p>
