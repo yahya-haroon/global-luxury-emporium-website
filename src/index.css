@@ -1267,6 +1267,10 @@ footer.site-footer a:hover {
   font-weight: 500;
 }
 
+select, option {
+  color: #000000 !important;
+}
+
 label.field-lbl {
   display: block;
   margin-top: 20px;

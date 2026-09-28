@@ -363,7 +363,7 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, produ
         </div>
       ) : reviews.length === 0 ? (
         <div className="text-center py-10 border border-dashed border-hairline rounded-lg">
-          <p className="text-black text-sm font-normal">
+          <p className="text-white text-sm font-normal" style={{ color: '#FFFFFF' }}>
             No reviews yet. Verified customers with a delivered order can be the first to review this piece.
           </p>
         </div>

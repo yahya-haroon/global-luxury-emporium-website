@@ -798,15 +798,16 @@ const ProductPageContent: React.FC = () => {
                       onChange={(e) =>
                         updateSelectedOption(option.name, e.target.value)
                       }
-                      className="w-full bg-white border border-hairline px-3 py-2.5 text-sm text-text rounded focus:outline-none focus:border-gold"
+                      className="w-full bg-white border border-hairline px-3 py-2.5 text-sm text-black font-medium rounded focus:outline-none focus:border-gold"
+                      style={{ color: '#000000' }}
                     >
                       {(!option.required || !selectedOptions[option.name]) && (
-                        <option value="">
+                        <option value="" className="text-black" style={{ color: '#000000' }}>
                           Select {option.label || option.name}
                         </option>
                       )}
                       {option.values.map((value) => (
-                        <option key={value} value={value}>
+                        <option key={value} value={value} className="text-black" style={{ color: '#000000' }}>
                           {value}
                         </option>
                       ))}
@@ -832,6 +833,7 @@ const ProductPageContent: React.FC = () => {
                               updateSelectedOption(option.name, value)
                             }
                             className={`filter-chip ${isSelected ? 'active' : ''}`}
+                            style={{ color: isSelected ? undefined : '#000000' }}
                           >
                             {value}
                           </button>
@@ -850,7 +852,8 @@ const ProductPageContent: React.FC = () => {
                       onChange={(e) =>
                         updateSelectedOption(option.name, e.target.value)
                       }
-                      className="w-full bg-white border border-hairline px-3 py-2 text-sm text-text rounded focus:outline-none focus:border-gold"
+                      className="w-full bg-white border border-hairline px-3 py-2 text-sm text-black font-medium placeholder:text-neutral-500 rounded focus:outline-none focus:border-gold"
+                      style={{ color: '#000000' }}
                     />
                   )}
 
@@ -864,7 +867,8 @@ const ProductPageContent: React.FC = () => {
                       onChange={(e) =>
                         updateSelectedOption(option.name, e.target.value)
                       }
-                      className="w-full bg-white border border-hairline px-3 py-2 text-sm text-text rounded focus:outline-none focus:border-gold resize-none"
+                      className="w-full bg-white border border-hairline px-3 py-2 text-sm text-black font-medium placeholder:text-neutral-500 rounded focus:outline-none focus:border-gold resize-none"
+                      style={{ color: '#000000' }}
                     />
                   )}
                 </div>
@@ -890,7 +894,8 @@ const ProductPageContent: React.FC = () => {
                 placeholder={settings.personalisation.hint}
                 value={personalisationText}
                 onChange={(e) => setPersonalisationText(e.target.value)}
-                className="w-full bg-white border border-hairline px-3 py-2 text-sm text-text rounded focus:outline-none focus:border-gold"
+                className="w-full bg-white border border-hairline px-3 py-2 text-sm text-black font-medium placeholder:text-neutral-500 rounded focus:outline-none focus:border-gold"
+                style={{ color: '#000000' }}
               />
 
               <p className="text-[12px] text-muted mt-1.5 font-light">
@@ -919,7 +924,8 @@ const ProductPageContent: React.FC = () => {
                 placeholder={settings.requirements.hint}
                 value={requirementsText}
                 onChange={(e) => setRequirementsText(e.target.value)}
-                className="w-full bg-white border border-hairline px-3 py-2 text-sm text-text rounded focus:outline-none focus:border-gold resize-none"
+                className="w-full bg-white border border-hairline px-3 py-2 text-sm text-black font-medium placeholder:text-neutral-500 rounded focus:outline-none focus:border-gold resize-none"
+                style={{ color: '#000000' }}
               />
 
               <p className="text-[12px] text-muted mt-1.5 font-light">
@@ -1075,10 +1081,11 @@ const ProductPageContent: React.FC = () => {
                   id="customer-zone"
                   value={orderForm.deliveryZoneId}
                   onChange={(e) => handleOrderFormChange('deliveryZoneId', e.target.value)}
-                  className="w-full bg-white border border-hairline px-3 py-2.5 text-sm text-text rounded focus:outline-none focus:border-gold"
+                  className="w-full bg-white border border-hairline px-3 py-2.5 text-sm text-black font-medium rounded focus:outline-none focus:border-gold"
+                  style={{ color: '#000000' }}
                 >
                   {deliveryZones.map((zone) => (
-                    <option key={zone.id} value={zone.id}>
+                    <option key={zone.id} value={zone.id} className="text-black" style={{ color: '#000000' }}>
                       {zone.name} — {Number(zone.price) > 0 ? `${settings.currency}${Number(zone.price).toFixed(2)}` : 'Free (no extra charge)'}
                     </option>
                   ))}

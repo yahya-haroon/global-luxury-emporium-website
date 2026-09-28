@@ -381,7 +381,7 @@ const CartDrawerContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                 Object.entries(item.selectedOptions).map(([k, v]) => (
                                   <span
                                     key={k}
-                                    className="text-[10px] text-muted px-1.5 py-0.5 bg-black/5 rounded border border-hairline"
+                                    className="text-[10px] text-black font-semibold px-1.5 py-0.5 bg-black/5 rounded border border-hairline"
                                   >
                                     {k}: {v}
                                   </span>
@@ -468,10 +468,11 @@ const CartDrawerContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                         id="cart-delivery-zone"
                         value={selectedZoneId || selectedZone.id}
                         onChange={(e) => setSelectedZoneId(e.target.value)}
-                        className="w-full bg-white border border-hairline px-3 py-2 text-base sm:text-xs rounded text-text focus:outline-none focus:border-gold"
+                        className="w-full bg-white border border-hairline px-3 py-2 text-base sm:text-xs rounded text-black font-medium focus:outline-none focus:border-gold"
+                        style={{ color: '#000000' }}
                       >
                         {deliveryZones.map((z) => (
-                          <option key={z.id} value={z.id}>
+                          <option key={z.id} value={z.id} className="text-black" style={{ color: '#000000' }}>
                             {z.name} — {Number(z.price) > 0 ? `${settings.currency}${Number(z.price).toFixed(2)}` : 'Free'}
                           </option>
                         ))}
