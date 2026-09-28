@@ -43,7 +43,7 @@ export const FeaturedHighlights: React.FC = () => {
         <div className="sm" style={{ color: 'var(--au2)' }}>
           Featured product highlights
         </div>
-        <h2 className="hl-title">This Season&rsquo;s Standouts</h2>
+        <h2 className="hl-title text-white" style={{ color: '#FFFFFF' }}>This Season&rsquo;s Standouts</h2>
       </div>
 
       <div className="hl-grid">
