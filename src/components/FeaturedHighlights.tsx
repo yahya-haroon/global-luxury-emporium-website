@@ -16,8 +16,8 @@ export const FeaturedHighlights: React.FC = () => {
     .map((row) => ({ row, product: products.find((p) => p.id === row.product_id) }))
     .filter((entry): entry is { row: (typeof configured)[number]; product: Product } => Boolean(entry.product));
 
-  const featured =
-    configuredProducts.length > 0
+  const featured = React.useMemo(() => {
+    return configuredProducts.length > 0
       ? configuredProducts.map((entry) => ({
           product: entry.product,
           image:
@@ -34,6 +34,7 @@ export const FeaturedHighlights: React.FC = () => {
             product.images[1] ||
             product.images[0],
         }));
+  }, [configuredProducts, products, homepageSlots]);
 
   if (featured.length === 0) return null;
 
@@ -50,7 +51,7 @@ export const FeaturedHighlights: React.FC = () => {
         {featured.map(({ product, image }) => (
           <Link key={product.id} className="hl-card" to={`/product/${product.id}`}>
             <div className="hl-img">
-              <img src={image} alt={product.name} loading="lazy" />
+              <img src={image} alt={product.name} loading="lazy" decoding="async" />
             </div>
             <div className="hl-body">
               <span className="sm hl-cat">{product.category}</span>

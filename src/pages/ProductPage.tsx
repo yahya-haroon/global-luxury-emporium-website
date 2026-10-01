@@ -702,6 +702,7 @@ const ProductPageContent: React.FC = () => {
             <img
               src={selectedImage || product.images[0]}
               alt={product.name}
+              decoding="async"
               className="w-full h-full object-cover transition-opacity duration-300"
             />
           </div>
@@ -713,9 +714,13 @@ const ProductPageContent: React.FC = () => {
                 <button
                   key={idx}
                   type="button"
-                  onClick={() => setSelectedImage(img)}
+                  onClick={() => {
+                    React.startTransition(() => {
+                      setSelectedImage(img);
+                    });
+                  }}
                   className={`w-20 h-24 flex-shrink-0 rounded overflow-hidden border transition-all ${
-                    selectedImage === img
+                    (selectedImage || product.images[0]) === img
                       ? 'border-gold ring-2 ring-gold/40'
                       : 'border-hairline hover:border-gold'
                   }`}
@@ -724,6 +729,8 @@ const ProductPageContent: React.FC = () => {
                   <img
                     src={img}
                     alt={`Thumbnail ${idx + 1}`}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover"
                   />
                 </button>

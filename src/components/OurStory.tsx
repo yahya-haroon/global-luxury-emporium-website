@@ -5,7 +5,7 @@ import { isVideoMedia } from '../lib/homepageImages';
 const STORY_TEXT =
   'Global Luxury Emporium Ltd is a UK company in London. Every jacket is cut and stitched in our own factory in Pakistan, so we control the leather, the finish and the fit from start to delivery.';
 
-const DEFAULT_IMG = '/assets/models/campaign-quilted.jpg';
+const DEFAULT_IMG = '/assets/models/campaign-quilted.webp';
 const DEFAULT_ALT = 'Model wearing a quilted burgundy biker leather jacket against a brick wall';
 
 export const OurStory: React.FC = () => {
@@ -78,6 +78,7 @@ export const OurStory: React.FC = () => {
               src={homepageSlots.editorial_story?.image_url || DEFAULT_IMG}
               alt={homepageSlots.editorial_story?.alt_text ?? DEFAULT_ALT}
               loading="lazy"
+              decoding="async"
             />
           )}
         </div>

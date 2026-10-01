@@ -55,6 +55,7 @@ export const CategoryGrid: React.FC = () => {
               src={menSrc}
               alt={menSlot?.alt_text || "Close detail of a men's black racer leather jacket"}
               loading="lazy"
+              decoding="async"
             />
           )}
           <span className="cat-shade" aria-hidden="true" />
@@ -76,6 +77,7 @@ export const CategoryGrid: React.FC = () => {
               src={womenSrc}
               alt={womenSlot?.alt_text || "Close detail of a women's quilted burgundy biker leather jacket"}
               loading="lazy"
+              decoding="async"
             />
           )}
           <span className="cat-shade" aria-hidden="true" />
@@ -115,6 +117,7 @@ export const CategoryGrid: React.FC = () => {
                   src={src}
                   alt={tileAlt}
                   loading="lazy"
+                  decoding="async"
                 />
               )}
               <span className="cat-shade" aria-hidden="true" />

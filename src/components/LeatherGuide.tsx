@@ -15,16 +15,18 @@ export const LeatherGuide: React.FC = () => {
   const guideImage = guideSlot?.image_url || null;
   const isVideo = isVideoMedia(guideSlot);
 
-  const sizes = Array.from(
-    new Set(
-      products.flatMap((p) =>
-        p.sizes
-          .split(',')
-          .map((s) => s.trim())
-          .filter(Boolean)
+  const sizes = React.useMemo(() => {
+    return Array.from(
+      new Set(
+        products.flatMap((p) =>
+          p.sizes
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean)
+        )
       )
-    )
-  );
+    );
+  }, [products]);
 
   const scrollToShop = () => {
     document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -73,7 +75,7 @@ export const LeatherGuide: React.FC = () => {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <img src={guideImage} alt={guideSlot?.alt_text || 'Leather jacket guide'} loading="lazy" />
+              <img src={guideImage} alt={guideSlot?.alt_text || 'Leather jacket guide'} loading="lazy" decoding="async" />
             )}
           </div>
         )}

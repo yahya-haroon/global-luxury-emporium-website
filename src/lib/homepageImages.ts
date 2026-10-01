@@ -1,4 +1,5 @@
 import { supabase, isSupabaseConfigured } from './supabase';
+import { compressImage } from './imageCompressor';
 
 export type MediaType = 'image' | 'video';
 
@@ -64,7 +65,7 @@ export const HOMEPAGE_SLOTS: HomepageSlotDef[] = [
     section: 'Hero',
     label: 'For Men hero',
     kind: 'image',
-    defaultUrl: '/assets/models/campaign-racer.png',
+    defaultUrl: '/assets/models/campaign-racer.webp',
     defaultAlt: 'Male model wearing a classic black racer leather jacket',
   },
   {
@@ -72,7 +73,7 @@ export const HOMEPAGE_SLOTS: HomepageSlotDef[] = [
     section: 'Hero',
     label: 'For Women hero',
     kind: 'image',
-    defaultUrl: '/assets/models/campaign-shearling.jpg',
+    defaultUrl: '/assets/models/campaign-shearling.webp',
     defaultAlt: 'Female model wearing a shearling aviator leather jacket',
   },
   {
@@ -80,7 +81,7 @@ export const HOMEPAGE_SLOTS: HomepageSlotDef[] = [
     section: 'Editorial',
     label: 'Editorial story image',
     kind: 'image',
-    defaultUrl: '/assets/models/campaign-quilted.jpg',
+    defaultUrl: '/assets/models/campaign-quilted.webp',
     defaultAlt: 'Model wearing a quilted burgundy biker leather jacket against a brick wall',
   },
   {
@@ -350,15 +351,32 @@ export async function uploadHomepageImage(
     throw new Error('Supabase is not configured. Images cannot be uploaded.');
   }
 
-  const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-  const storagePath = `homepage/${slotKey}/${Date.now()}-${safeName}`;
+  let uploadPayload: Blob | File = file;
+  let contentType = file.type;
+  let extension = file.name.split('.').pop() || 'jpg';
+  const rawBaseName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+  const safeBaseName = rawBaseName.replace(/[^a-zA-Z0-9_-]/g, '_');
+
+  // Compress still images to optimized WebP (max 1600px dimension)
+  if (file.type.startsWith('image/') && !file.type.includes('svg')) {
+    try {
+      const compressed = await compressImage(file, 1600, 0.85);
+      uploadPayload = compressed;
+      contentType = 'image/webp';
+      extension = 'webp';
+    } catch (err) {
+      console.warn('Image compression fallback to original file:', err);
+    }
+  }
+
+  const storagePath = `homepage/${slotKey}/${Date.now()}-${safeBaseName}.${extension}`;
 
   const { error } = await supabase.storage
     .from(HOMEPAGE_IMAGE_BUCKET)
-    .upload(storagePath, file, {
-      cacheControl: '3600',
+    .upload(storagePath, uploadPayload, {
+      cacheControl: '31536000',
       upsert: false,
-      contentType: file.type,
+      contentType,
     });
 
   if (error) throw error;

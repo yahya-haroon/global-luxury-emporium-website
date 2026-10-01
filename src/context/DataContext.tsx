@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import { supabase, isSupabaseConfigured, defaultSeedProducts, defaultSeedSettings } from '../lib/supabase';
 import { normalizeProductOptions } from '../lib/options';
 import { Product, Settings, Order, OrderStatus, Review, FeaturedImage } from '../types';
@@ -623,19 +623,22 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [settings.theme]);
 
   // Derive categories list from current products
-  const categories = [
-    'All',
-    ...Array.from(new Set(products.map((p) => p.category))),
-  ];
+  const categories = useMemo(
+    () => ['All', ...Array.from(new Set(products.map((p) => p.category)))],
+    [products]
+  );
 
   // Active homepage image configuration keyed by slot (storefront consumers
   // filter here so an owner browsing while signed in never sees draft rows).
-  const homepageSlots: Record<string, HomepageImage> = {};
-  for (const row of homepageImages) {
-    if (row.is_active) {
-      homepageSlots[row.slot_key] = row;
+  const homepageSlots: Record<string, HomepageImage> = useMemo(() => {
+    const slots: Record<string, HomepageImage> = {};
+    for (const row of homepageImages) {
+      if (row.is_active) {
+        slots[row.slot_key] = row;
+      }
     }
-  }
+    return slots;
+  }, [homepageImages]);
 
   // Save or edit product
   const saveProduct = async (

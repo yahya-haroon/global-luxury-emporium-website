@@ -17,21 +17,21 @@ interface ModelMeta {
 
 const MODELS: ModelMeta[] = [
   {
-    file: '/assets/models/model-1.png',
+    file: '/assets/models/model-1.webp',
     x0: 729,
     y0: 41,
     w: 522,
     h: 752,
   },
   {
-    file: '/assets/models/model-2.png',
+    file: '/assets/models/model-2.webp',
     x0: 1049,
     y0: 74,
     w: 373,
     h: 719,
   },
   {
-    file: '/assets/models/model-3.png',
+    file: '/assets/models/model-3.webp',
     x0: 1357,
     y0: 29,
     w: 407,
@@ -707,6 +707,7 @@ export const HeroSequence: React.FC<HeroSequenceProps> = ({
               <img
                 src={model.file}
                 alt=""
+                decoding="async"
                 draggable={false}
                 style={{
                   width: '100%',

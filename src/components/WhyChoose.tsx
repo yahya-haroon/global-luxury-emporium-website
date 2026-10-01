@@ -30,11 +30,12 @@ export const WhyChoose: React.FC = () => {
 
   // Slides are admin-configured rows (image + copy stay paired per row),
   // ordered by sort_order; bundled defaults are used when nothing is configured.
-  const configured = homepageImages
-    .filter((r) => r.is_active && r.slot_key.startsWith('why_choose_'))
-    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-  const slides: FeatureSlide[] =
-    configured.length > 0
+  const slides: FeatureSlide[] = React.useMemo(() => {
+    const configured = homepageImages
+      .filter((r) => r.is_active && r.slot_key.startsWith('why_choose_'))
+      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+
+    return configured.length > 0
       ? configured.map((row) => {
           const fallback = DEFAULT_WHY_SLIDES.find((d) => d.key === row.slot_key);
           return {
@@ -46,6 +47,7 @@ export const WhyChoose: React.FC = () => {
           };
         })
       : DEFAULT_WHY_SLIDES.map((d) => ({ title: d.title, text: d.text, img: d.img, alt: d.alt, isVideo: false }));
+  }, [homepageImages]);
 
   useEffect(() => {
     if (index >= slides.length) {
@@ -176,6 +178,7 @@ export const WhyChoose: React.FC = () => {
                 aria-hidden={i === index ? undefined : true}
                 className={i === index ? 'on' : ''}
                 loading={i === 0 ? 'eager' : 'lazy'}
+                decoding="async"
                 draggable={false}
               />
             )

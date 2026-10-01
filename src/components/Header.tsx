@@ -154,6 +154,7 @@ export const Header: React.FC = () => {
             alt={homepageSlots.header_logo?.alt_text || 'Global Luxury Emporium Logo'}
             width={34}
             height={34}
+            decoding="async"
           />
           <span>Global Luxury Emporium</span>
         </Link>

@@ -17,6 +17,7 @@ export const Hero: React.FC = () => {
           alt="Global Luxury Emporium Leather Jackets Collection"
           className="w-full h-full object-cover object-center"
           loading="eager"
+          decoding="async"
         />
         {/* Subtle gradient overlay to smoothly transition to content */}
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white/40 pointer-events-none" />

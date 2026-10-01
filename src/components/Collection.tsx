@@ -43,21 +43,29 @@ export const Collection: React.FC<CollectionProps> = () => {
       .toLowerCase();
   };
 
-  const tokens = searchQuery.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const tokens = React.useMemo(
+    () => searchQuery.trim().toLowerCase().split(/\s+/).filter(Boolean),
+    [searchQuery]
+  );
 
-  const filteredProducts = products.filter((p) => {
-    const matchesCategory =
-      activeCategory === 'All' ||
-      (p.category && p.category.trim().toLowerCase() === activeCategory.trim().toLowerCase());
-    if (!matchesCategory) return false;
-    if (tokens.length === 0) return true;
-    const haystack = buildHaystack(p);
-    return tokens.every((t) => haystack.includes(t));
-  });
+  const filteredProducts = React.useMemo(() => {
+    return products.filter((p) => {
+      const matchesCategory =
+        activeCategory === 'All' ||
+        (p.category && p.category.trim().toLowerCase() === activeCategory.trim().toLowerCase());
+      if (!matchesCategory) return false;
+      if (tokens.length === 0) return true;
+      const haystack = buildHaystack(p);
+      return tokens.every((t) => haystack.includes(t));
+    });
+  }, [products, activeCategory, tokens]);
 
   const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PAGE_SIZE));
   const startIndex = currentPage * PAGE_SIZE;
-  const paginatedProducts = filteredProducts.slice(startIndex, startIndex + PAGE_SIZE);
+  const paginatedProducts = React.useMemo(
+    () => filteredProducts.slice(startIndex, startIndex + PAGE_SIZE),
+    [filteredProducts, startIndex]
+  );
 
   // Reset to the first page whenever the filter or search query changes.
   useEffect(() => {
@@ -143,6 +151,8 @@ export const Collection: React.FC<CollectionProps> = () => {
                 <img
                   src={product.images[0] || `/assets/products/product-${(idx % 3) + 1}-main.jpg`}
                   alt={product.name}
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
               <div className="ci">

@@ -15,14 +15,14 @@ const PANELS: HeroPanel[] = [
     slotKey: 'hero_men',
     category: 'Men',
     label: 'For Men',
-    defaultImg: HOMEPAGE_SLOTS.find((s) => s.key === 'hero_men')?.defaultUrl || '/assets/models/campaign-racer.png',
+    defaultImg: HOMEPAGE_SLOTS.find((s) => s.key === 'hero_men')?.defaultUrl || '/assets/models/campaign-racer.webp',
     defaultAlt: HOMEPAGE_SLOTS.find((s) => s.key === 'hero_men')?.defaultAlt || 'Male model wearing a classic black racer leather jacket',
   },
   {
     slotKey: 'hero_women',
     category: 'Women',
     label: 'For Women',
-    defaultImg: HOMEPAGE_SLOTS.find((s) => s.key === 'hero_women')?.defaultUrl || '/assets/models/campaign-shearling.jpg',
+    defaultImg: HOMEPAGE_SLOTS.find((s) => s.key === 'hero_women')?.defaultUrl || '/assets/models/campaign-shearling.webp',
     defaultAlt: HOMEPAGE_SLOTS.find((s) => s.key === 'hero_women')?.defaultAlt || 'Female model wearing a shearling aviator leather jacket',
   },
 ];
@@ -41,7 +41,7 @@ export const GenderHero: React.FC = () => {
         Global Luxury Emporium — premium leather jackets for men and women
       </h1>
 
-      {PANELS.map((panel) => {
+      {PANELS.map((panel, idx) => {
         const slot = homepageSlots[panel.slotKey];
         const isVideo = isVideoMedia(slot);
         const img = slot?.image_url || panel.defaultImg;
@@ -65,7 +65,16 @@ export const GenderHero: React.FC = () => {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <img src={img} alt={alt} />
+              <img
+                src={img}
+                alt={alt}
+                loading="eager"
+                // Prioritize the primary hero images (LCP)
+                fetchPriority={idx === 0 ? 'high' : 'auto'}
+                decoding="async"
+                width={800}
+                height={1000}
+              />
             )}
             <span className="split-shade" aria-hidden="true" />
             <span className="split-copy">

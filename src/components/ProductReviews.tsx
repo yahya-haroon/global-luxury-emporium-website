@@ -54,7 +54,7 @@ const StarRating: React.FC<{
   );
 };
 
-export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, productName }) => {
+export const ProductReviews: React.FC<ProductReviewsProps> = React.memo(({ productId, productName }) => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -396,4 +396,4 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, produ
       )}
     </section>
   );
-};
+});
