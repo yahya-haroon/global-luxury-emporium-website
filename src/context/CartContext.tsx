@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { CartItem, DeliveryZone } from '../types';
 import { useData } from './DataContext';
+import { ClarityAnalytics } from '../lib/clarity';
 
 interface CartContextType {
   items: CartItem[];
@@ -124,6 +125,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const totalCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
+  // Track cart viewed event in Microsoft Clarity when drawer is opened
+  useEffect(() => {
+    if (isCartOpen) {
+      ClarityAnalytics.cartViewed(items.length, itemsSubtotal);
+    }
+  }, [isCartOpen, items.length, itemsSubtotal]);
+
   const openCart = () => setIsCartOpen(true);
   const closeCart = () => setIsCartOpen(false);
   const toggleCart = () => setIsCartOpen((prev) => !prev);
@@ -152,6 +160,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           quantity: addQty,
         },
       ];
+    });
+
+    // Track product added to cart in Microsoft Clarity (non-sensitive product info only)
+    ClarityAnalytics.productAddedToCart({
+      productId: itemData.productId,
+      productName: itemData.productName,
+      size: itemData.size,
+      price: itemData.price,
     });
 
     // Automatically slide drawer open so customer sees their bag

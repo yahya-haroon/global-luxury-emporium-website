@@ -6,6 +6,7 @@ import { useData } from '../context/DataContext';
 import { getStripe, createPaymentIntent } from '../lib/stripePayment';
 import { OrderAddress, CartItem } from '../types';
 import { countryNameToIso2 } from '../lib/countryUtils';
+import { ClarityAnalytics } from '../lib/clarity';
 import {
   X,
   Plus,
@@ -214,6 +215,11 @@ const CartDrawerContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           totalAmount,
           currency: settings.currency || '£',
         });
+        ClarityAnalytics.orderCompleted({
+          orderId: intentRes.orderId,
+          totalAmount,
+          currency: settings.currency || '£',
+        });
         clearCart();
         setStep('success');
         setIsProcessing(false);
@@ -250,6 +256,11 @@ const CartDrawerContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           address: addressPayload,
           deliveryZoneName: selectedZone.name,
           deliveryPrice,
+          totalAmount,
+          currency: settings.currency || '£',
+        });
+        ClarityAnalytics.orderCompleted({
+          orderId: intentRes.orderId,
           totalAmount,
           currency: settings.currency || '£',
         });
@@ -535,7 +546,7 @@ const CartDrawerContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
             {/* ================= STEP 2: CHECKOUT & STRIPE PAYMENT ================= */}
             {step === 'checkout' && (
-              <form onSubmit={handleCheckoutSubmit} className="space-y-4 sm:space-y-5">
+              <form onSubmit={handleCheckoutSubmit} className="space-y-4 sm:space-y-5" data-clarity-mask="true">
                 {/* Back to Bag button */}
                 <button
                   type="button"
@@ -704,7 +715,7 @@ const CartDrawerContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
             {/* ================= STEP 3: ORDER CONFIRMED SUCCESS ================= */}
             {step === 'success' && completedOrder && (
-              <div className="py-6 space-y-5 text-center">
+              <div className="py-6 space-y-5 text-center" data-clarity-mask="true">
                 <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center mx-auto border border-emerald-300">
                   <CheckCircle2 className="w-8 h-8" />
                 </div>
@@ -799,7 +810,10 @@ const CartDrawerContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             <div className="p-4 border-t border-hairline bg-ivory/95 space-y-2 flex-shrink-0 pb-[max(16px,env(safe-area-inset-bottom,16px))]">
               <button
                 type="button"
-                onClick={() => setStep('checkout')}
+                onClick={() => {
+                  ClarityAnalytics.checkoutStarted({ totalAmount, itemCount: items.length });
+                  setStep('checkout');
+                }}
                 className="btn-gold w-full py-3.5 flex items-center justify-center gap-2 text-sm font-semibold shadow-md active:scale-[0.99] transition-transform"
               >
                 <span>Proceed to Checkout</span>

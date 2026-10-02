@@ -11,6 +11,7 @@
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
+    "@microsoft/clarity": "^1.0.2",
     "@stripe/react-stripe-js": "^6.11.0",
     "@stripe/stripe-js": "^9.17.0",
     "@supabase/supabase-js": "^2.48.1",

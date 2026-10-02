@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 import { Product } from '../types';
+import { ClarityAnalytics } from '../lib/clarity';
 
 interface CollectionProps {
   onSelectProduct?: (product: Product) => void;
@@ -71,6 +72,21 @@ export const Collection: React.FC<CollectionProps> = () => {
   useEffect(() => {
     setCurrentPage(0);
   }, [activeCategory, searchQuery]);
+
+  // Track category selection in Microsoft Clarity
+  useEffect(() => {
+    ClarityAnalytics.categoryViewed(activeCategory);
+  }, [activeCategory]);
+
+  // Debounce search query tracking in Microsoft Clarity
+  useEffect(() => {
+    const trimmed = searchQuery.trim();
+    if (!trimmed) return;
+    const timer = setTimeout(() => {
+      ClarityAnalytics.searchPerformed(trimmed);
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   // Keep the current page in range if the product list shrinks.
   useEffect(() => {

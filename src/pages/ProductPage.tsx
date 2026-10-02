@@ -9,6 +9,7 @@ import { countryNameToIso2 } from '../lib/countryUtils';
 import { ProductReviews } from '../components/ProductReviews';
 import { SEO } from '../components/SEO';
 import { useCart } from '../context/CartContext';
+import { ClarityAnalytics } from '../lib/clarity';
 import { ArrowLeft, AlertCircle, CheckCircle2, Loader2, ShieldCheck, ShoppingBag, Truck } from 'lucide-react';
 
 const CARD_ELEMENT_OPTIONS = {
@@ -256,6 +257,18 @@ const ProductPageContent: React.FC = () => {
     }
   }, [product]);
 
+  // Track product viewed in Microsoft Clarity
+  useEffect(() => {
+    if (product) {
+      ClarityAnalytics.productViewed({
+        id: product.id,
+        name: product.name,
+        category: product.category,
+        price: product.price,
+      });
+    }
+  }, [product?.id]);
+
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-24 text-center text-muted font-light">
@@ -461,6 +474,12 @@ const ProductPageContent: React.FC = () => {
 
     setIsProcessing(true);
 
+    // Track checkout initiated in Microsoft Clarity
+    ClarityAnalytics.checkoutStarted({
+      productId: product.id,
+      totalAmount,
+    });
+
     try {
       // 1. Create PaymentIntent on server
       const addressPayload: OrderAddress = {
@@ -508,6 +527,11 @@ const ProductPageContent: React.FC = () => {
           email: orderForm.email.trim(),
           address: addressPayload,
         });
+        ClarityAnalytics.orderCompleted({
+          orderId: intentRes.orderId,
+          totalAmount,
+          currency: settings.currency,
+        });
         setIsProcessing(false);
         return;
       }
@@ -551,6 +575,11 @@ const ProductPageContent: React.FC = () => {
           customerName: orderForm.fullName.trim(),
           email: orderForm.email.trim(),
           address: addressPayload,
+        });
+        ClarityAnalytics.orderCompleted({
+          orderId: intentRes.orderId,
+          totalAmount,
+          currency: settings.currency,
         });
       } else {
         throw new Error('Payment was not completed. Please try again.');
@@ -647,7 +676,7 @@ const ProductPageContent: React.FC = () => {
           </div>
 
           {/* Delivery Address Details */}
-          <div className="text-left bg-ivory/50 p-4 rounded border border-hairline text-xs space-y-1">
+          <div className="text-left bg-ivory/50 p-4 rounded border border-hairline text-xs space-y-1" data-clarity-mask="true">
             <span className="sm block text-muted mb-1" style={{ fontSize: '10px' }}>
               Delivery Destination
             </span>
@@ -885,7 +914,7 @@ const ProductPageContent: React.FC = () => {
 
           {/* Personalisation Box */}
           {showPersonalisation && (
-            <div className="mb-5 p-4 bg-ivory/70 border border-hairline rounded">
+            <div className="mb-5 p-4 bg-ivory/70 border border-hairline rounded" data-clarity-mask="true">
               <label
                 htmlFor="page-personalisation-input"
                 className="block text-xs uppercase tracking-[0.12em] font-medium text-text mb-1.5"
@@ -915,7 +944,7 @@ const ProductPageContent: React.FC = () => {
 
           {/* Additional Requirements Box */}
           {showRequirements && (
-            <div className="mb-6 p-4 bg-ivory/70 border border-hairline rounded">
+            <div className="mb-6 p-4 bg-ivory/70 border border-hairline rounded" data-clarity-mask="true">
               <label
                 htmlFor="page-requirements-input"
                 className="block text-xs uppercase tracking-[0.12em] font-medium text-text mb-1.5"
@@ -971,7 +1000,7 @@ const ProductPageContent: React.FC = () => {
           </div>
 
           {/* ORDER FORM & ON-SITE STRIPE CHECKOUT */}
-          <form onSubmit={handlePaymentSubmit} className="pt-2 space-y-6">
+          <form onSubmit={handlePaymentSubmit} className="pt-2 space-y-6" data-clarity-mask="true">
             <div>
               <h3 className="sm text-text mb-1" style={{ letterSpacing: '0.18em' }}>
                 Delivery & Contact Details

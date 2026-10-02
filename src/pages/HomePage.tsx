@@ -14,9 +14,14 @@ import { Faq } from '../components/Faq';
 import { ContactSection } from '../components/ContactSection';
 import { useData } from '../context/DataContext';
 import { SEO } from '../components/SEO';
+import { ClarityAnalytics } from '../lib/clarity';
 
 export const HomePage: React.FC = () => {
   const { error } = useData();
+
+  React.useEffect(() => {
+    ClarityAnalytics.homepageViewed();
+  }, []);
 
   return (
     <>

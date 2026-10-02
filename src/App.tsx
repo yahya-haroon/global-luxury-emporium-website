@@ -15,6 +15,7 @@ import { DeliveryPage } from './pages/DeliveryPage';
 import { ReturnsPage } from './pages/ReturnsPage';
 import { PrivacyPage } from './pages/PrivacyPage';
 import { NotFoundPage } from './pages/NotFoundPage';
+import { initClarity } from './lib/clarity';
 
 // Scroll to top on route change
 function ScrollToTop() {
@@ -28,6 +29,10 @@ function ScrollToTop() {
 }
 
 export const App: React.FC = () => {
+  React.useEffect(() => {
+    initClarity();
+  }, []);
+
   return (
     <BrowserRouter>
       <AuthProvider>

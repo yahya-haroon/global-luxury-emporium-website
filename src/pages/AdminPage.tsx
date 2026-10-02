@@ -1792,7 +1792,7 @@ export const AdminPage: React.FC = () => {
                         </div>
 
                         {/* Order Body: 3-column editorial breakdown */}
-                        <div className="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-3 gap-6 text-xs">
+                        <div className="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-3 gap-6 text-xs" data-clarity-mask="true">
                           {/* Column 1: Customer & Delivery Address */}
                           <div className="space-y-3">
                             <h4 className="uppercase tracking-wider text-[10px] font-semibold text-gold-dark border-b border-hairline pb-1">
