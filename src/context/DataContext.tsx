@@ -224,17 +224,23 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [fetchOrders, user?.isOwner]);
 
-  // ---- Admin: reviews (owner-only read; moderation writes) ----
+  // ---- Reviews (public read published; owner-only read all for moderation) ----
   const fetchReviews = useCallback(async (): Promise<Review[]> => {
-    if (!isSupabaseConfigured || !user?.isOwner) {
+    if (!isSupabaseConfigured) {
       return [];
     }
 
     try {
-      const { data, error: reviewsErr } = await supabase
+      let query = supabase
         .from('reviews')
         .select('*')
         .order('created_at', { ascending: false });
+
+      if (!user?.isOwner) {
+        query = query.eq('published', true);
+      }
+
+      const { data, error: reviewsErr } = await query;
 
       if (reviewsErr) {
         console.warn('Reviews fetch notice (table may need migration):', reviewsErr.message);
@@ -260,10 +266,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [user?.isOwner]);
 
   const refreshReviews = useCallback(async () => {
-    if (user?.isOwner) {
-      setReviews(await fetchReviews());
-    }
-  }, [fetchReviews, user?.isOwner]);
+    setReviews(await fetchReviews());
+  }, [fetchReviews]);
 
   // ---- Admin: featured images ----
   const fetchFeaturedImages = useCallback(async (): Promise<FeaturedImage[]> => {

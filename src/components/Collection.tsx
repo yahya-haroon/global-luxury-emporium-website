@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 import { Product } from '../types';
 import { ClarityAnalytics } from '../lib/clarity';
+import { ProductCardRating } from './ProductCardRating';
 
 interface CollectionProps {
   onSelectProduct?: (product: Product) => void;
@@ -11,7 +12,7 @@ interface CollectionProps {
 const PAGE_SIZE = 9;
 
 export const Collection: React.FC<CollectionProps> = () => {
-  const { products, activeCategory, setActiveCategory, searchQuery, setSearchQuery } = useData();
+  const { products, activeCategory, setActiveCategory, searchQuery, setSearchQuery, reviews } = useData();
   const observerRef = useRef<IntersectionObserver | null>(null);
   const sectionRef = useRef<HTMLElement | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
@@ -67,6 +68,30 @@ export const Collection: React.FC<CollectionProps> = () => {
     () => filteredProducts.slice(startIndex, startIndex + PAGE_SIZE),
     [filteredProducts, startIndex]
   );
+
+  // Precompute average rating & published review count per product
+  const reviewStatsByProduct = React.useMemo(() => {
+    const stats: Record<string, { count: number; average: number }> = {};
+    if (!reviews || !Array.isArray(reviews)) return stats;
+
+    for (const r of reviews) {
+      if (!r.product_id || !r.published) continue;
+      const val = Number(r.rating) || 0;
+      if (val <= 0) continue;
+
+      if (!stats[r.product_id]) {
+        stats[r.product_id] = { count: 0, average: 0 };
+      }
+      stats[r.product_id].count += 1;
+      stats[r.product_id].average += val;
+    }
+
+    for (const pid of Object.keys(stats)) {
+      stats[pid].average = stats[pid].count > 0 ? stats[pid].average / stats[pid].count : 0;
+    }
+
+    return stats;
+  }, [reviews]);
 
   // Reset to the first page whenever the filter or search query changes.
   useEffect(() => {
@@ -152,6 +177,7 @@ export const Collection: React.FC<CollectionProps> = () => {
       <div className="grid-3col" id="grid">
         {paginatedProducts.map((product, idx) => {
           const globalIndex = startIndex + idx;
+          const stat = reviewStatsByProduct[product.id];
           return (
             <Link
               key={product.id || globalIndex}
@@ -175,6 +201,9 @@ export const Collection: React.FC<CollectionProps> = () => {
                 <h3>{product.name}</h3>
                 <span>£{product.price}</span>
               </div>
+              {stat && stat.count > 0 && (
+                <ProductCardRating rating={stat.average} count={stat.count} theme="light" />
+              )}
               <span className="vw sm">View piece &rarr;</span>
             </Link>
           );

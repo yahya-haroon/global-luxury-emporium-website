@@ -94,9 +94,9 @@ export const FeaturedGallery: React.FC = () => {
   }
 
   return (
-    <section className="featured-gallery bg-ivory py-16 sm:py-20">
+    <section className="featured-gallery bg-ivory py-8 sm:py-20">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-8">
+        <div className="text-center mb-4 sm:mb-8">
           <span className="sm block text-gold" style={{ letterSpacing: '0.24em' }}>
             Featured
           </span>

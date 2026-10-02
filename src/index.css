@@ -834,6 +834,51 @@ h2.section-title {
   transform: none;
 }
 
+/* Product card rating row */
+.product-card-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-family: 'Jost', sans-serif;
+  line-height: 1;
+}
+
+.rating-stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.rating-star-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.rating-star-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+}
+
+.rating-score {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.rating-count {
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+
 /* Fade-up on scroll (.r) */
 .r {
   opacity: 0;
@@ -1065,21 +1110,37 @@ section.why {
 
 @media (max-width: 899px) {
   section.why {
-    padding: 84px var(--px) 80px;
+    padding: clamp(36px, 5.5vw, 56px) var(--px);
   }
   .why-wrap {
     grid-template-columns: 1fr;
-    gap: 40px;
+    gap: 22px;
+  }
+  .why-title {
+    font-size: clamp(26px, 5.8vw, 38px);
+    margin: 10px 0 14px;
+  }
+  .why-intro {
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+  .why-slide-title {
+    font-size: clamp(20px, 4.5vw, 26px);
+    margin: 10px 0 8px;
   }
   .why-slide-text {
+    font-size: 14px;
+    line-height: 1.6;
     min-height: 0;
   }
   .why-stage {
-    aspect-ratio: 1 / 1;
-    max-height: none;
+    aspect-ratio: 16 / 10;
+    max-height: 280px;
   }
-  .why-intro {
-    margin-bottom: 32px;
+  .why-cta {
+    padding: 11px 24px;
+    margin-top: 6px;
   }
 }
 
@@ -1331,25 +1392,29 @@ small.field-hint {
   }
   .grid-3col {
     grid-template-columns: 1fr 1fr;
-    gap: 40px 16px;
+    gap: 20px 10px;
   }
-  .dk .two, footer.site-footer {
+  .dk .two {
     grid-template-columns: 1fr;
   }
   section.collection-section {
-    padding-top: 80px;
+    padding-top: clamp(36px, 5vw, 60px);
   }
   .dk {
-    padding: 80px var(--px);
+    padding: 48px var(--px);
+  }
+  .ci {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+    margin-top: 10px;
   }
   .ci h3 {
-    font-size: 21px;
+    font-size: clamp(14px, 3.6vw, 17px);
+    line-height: 1.25;
   }
-}
-
-@media (max-width: 520px) {
-  .grid-3col {
-    grid-template-columns: 1fr;
+  .ci span {
+    font-size: clamp(12px, 3vw, 14px);
   }
 }
 
@@ -1965,7 +2030,8 @@ footer.site-footer .cp {
     grid-template-columns: 1fr;
   }
 
-  .guide-img img {
+  .guide-img img,
+  .guide-img video {
     aspect-ratio: 16 / 9;
   }
 
@@ -1979,58 +2045,269 @@ footer.site-footer .cp {
     gap: 10px;
   }
 
+  /* 3. Split FOR MEN / FOR WOMEN hero - Side-by-side on mobile */
   .split-hero {
-    grid-template-columns: 1fr;
-    padding: 4px 0 0;
+    grid-template-columns: 1fr 1fr;
+    gap: 3px;
+    padding: 3px 3px 0;
   }
 
   .split-panel {
-    height: clamp(340px, 58vh, 520px);
+    height: clamp(260px, 50vh, 420px);
+  }
+
+  .split-copy {
+    left: clamp(10px, 3.2vw, 20px);
+    bottom: clamp(12px, 3.8vw, 22px);
+    gap: 4px;
+  }
+
+  .split-label {
+    font-size: clamp(16px, 4.4vw, 26px);
+    letter-spacing: .03em;
+  }
+
+  .split-cta {
+    font-size: clamp(9px, 2.4vw, 11px);
+    letter-spacing: .12em;
+  }
+
+  /* 4. Editorial story band */
+  section.ed {
+    padding: clamp(36px, 5.5vw, 56px) var(--px);
   }
 
   .ed-two {
     grid-template-columns: 1fr;
-    gap: 44px;
+    gap: 24px;
   }
 
   .ed-title {
+    font-size: clamp(26px, 5.8vw, 38px);
+    margin-bottom: 16px;
     max-width: none;
+  }
+
+  .ed .wr {
+    font-size: clamp(14px, 3.6vw, 16px);
+    line-height: 1.7;
+    margin: 0 0 16px;
+  }
+
+  .ed-img img,
+  .ed-img video {
+    aspect-ratio: 16 / 10;
+    max-height: 280px;
+    width: 100%;
+    object-fit: cover;
+    object-position: center top;
+  }
+
+  /* 5. Category discovery grid */
+  .cat-sec {
+    padding: 0 var(--px) clamp(36px, 5vw, 54px);
   }
 
   .cat-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
   }
 
   .cat-tile.wide {
-    grid-column: span 2;
-    aspect-ratio: 16 / 9;
+    grid-column: span 1;
+    aspect-ratio: 4 / 5;
+  }
+
+  .cat-label {
+    left: 10px;
+    bottom: 10px;
+    font-size: 11px;
+    letter-spacing: .12em;
+  }
+
+  /* 8. Featured highlights — 2 columns */
+  section.hl {
+    padding: clamp(36px, 5.5vw, 56px) var(--px);
+  }
+
+  .hl-head {
+    margin-bottom: clamp(20px, 3.5vw, 32px);
+  }
+
+  .hl-title {
+    font-size: clamp(26px, 5.8vw, 38px);
+    margin-top: 10px;
+  }
+
+  .hl-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .hl-body {
+    padding: 12px 10px 14px;
+    gap: 4px;
+  }
+
+  .hl-body h3 {
+    font-size: clamp(14px, 3.6vw, 17px);
+  }
+
+  .hl-price {
+    font-size: 13px;
+  }
+
+  /* 9. Leather guide */
+  section.guide {
+    padding: clamp(36px, 5.5vw, 56px) var(--px);
+  }
+
+  .guide-head {
+    margin-bottom: clamp(20px, 3.5vw, 32px);
+  }
+
+  .guide-title {
+    font-size: clamp(26px, 5.8vw, 38px);
+    margin-top: 10px;
+  }
+
+  .guide-two,
+  .guide-two.with-img {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .guide-block h3 {
+    font-size: clamp(18px, 4.2vw, 22px);
+    margin-bottom: 10px;
+  }
+
+  .guide-block p {
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0 0 16px;
+  }
+
+  .guide-sizes {
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+
+  .guide-size {
+    padding: 6px 12px;
+    font-size: 11px;
+  }
+
+  .guide-img img,
+  .guide-img video {
+    aspect-ratio: 16 / 10;
+    max-height: 240px;
+  }
+
+  /* 10. Testimonials */
+  section.testi {
+    padding: clamp(36px, 5.5vw, 56px) var(--px);
+  }
+
+  .testi-head {
+    margin-bottom: clamp(20px, 3.5vw, 32px);
+  }
+
+  .testi-title {
+    font-size: clamp(26px, 5.8vw, 38px);
+  }
+
+  .testi-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .testi-card {
+    padding: 16px 14px;
+  }
+
+  .testi-text {
+    font-size: 13px;
+    line-height: 1.55;
+    margin: 10px 0 14px;
+  }
+
+  /* 11. FAQ */
+  section.faq {
+    padding: clamp(36px, 5.5vw, 56px) var(--px);
+  }
+
+  .faq-head {
+    margin-bottom: clamp(20px, 3.5vw, 32px);
+  }
+
+  .faq-title {
+    font-size: clamp(26px, 5.8vw, 38px);
+  }
+
+  .faq-q {
+    font-size: 17px;
+    padding: 16px 2px;
+  }
+
+  .faq-a {
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 0 2px 18px;
+  }
+
+  /* 12. Contact */
+  section.contact-sec {
+    padding: clamp(36px, 5.5vw, 56px) var(--px);
   }
 
   .contact-two {
     grid-template-columns: 1fr;
-    gap: 44px;
+    gap: 24px;
+  }
+
+  .contact-title {
+    font-size: clamp(26px, 5.8vw, 38px);
+    margin: 10px 0 14px;
+  }
+
+  .contact-intro {
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0 0 20px;
+  }
+
+  .contact-ctas {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .contact-ctas .why-cta {
+    margin-top: 0;
+    padding: 11px 22px;
+  }
+
+  /* 13. Footer - 2-column mobile footer */
+  footer.site-footer {
+    padding: 44px var(--px) 24px;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px 16px;
+  }
+
+  footer.site-footer > div:first-child {
+    grid-column: 1 / -1;
   }
 }
 
-@media (max-width: 640px) {
-  .hl-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .guide-two {
-    grid-template-columns: 1fr;
-  }
-
+@media (max-width: 379px) {
   .testi-grid {
     grid-template-columns: 1fr;
   }
-
-  .faq-q {
-    font-size: 19px;
-    padding: 20px 2px;
+  .split-label {
+    font-size: 15px;
   }
-
-  footer.site-footer {
-    grid-template-columns: 1fr;
+  .split-cta {
+    font-size: 8.5px;
   }
 }
