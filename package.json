@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "sitemap": "node scripts/generate-sitemap.cjs",
-    "build": "node scripts/generate-sitemap.cjs && tsc && vite build",
+    "feed": "node scripts/generate-google-feed.cjs",
+    "validate:feed": "node scripts/validate-google-feed.cjs",
+    "build": "node scripts/generate-sitemap.cjs && node scripts/generate-google-feed.cjs && tsc && vite build",
     "preview": "npm run build && wrangler dev",
     "deploy": "npm run build && wrangler deploy"
   },

@@ -178,7 +178,7 @@ export const ProductReviews: React.FC<ProductReviewsProps> = React.memo(({ produ
       <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
         <div>
           <span className="sm block text-gold" style={{ letterSpacing: '0.24em' }}>
-            Client Feedback
+            Customer Reviews
           </span>
           <h2 className="font-serif text-3xl text-text font-medium mt-2">
             Reviews for {productName}

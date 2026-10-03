@@ -46,6 +46,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { generateSitemapXml } from '../lib/sitemapGenerator';
+import { generateGoogleProductFeedXml } from '../lib/googleMerchantFeed';
 import {
   ColorTheme,
   THEME_PRESETS,
@@ -388,6 +389,19 @@ export const AdminPage: React.FC = () => {
     const a = document.createElement('a');
     a.href = url;
     a.download = 'sitemap.xml';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadGoogleFeed = () => {
+    const xml = generateGoogleProductFeedXml(products, sales);
+    const blob = new Blob([xml], { type: 'application/xml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'google-product-feed.xml';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -2287,7 +2301,7 @@ export const AdminPage: React.FC = () => {
                   </span>
                 </div>
                 <p className="text-[11px] text-muted -mt-2">
-                  Create and publish a client review with an optional Verified Purchase badge.
+                  Create and publish a customer review with an optional Verified Purchase badge.
                 </p>
 
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -4538,21 +4552,44 @@ export const AdminPage: React.FC = () => {
                     Manage Google indexing, structured data, canonical tags, and search engine discovery.
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={handleDownloadSitemap}
-                  className="btn-ghost text-xs py-1.5 px-3 flex items-center gap-1.5 text-gold hover:text-gold-dark border border-gold/40 hover:border-gold"
-                  title="Download an updated sitemap.xml with all your current products"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Export sitemap.xml</span>
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleDownloadGoogleFeed}
+                    className="btn-ghost text-xs py-1.5 px-3 flex items-center gap-1.5 text-gold hover:text-gold-dark border border-gold/40 hover:border-gold"
+                    title="Download an updated Google Merchant Center XML product feed with real-time prices & sales"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Export Google Feed</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleDownloadSitemap}
+                    className="btn-ghost text-xs py-1.5 px-3 flex items-center gap-1.5 text-gold hover:text-gold-dark border border-gold/40 hover:border-gold"
+                    title="Download an updated sitemap.xml with all your current products"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Export sitemap.xml</span>
+                  </button>
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
                 <div className="bg-ivory/50 border border-hairline p-3 rounded space-y-1">
                   <span className="text-[10px] uppercase tracking-wider text-muted font-medium">Canonical Domain</span>
                   <p className="font-mono text-text font-medium truncate">https://www.globalluxuryemporium.com</p>
+                </div>
+                <div className="bg-ivory/50 border border-hairline p-3 rounded space-y-1">
+                  <span className="text-[10px] uppercase tracking-wider text-muted font-medium">Google Merchant Feed</span>
+                  <a
+                    href="/google-product-feed.xml"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-mono text-gold hover:underline flex items-center gap-1 truncate"
+                    title="View live Google Merchant Product Feed"
+                  >
+                    /google-product-feed.xml <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                  </a>
                 </div>
                 <div className="bg-ivory/50 border border-hairline p-3 rounded space-y-1">
                   <span className="text-[10px] uppercase tracking-wider text-muted font-medium">Sitemap Status</span>
@@ -4579,6 +4616,14 @@ export const AdminPage: React.FC = () => {
               </div>
 
               <div className="flex flex-wrap items-center gap-3 pt-1">
+                <a
+                  href="https://merchants.google.com/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn-ghost text-xs py-1.5 px-3 inline-flex items-center gap-1.5 text-gold hover:text-gold-dark border border-gold/30 hover:border-gold"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" /> Google Merchant Center
+                </a>
                 <a
                   href="https://search.google.com/test/rich-results?url=https%3A%2F%2Fwww.globalluxuryemporium.com"
                   target="_blank"
