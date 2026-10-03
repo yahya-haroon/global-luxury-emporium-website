@@ -3,7 +3,8 @@ import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
 import { isSupabaseConfigured, uploadProductImage } from '../lib/supabase';
 import { compressImage } from '../lib/imageCompressor';
-import { Product, ProductOption, ProductOptionType, Settings, Review, OrderStatus } from '../types';
+import { Product, ProductOption, ProductOptionType, Settings, Review, OrderStatus, Sale, SaleScope, SaleStatus } from '../types';
+import { getSaleStatus, formatSaleDate, calculateSalePrice } from '../lib/sales';
 import {
   Lock,
   Mail,
@@ -39,6 +40,10 @@ import {
   Globe,
   Download,
   ExternalLink,
+  Percent,
+  Calendar,
+  Clock,
+  Sparkles,
 } from 'lucide-react';
 import { generateSitemapXml } from '../lib/sitemapGenerator';
 import {
@@ -116,11 +121,38 @@ export const AdminPage: React.FC = () => {
     updateFeaturedImage,
     deleteFeaturedImage,
     reorderFeaturedImages,
+    sales,
+    saveSale,
+    deleteSale,
+    toggleSaleActive,
+    refreshSales,
     saveHomepageSlot,
   } = useData();
 
   // Navigation & Tabs
-  const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'reviews' | 'gallery' | 'homepage' | 'settings'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'reviews' | 'sales' | 'gallery' | 'homepage' | 'settings'>('products');
+
+  // Sales & Discounts tab state
+  const [salesFilter, setSalesFilter] = useState<'all' | SaleStatus>('all');
+  const [salesSearch, setSalesSearch] = useState('');
+  const [isEditingSale, setIsEditingSale] = useState(false);
+  const [currentSale, setCurrentSale] = useState<Partial<Sale>>({
+    name: '',
+    discount_percentage: 20,
+    scope: 'all',
+    category: '',
+    product_ids: [],
+    starts_at: '',
+    ends_at: '',
+    is_active: true,
+    banner_text: '',
+  });
+  const [durationPreset, setDurationPreset] = useState<'1d' | '3d' | '7d' | '14d' | '30d' | 'custom'>('7d');
+  const [isSavingSale, setIsSavingSale] = useState(false);
+  const [isDeletingSaleId, setIsDeletingSaleId] = useState<string | null>(null);
+  const [saleProductSearch, setSaleProductSearch] = useState('');
+  const [salesMsg, setSalesMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [isRefreshingSales, setIsRefreshingSales] = useState(false);
 
   // Orders tab state
   const [orderFilter, setOrderFilter] = useState<'all' | OrderStatus>('all');
@@ -396,6 +428,193 @@ export const AdminPage: React.FC = () => {
   >({});
   const [altEdits, setAltEdits] = useState<Record<string, string>>({});
   const [categoryTitleEdits, setCategoryTitleEdits] = useState<Record<string, string>>({});
+
+  // Sales & Discounts logic & handlers
+  const storeCategories = Array.from(new Set(products.map((p) => p.category?.trim()).filter(Boolean) as string[]));
+
+  const handleRefreshSales = async () => {
+    setIsRefreshingSales(true);
+    try {
+      await refreshSales();
+    } finally {
+      setIsRefreshingSales(false);
+    }
+  };
+
+  const openCreateSaleModal = () => {
+    const now = new Date();
+    const localNow = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    const end7d = new Date(now.getTime() + 7 * 86400000 - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    setCurrentSale({
+      name: '',
+      discount_percentage: 20,
+      scope: 'all',
+      category: storeCategories[0] || '',
+      product_ids: [],
+      starts_at: localNow,
+      ends_at: end7d,
+      is_active: true,
+      banner_text: '',
+    });
+    setDurationPreset('7d');
+    setSaleProductSearch('');
+    setSalesMsg(null);
+    setIsEditingSale(true);
+  };
+
+  const openEditSaleModal = (sale: Sale) => {
+    const startIso = sale.starts_at ? new Date(new Date(sale.starts_at).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : '';
+    const endIso = sale.ends_at ? new Date(new Date(sale.ends_at).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : '';
+    setCurrentSale({
+      ...sale,
+      starts_at: startIso,
+      ends_at: endIso,
+    });
+    setDurationPreset('custom');
+    setSaleProductSearch('');
+    setSalesMsg(null);
+    setIsEditingSale(true);
+  };
+
+  const handleDurationPresetSelect = (preset: '1d' | '3d' | '7d' | '14d' | '30d') => {
+    setDurationPreset(preset);
+    const startDate = currentSale.starts_at ? new Date(currentSale.starts_at) : new Date();
+    const daysMap = { '1d': 1, '3d': 3, '7d': 7, '14d': 14, '30d': 30 };
+    const endDate = new Date(startDate.getTime() + daysMap[preset] * 86400000);
+    const endIso = new Date(endDate.getTime() - endDate.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    setCurrentSale((prev) => ({
+      ...prev,
+      ends_at: endIso,
+    }));
+  };
+
+  const handleToggleProductSelection = (productId: string) => {
+    setCurrentSale((prev) => {
+      const currentIds = prev.product_ids || [];
+      const exists = currentIds.includes(productId);
+      const updated = exists
+        ? currentIds.filter((id) => id !== productId)
+        : [...currentIds, productId];
+      return { ...prev, product_ids: updated };
+    });
+  };
+
+  const handleSelectAllProducts = () => {
+    setCurrentSale((prev) => ({
+      ...prev,
+      product_ids: products.map((p) => p.id),
+    }));
+  };
+
+  const handleDeselectAllProducts = () => {
+    setCurrentSale((prev) => ({
+      ...prev,
+      product_ids: [],
+    }));
+  };
+
+  const handleSaveSaleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSalesMsg(null);
+
+    if (!currentSale.name?.trim()) {
+      setSalesMsg({ type: 'error', text: 'Please enter a sale name.' });
+      return;
+    }
+    const discount = Number(currentSale.discount_percentage);
+    if (isNaN(discount) || discount < 1 || discount > 100) {
+      setSalesMsg({ type: 'error', text: 'Discount percentage must be between 1% and 100%.' });
+      return;
+    }
+    if (!currentSale.starts_at || !currentSale.ends_at) {
+      setSalesMsg({ type: 'error', text: 'Please provide both start and end dates.' });
+      return;
+    }
+    if (new Date(currentSale.ends_at) <= new Date(currentSale.starts_at)) {
+      setSalesMsg({ type: 'error', text: 'End date/time must be strictly after the start date/time.' });
+      return;
+    }
+    if (currentSale.scope === 'category' && !currentSale.category?.trim()) {
+      setSalesMsg({ type: 'error', text: 'Please select a product category for this sale.' });
+      return;
+    }
+    if (currentSale.scope === 'products' && (!currentSale.product_ids || currentSale.product_ids.length === 0)) {
+      setSalesMsg({ type: 'error', text: 'Please select at least one jacket for this sale.' });
+      return;
+    }
+
+    setIsSavingSale(true);
+    try {
+      const res = await saveSale({
+        id: currentSale.id,
+        name: currentSale.name.trim(),
+        discount_percentage: discount,
+        scope: currentSale.scope || 'all',
+        category: currentSale.scope === 'category' ? (currentSale.category?.trim() || undefined) : undefined,
+        product_ids: currentSale.scope === 'products' ? currentSale.product_ids : undefined,
+        starts_at: new Date(currentSale.starts_at).toISOString(),
+        ends_at: new Date(currentSale.ends_at).toISOString(),
+        is_active: currentSale.is_active !== false,
+        banner_text: currentSale.banner_text?.trim() || undefined,
+      });
+
+      if (res.error) {
+        setSalesMsg({ type: 'error', text: res.error });
+      } else {
+        setIsEditingSale(false);
+        setSalesMsg({ type: 'success', text: `Sale "${currentSale.name}" saved successfully!` });
+      }
+    } catch (err: any) {
+      setSalesMsg({ type: 'error', text: err.message || 'Failed to save sale.' });
+    } finally {
+      setIsSavingSale(false);
+    }
+  };
+
+  const handleDeleteSaleConfirm = async (saleId: string) => {
+    if (!window.confirm('Are you sure you want to permanently delete this sale promotion? This action cannot be undone.')) {
+      return;
+    }
+    setIsDeletingSaleId(saleId);
+    try {
+      const res = await deleteSale(saleId);
+      if (res.error) {
+        setSalesMsg({ type: 'error', text: res.error });
+      } else {
+        setSalesMsg({ type: 'success', text: 'Sale deleted successfully.' });
+      }
+    } finally {
+      setIsDeletingSaleId(null);
+    }
+  };
+
+  const handleToggleSale = async (saleId: string, currentActive: boolean) => {
+    const res = await toggleSaleActive(saleId, !currentActive);
+    if (res.error) {
+      setSalesMsg({ type: 'error', text: res.error });
+    }
+  };
+
+  // Filtered sales and status count metrics
+  const filteredSales = sales.filter((s: Sale) => {
+    const status = getSaleStatus(s);
+    if (salesFilter !== 'all' && status !== salesFilter) {
+      return false;
+    }
+    if (salesSearch.trim()) {
+      const q = salesSearch.toLowerCase();
+      const matchName = s.name.toLowerCase().includes(q);
+      const matchCat = s.category?.toLowerCase().includes(q) || false;
+      const matchBanner = s.banner_text?.toLowerCase().includes(q) || false;
+      return matchName || matchCat || matchBanner;
+    }
+    return true;
+  });
+
+  const activeSalesCount = sales.filter((s: Sale) => getSaleStatus(s) === 'active').length;
+  const scheduledSalesCount = sales.filter((s: Sale) => getSaleStatus(s) === 'scheduled').length;
+  const expiredSalesCount = sales.filter((s: Sale) => getSaleStatus(s) === 'expired').length;
+  const disabledSalesCount = sales.filter((s: Sale) => getSaleStatus(s) === 'disabled').length;
 
   // Category renaming across products
   const [isRenameCategoryOpen, setIsRenameCategoryOpen] = useState(false);
@@ -1412,10 +1631,10 @@ export const AdminPage: React.FC = () => {
         )}
 
         {/* Admin Tabs */}
-        <div className="flex border-b border-hairline mb-8">
+        <div className="flex border-b border-hairline mb-8 overflow-x-auto scrollbar-none">
           <button
             onClick={() => setActiveTab('products')}
-            className={`pb-3 px-6 text-sm uppercase tracking-widest font-medium border-b-2 transition-all ${
+            className={`pb-3 px-6 text-sm uppercase tracking-widest font-medium border-b-2 transition-all whitespace-nowrap ${
               activeTab === 'products'
                 ? 'border-gold text-gold font-semibold'
                 : 'border-transparent text-muted hover:text-text'
@@ -1425,7 +1644,7 @@ export const AdminPage: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab('orders')}
-            className={`pb-3 px-6 text-sm uppercase tracking-widest font-medium border-b-2 transition-all ${
+            className={`pb-3 px-6 text-sm uppercase tracking-widest font-medium border-b-2 transition-all whitespace-nowrap ${
               activeTab === 'orders'
                 ? 'border-gold text-gold font-semibold'
                 : 'border-transparent text-muted hover:text-text'
@@ -1435,7 +1654,7 @@ export const AdminPage: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab('reviews')}
-            className={`pb-3 px-6 text-sm uppercase tracking-widest font-medium border-b-2 transition-all ${
+            className={`pb-3 px-6 text-sm uppercase tracking-widest font-medium border-b-2 transition-all whitespace-nowrap ${
               activeTab === 'reviews'
                 ? 'border-gold text-gold font-semibold'
                 : 'border-transparent text-muted hover:text-text'
@@ -1444,8 +1663,19 @@ export const AdminPage: React.FC = () => {
             Reviews ({reviews.length})
           </button>
           <button
+            onClick={() => setActiveTab('sales')}
+            className={`pb-3 px-6 text-sm uppercase tracking-widest font-medium border-b-2 transition-all whitespace-nowrap flex items-center gap-1.5 ${
+              activeTab === 'sales'
+                ? 'border-gold text-gold font-semibold'
+                : 'border-transparent text-muted hover:text-text'
+            }`}
+          >
+            <Percent className="w-3.5 h-3.5" />
+            <span>Sales &amp; Discounts ({sales.length})</span>
+          </button>
+          <button
             onClick={() => setActiveTab('gallery')}
-            className={`pb-3 px-6 text-sm uppercase tracking-widest font-medium border-b-2 transition-all ${
+            className={`pb-3 px-6 text-sm uppercase tracking-widest font-medium border-b-2 transition-all whitespace-nowrap ${
               activeTab === 'gallery'
                 ? 'border-gold text-gold font-semibold'
                 : 'border-transparent text-muted hover:text-text'
@@ -2407,6 +2637,351 @@ export const AdminPage: React.FC = () => {
                       )}
                     </div>
                   ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* TAB: SALES & PROMOTIONAL DISCOUNTS */}
+        {activeTab === 'sales' && (
+          <div className="space-y-6">
+            {/* Top Header & Action */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="font-serif text-2xl text-gradient-gold">Sales &amp; Promotional Discounts</h2>
+                <p className="text-muted text-xs font-light mt-1 max-w-2xl">
+                  Schedule and manage automated percentage discounts across entire collections, categories, or individual jackets. When active, original prices are struck through and promotional discounts calculate dynamically on the homepage, product pages, cart, and Stripe checkout.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 self-start sm:self-auto">
+                <button
+                  type="button"
+                  onClick={handleRefreshSales}
+                  disabled={isRefreshingSales}
+                  className="btn-ghost text-xs py-2 px-3 flex items-center gap-1.5"
+                  title="Reload sales from database"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isRefreshingSales ? 'animate-spin' : ''}`} />
+                  <span>Refresh</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={openCreateSaleModal}
+                  className="btn-gold text-xs py-2 px-4 flex items-center gap-1.5"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Create Sale</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Notification message */}
+            {salesMsg && (
+              <div
+                className={`p-3 text-xs rounded border flex items-center justify-between ${
+                  salesMsg.type === 'success'
+                    ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                    : 'bg-red-50 border-red-200 text-red-800'
+                }`}
+              >
+                <span>{salesMsg.text}</span>
+                <button
+                  type="button"
+                  onClick={() => setSalesMsg(null)}
+                  className="text-muted hover:text-black font-bold ml-2 text-sm"
+                >
+                  &times;
+                </button>
+              </div>
+            )}
+
+            {/* Stat Summary Cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+              <div
+                onClick={() => setSalesFilter('all')}
+                className={`p-3.5 rounded-lg border transition-all cursor-pointer ${
+                  salesFilter === 'all'
+                    ? 'border-gold bg-gold/5 shadow-sm'
+                    : 'border-hairline bg-white/70 hover:border-gold/40'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] uppercase tracking-wider text-muted font-medium">All Sales</span>
+                  <Percent className="w-3.5 h-3.5 text-gold" />
+                </div>
+                <p className="font-serif text-2xl font-semibold text-text mt-1">{sales.length}</p>
+                <span className="text-[10px] text-muted">Total promotional records</span>
+              </div>
+
+              <div
+                onClick={() => setSalesFilter('active')}
+                className={`p-3.5 rounded-lg border transition-all cursor-pointer ${
+                  salesFilter === 'active'
+                    ? 'border-emerald-500 bg-emerald-50 shadow-sm'
+                    : 'border-hairline bg-white/70 hover:border-emerald-300'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] uppercase tracking-wider text-emerald-800 font-medium">Live Now</span>
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                </div>
+                <p className="font-serif text-2xl font-semibold text-emerald-700 mt-1">{activeSalesCount}</p>
+                <span className="text-[10px] text-emerald-600">Currently live for customers</span>
+              </div>
+
+              <div
+                onClick={() => setSalesFilter('scheduled')}
+                className={`p-3.5 rounded-lg border transition-all cursor-pointer ${
+                  salesFilter === 'scheduled'
+                    ? 'border-blue-500 bg-blue-50 shadow-sm'
+                    : 'border-hairline bg-white/70 hover:border-blue-300'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] uppercase tracking-wider text-blue-800 font-medium">Scheduled</span>
+                  <Calendar className="w-3.5 h-3.5 text-blue-600" />
+                </div>
+                <p className="font-serif text-2xl font-semibold text-blue-700 mt-1">{scheduledSalesCount}</p>
+                <span className="text-[10px] text-blue-600">Upcoming automated launches</span>
+              </div>
+
+              <div
+                onClick={() => setSalesFilter('expired')}
+                className={`p-3.5 rounded-lg border transition-all cursor-pointer ${
+                  salesFilter === 'expired'
+                    ? 'border-neutral-500 bg-neutral-100 shadow-sm'
+                    : 'border-hairline bg-white/70 hover:border-neutral-300'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] uppercase tracking-wider text-muted font-medium">Expired / Off</span>
+                  <Clock className="w-3.5 h-3.5 text-muted" />
+                </div>
+                <p className="font-serif text-2xl font-semibold text-muted mt-1">
+                  {expiredSalesCount + disabledSalesCount}
+                </p>
+                <span className="text-[10px] text-muted">Past or paused campaigns</span>
+              </div>
+            </div>
+
+            {/* Search and Filters toolbar */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white/80 p-3.5 rounded-lg border border-hairline">
+              <div className="relative flex-1">
+                <Search className="w-4 h-4 text-muted absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  type="text"
+                  value={salesSearch}
+                  onChange={(e) => setSalesSearch(e.target.value)}
+                  placeholder="Search sales by campaign name, category, or banner..."
+                  className="w-full pl-9 pr-3 py-1.5 bg-white border border-neutral-300 text-xs text-text placeholder:text-neutral-400 rounded focus:outline-none focus:border-gold"
+                />
+              </div>
+
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+                {(['all', 'active', 'scheduled', 'expired', 'disabled'] as const).map((filterOpt) => (
+                  <button
+                    key={filterOpt}
+                    type="button"
+                    onClick={() => setSalesFilter(filterOpt)}
+                    className={`px-2.5 py-1 text-[11px] uppercase tracking-wider font-semibold rounded transition-colors whitespace-nowrap ${
+                      salesFilter === filterOpt
+                        ? 'bg-black text-white'
+                        : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+                    }`}
+                  >
+                    {filterOpt}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Sales List */}
+            {filteredSales.length === 0 ? (
+              <div className="p-12 text-center bg-white/60 border border-hairline rounded-lg space-y-3">
+                <div className="w-12 h-12 rounded-full bg-gold/10 text-gold flex items-center justify-center mx-auto">
+                  <Percent className="w-6 h-6" />
+                </div>
+                <h3 className="font-serif text-lg font-medium text-text">No Sales Found</h3>
+                <p className="text-xs text-muted max-w-md mx-auto font-light">
+                  {sales.length === 0
+                    ? 'No promotional sales have been created yet. Launch your first seasonal campaign, flash sale, or category discount.'
+                    : 'No sales match your current search and filter criteria.'}
+                </p>
+                {sales.length === 0 && (
+                  <button
+                    type="button"
+                    onClick={openCreateSaleModal}
+                    className="btn-gold text-xs py-2 px-5 mt-2"
+                  >
+                    + Create Your First Sale
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {filteredSales.map((sale) => {
+                  const status = getSaleStatus(sale);
+                  const isLive = status === 'active';
+                  const isScheduled = status === 'scheduled';
+                  const isExpired = status === 'expired';
+
+                  // Scope summary display
+                  let scopeBadge = 'All Products';
+                  let scopeDetail = 'Every bespoke jacket in the emporium';
+                  if (sale.scope === 'category') {
+                    scopeBadge = `Category: ${sale.category || 'General'}`;
+                    const countInCat = products.filter(
+                      (p) => p.category?.toLowerCase() === sale.category?.toLowerCase()
+                    ).length;
+                    scopeDetail = `Applies to all ${countInCat} ${sale.category} jackets`;
+                  } else if (sale.scope === 'products') {
+                    const count = sale.product_ids?.length || 0;
+                    scopeBadge = `${count} Selected ${count === 1 ? 'Jacket' : 'Jackets'}`;
+                    const sampleNames = products
+                      .filter((p) => sale.product_ids?.includes(p.id))
+                      .map((p) => p.name)
+                      .slice(0, 3)
+                      .join(', ');
+                    scopeDetail = sampleNames
+                      ? `${sampleNames}${count > 3 ? ` + ${count - 3} more` : ''}`
+                      : `${count} specific jackets`;
+                  }
+
+                  return (
+                    <div
+                      key={sale.id}
+                      className={`p-4 sm:p-5 rounded-lg border transition-all ${
+                        isLive
+                          ? 'border-gold/60 bg-white shadow-sm ring-1 ring-gold/20'
+                          : isScheduled
+                          ? 'border-blue-200 bg-blue-50/20'
+                          : 'border-hairline bg-white/70 opacity-90'
+                      }`}
+                    >
+                      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                        {/* Left: Info & Discount */}
+                        <div className="flex items-start gap-4 min-w-0 flex-1">
+                          {/* Discount Pill */}
+                          <div className="flex flex-col items-center justify-center w-16 h-16 rounded-lg bg-black text-white p-1 text-center flex-shrink-0 border border-gold/40 shadow-sm">
+                            <span className="font-serif text-lg font-bold leading-none text-gold">
+                              {sale.discount_percentage}%
+                            </span>
+                            <span className="text-[9px] uppercase tracking-wider font-semibold text-neutral-300 mt-0.5">
+                              OFF
+                            </span>
+                          </div>
+
+                          {/* Campaign Title & Meta */}
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-2 mb-1">
+                              <h3 className="font-serif text-lg font-semibold text-text truncate">
+                                {sale.name}
+                              </h3>
+
+                              {/* Status Badge */}
+                              {isLive && (
+                                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+                                  Active Live
+                                </span>
+                              )}
+                              {isScheduled && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-blue-800 border border-blue-300">
+                                  <Clock className="w-3 h-3" />
+                                  Scheduled
+                                </span>
+                              )}
+                              {isExpired && (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-neutral-100 text-neutral-600 border border-neutral-300">
+                                  Expired
+                                </span>
+                              )}
+                              {!sale.is_active && (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300">
+                                  Disabled
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Banner message if set */}
+                            {sale.banner_text && (
+                              <p className="text-xs text-gold font-serif italic mb-1.5">
+                                "{sale.banner_text}"
+                              </p>
+                            )}
+
+                            {/* Scope and Schedule info */}
+                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[10px] uppercase tracking-wider font-semibold text-text px-1.5 py-0.5 bg-neutral-100 rounded border border-neutral-200">
+                                  {scopeBadge}
+                                </span>
+                                <span className="text-[11px] truncate max-w-xs sm:max-w-md">{scopeDetail}</span>
+                              </div>
+
+                              <div className="flex items-center gap-1 text-[11px]">
+                                <Calendar className="w-3 h-3 text-muted flex-shrink-0" />
+                                <span>{formatSaleDate(sale.starts_at)} &rarr; {formatSaleDate(sale.ends_at)}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Right: Toggle switch & Actions */}
+                        <div className="flex items-center gap-3 justify-end border-t sm:border-t-0 pt-3 sm:pt-0 border-hairline">
+                          {/* Quick Enable/Disable toggle */}
+                          <label className="flex items-center gap-2 cursor-pointer text-xs select-none">
+                            <span className="text-muted text-[11px] hidden sm:inline">
+                              {sale.is_active ? 'Enabled' : 'Paused'}
+                            </span>
+                            <div
+                              onClick={(e) => {
+                                e.preventDefault();
+                                handleToggleSale(sale.id, sale.is_active);
+                              }}
+                              className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                                sale.is_active ? 'bg-emerald-600' : 'bg-neutral-300'
+                              }`}
+                            >
+                              <span
+                                className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                                  sale.is_active ? 'translate-x-4' : 'translate-x-0'
+                                }`}
+                              />
+                            </div>
+                          </label>
+
+                          {/* Edit button */}
+                          <button
+                            type="button"
+                            onClick={() => openEditSaleModal(sale)}
+                            className="p-1.5 text-muted hover:text-black border border-hairline rounded hover:bg-neutral-100 transition-colors"
+                            title="Edit Sale"
+                            aria-label={`Edit ${sale.name}`}
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+
+                          {/* Delete button */}
+                          <button
+                            type="button"
+                            disabled={isDeletingSaleId === sale.id}
+                            onClick={() => handleDeleteSaleConfirm(sale.id)}
+                            className="p-1.5 text-muted hover:text-red-600 border border-hairline rounded hover:bg-red-50 transition-colors disabled:opacity-40"
+                            title="Delete Sale"
+                            aria-label={`Delete ${sale.name}`}
+                          >
+                            {isDeletingSaleId === sale.id ? (
+                              <Loader2 className="w-4 h-4 animate-spin text-red-600" />
+                            ) : (
+                              <Trash2 className="w-4 h-4" />
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -4671,6 +5246,459 @@ export const AdminPage: React.FC = () => {
                 >
                   {isRenamingCategory && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   <span>Update All Jackets</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 6. CREATE / EDIT SALE MODAL */}
+      {isEditingSale && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsEditingSale(false);
+          }}
+        >
+          <div className="relative w-full max-w-2xl max-h-[92vh] overflow-y-auto bg-white border border-hairline rounded-lg p-6 sm:p-8 shadow-2xl text-black space-y-6">
+            <div className="flex items-center justify-between border-b border-hairline pb-4">
+              <div>
+                <h3 className="font-serif text-2xl font-semibold text-black">
+                  {currentSale.id ? 'Edit Promotional Sale' : 'Create Promotional Sale'}
+                </h3>
+                <p className="text-xs text-neutral-600 mt-0.5">
+                  Automate discounts, apply to scopes, and preview live customer pricing.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsEditingSale(false)}
+                className="text-neutral-400 hover:text-black p-1 text-xl font-bold leading-none"
+              >
+                &times;
+              </button>
+            </div>
+
+            {/* Error or Notice message */}
+            {salesMsg && (
+              <div
+                className={`p-3 text-xs rounded border ${
+                  salesMsg.type === 'success'
+                    ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                    : 'bg-red-50 border-red-200 text-red-800'
+                }`}
+              >
+                {salesMsg.text}
+              </div>
+            )}
+
+            {/* Live Customer Pricing Simulation Preview */}
+            <div className="bg-neutral-50 border border-neutral-200 rounded-lg p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] uppercase tracking-wider font-bold text-neutral-700 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-gold" />
+                  Live Customer Pricing Simulation
+                </span>
+                <span className="text-[10px] text-neutral-500 font-mono">
+                  Sample: £200.00 Original Jacket
+                </span>
+              </div>
+
+              {(() => {
+                const sampleOriginal = 200;
+                const sampleDiscount = Math.max(1, Math.min(100, Number(currentSale.discount_percentage) || 0));
+                const sampleSalePrice = calculateSalePrice(sampleOriginal, sampleDiscount);
+                const sampleSavings = (sampleOriginal - sampleSalePrice).toFixed(2);
+
+                return (
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white p-3.5 rounded border border-neutral-200">
+                    <div>
+                      <div className="flex items-baseline gap-2.5">
+                        <span className="text-xl font-bold text-red-600">
+                          {settings.currency}{sampleSalePrice.toFixed(2)}
+                        </span>
+                        <span className="text-sm text-neutral-400 line-through">
+                          {settings.currency}{sampleOriginal.toFixed(2)}
+                        </span>
+                        <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-red-50 text-red-700 border border-red-200 rounded">
+                          {sampleDiscount}% OFF
+                        </span>
+                      </div>
+                      <p className="text-xs text-neutral-600 mt-1">
+                        Customer saves <strong className="text-black">{settings.currency}{sampleSavings}</strong> ({sampleDiscount}% discount applied)
+                      </p>
+                    </div>
+
+                    <div className="text-right text-[11px] text-neutral-500">
+                      <span className="block font-semibold text-neutral-800">
+                        {currentSale.scope === 'all'
+                          ? 'Entire Catalog'
+                          : currentSale.scope === 'category'
+                          ? `Category: ${currentSale.category || 'Select below'}`
+                          : `${currentSale.product_ids?.length || 0} Selected Jackets`}
+                      </span>
+                      <span>
+                        {currentSale.banner_text
+                          ? `"${currentSale.banner_text}"`
+                          : 'No custom promotional banner'}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+
+            <form onSubmit={handleSaveSaleSubmit} className="space-y-5">
+              {/* Sale Name */}
+              <div>
+                <label className="block text-xs uppercase tracking-wider font-semibold text-black mb-1">
+                  Sale / Campaign Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={currentSale.name || ''}
+                  onChange={(e) => setCurrentSale({ ...currentSale, name: e.target.value })}
+                  placeholder="e.g. Autumn Sale, Black Friday Exclusive, London Fashion Week"
+                  className="w-full bg-white border border-neutral-300 text-black placeholder:text-neutral-500 px-3.5 py-2.5 text-sm rounded focus:border-black outline-none"
+                />
+              </div>
+
+              {/* Promotional Banner text */}
+              <div>
+                <label className="block text-xs uppercase tracking-wider font-semibold text-black mb-1">
+                  Promotional Banner Text <span className="text-neutral-400 font-normal lowercase">(optional)</span>
+                </label>
+                <input
+                  type="text"
+                  value={currentSale.banner_text || ''}
+                  onChange={(e) => setCurrentSale({ ...currentSale, banner_text: e.target.value })}
+                  placeholder="e.g. 30% OFF EVERYTHING for 7 days — Handcrafted Luxury"
+                  className="w-full bg-white border border-neutral-300 text-black placeholder:text-neutral-500 px-3.5 py-2.5 text-sm rounded focus:border-black outline-none"
+                />
+              </div>
+
+              {/* Discount Percentage */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs uppercase tracking-wider font-semibold text-black">
+                    Discount Percentage <span className="text-red-500">*</span>
+                  </label>
+                  <span className="text-xs text-neutral-500">
+                    Quick Presets:
+                  </span>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 mb-2">
+                  {[10, 15, 20, 25, 30, 40, 50].map((pct) => (
+                    <button
+                      key={pct}
+                      type="button"
+                      onClick={() => setCurrentSale({ ...currentSale, discount_percentage: pct })}
+                      className={`px-2.5 py-1 text-xs rounded border font-semibold transition-colors ${
+                        Number(currentSale.discount_percentage) === pct
+                          ? 'bg-black text-white border-black'
+                          : 'bg-white text-neutral-700 border-neutral-300 hover:border-black'
+                      }`}
+                    >
+                      {pct}%
+                    </button>
+                  ))}
+                </div>
+
+                <div className="relative">
+                  <input
+                    type="number"
+                    min="1"
+                    max="100"
+                    step="1"
+                    required
+                    value={currentSale.discount_percentage ?? 20}
+                    onChange={(e) =>
+                      setCurrentSale({
+                        ...currentSale,
+                        discount_percentage: Number(e.target.value),
+                      })
+                    }
+                    className="w-full bg-white border border-neutral-300 text-black font-semibold px-3.5 py-2.5 text-sm rounded focus:border-black outline-none pr-10"
+                  />
+                  <Percent className="w-4 h-4 text-neutral-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+              </div>
+
+              {/* Scope (Apply To) */}
+              <div className="space-y-3">
+                <label className="block text-xs uppercase tracking-wider font-semibold text-black">
+                  Apply To (Scope) <span className="text-red-500">*</span>
+                </label>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  {[
+                    { id: 'all', title: 'All Products', desc: 'Every jacket in store' },
+                    { id: 'category', title: 'Category', desc: 'Specific category' },
+                    { id: 'products', title: 'Selected Products', desc: 'Handpick jackets' },
+                  ].map((sc) => (
+                    <label
+                      key={sc.id}
+                      className={`p-3 rounded border cursor-pointer transition-all flex flex-col justify-between ${
+                        currentSale.scope === sc.id
+                          ? 'border-black bg-neutral-50 ring-1 ring-black'
+                          : 'border-neutral-300 hover:border-neutral-400'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          name="sale-scope"
+                          value={sc.id}
+                          checked={currentSale.scope === sc.id}
+                          onChange={() =>
+                            setCurrentSale({
+                              ...currentSale,
+                              scope: sc.id as SaleScope,
+                            })
+                          }
+                          className="accent-black"
+                        />
+                        <span className="text-xs font-bold text-black">{sc.title}</span>
+                      </div>
+                      <span className="text-[11px] text-neutral-500 mt-1 pl-5">{sc.desc}</span>
+                    </label>
+                  ))}
+                </div>
+
+                {/* Scope: Category selector */}
+                {currentSale.scope === 'category' && (
+                  <div className="p-3.5 bg-neutral-50 border border-neutral-200 rounded space-y-2">
+                    <label className="block text-xs uppercase tracking-wider font-semibold text-black">
+                      Select Target Category <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={currentSale.category || ''}
+                      onChange={(e) => setCurrentSale({ ...currentSale, category: e.target.value })}
+                      className="w-full bg-white border border-neutral-300 text-black px-3 py-2 text-sm rounded focus:border-black outline-none"
+                      required
+                    >
+                      <option value="">Select a category...</option>
+                      {storeCategories.map((cat) => {
+                        const count = products.filter(
+                          (p) => p.category?.trim().toLowerCase() === cat.toLowerCase()
+                        ).length;
+                        return (
+                          <option key={cat} value={cat}>
+                            {cat} ({count} {count === 1 ? 'jacket' : 'jackets'})
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div>
+                )}
+
+                {/* Scope: Selected Products picker */}
+                {currentSale.scope === 'products' && (
+                  <div className="p-3.5 bg-neutral-50 border border-neutral-200 rounded space-y-3">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                      <label className="block text-xs uppercase tracking-wider font-semibold text-black">
+                        Choose Eligible Jackets ({currentSale.product_ids?.length || 0} selected)
+                      </label>
+                      <div className="flex items-center gap-2 text-xs">
+                        <button
+                          type="button"
+                          onClick={handleSelectAllProducts}
+                          className="text-black font-semibold hover:underline"
+                        >
+                          Select All
+                        </button>
+                        <span>&bull;</span>
+                        <button
+                          type="button"
+                          onClick={handleDeselectAllProducts}
+                          className="text-neutral-500 hover:text-black hover:underline"
+                        >
+                          Clear
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Filter product search */}
+                    <div className="relative">
+                      <Search className="w-3.5 h-3.5 text-neutral-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="text"
+                        value={saleProductSearch}
+                        onChange={(e) => setSaleProductSearch(e.target.value)}
+                        placeholder="Filter jackets by name or category..."
+                        className="w-full pl-8 pr-3 py-1.5 bg-white border border-neutral-300 text-xs text-black rounded focus:border-black outline-none"
+                      />
+                    </div>
+
+                    {/* Product checklist */}
+                    <div className="max-h-56 overflow-y-auto border border-neutral-200 rounded bg-white divide-y divide-neutral-100">
+                      {products
+                        .filter((p) => {
+                          if (!saleProductSearch.trim()) return true;
+                          const q = saleProductSearch.toLowerCase();
+                          return (
+                            p.name.toLowerCase().includes(q) ||
+                            p.category?.toLowerCase().includes(q)
+                          );
+                        })
+                        .map((p) => {
+                          const isSelected = (currentSale.product_ids || []).includes(p.id);
+                          return (
+                            <label
+                              key={p.id}
+                              className={`p-2.5 flex items-center justify-between gap-3 cursor-pointer hover:bg-neutral-50 transition-colors ${
+                                isSelected ? 'bg-neutral-50/80 font-medium' : ''
+                              }`}
+                            >
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <input
+                                  type="checkbox"
+                                  checked={isSelected}
+                                  onChange={() => handleToggleProductSelection(p.id)}
+                                  className="accent-black rounded"
+                                />
+                                <img
+                                  src={p.images[0] || '/assets/products/shearling-aviator-jacket-main.png'}
+                                  alt={p.name}
+                                  className="w-8 h-10 object-cover rounded border border-neutral-200 flex-shrink-0"
+                                />
+                                <div className="min-w-0">
+                                  <p className="text-xs text-black truncate">{p.name}</p>
+                                  <span className="text-[10px] text-neutral-500">{p.category}</span>
+                                </div>
+                              </div>
+
+                              <span className="text-xs font-semibold text-neutral-800 flex-shrink-0">
+                                {settings.currency}{p.price.toFixed(2)}
+                              </span>
+                            </label>
+                          );
+                        })}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Schedule & Duration presets */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs uppercase tracking-wider font-semibold text-black">
+                    Schedule &amp; Duration <span className="text-red-500">*</span>
+                  </label>
+                  <span className="text-[11px] text-neutral-500">Quick Duration:</span>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {(['1d', '3d', '7d', '14d', '30d'] as const).map((preset) => {
+                    const labels = {
+                      '1d': '1 Day',
+                      '3d': '3 Days',
+                      '7d': '7 Days (1 Wk)',
+                      '14d': '14 Days (2 Wks)',
+                      '30d': '30 Days (1 Mo)',
+                    };
+                    return (
+                      <button
+                        key={preset}
+                        type="button"
+                        onClick={() => handleDurationPresetSelect(preset)}
+                        className={`px-2.5 py-1 text-xs rounded border font-semibold transition-colors ${
+                          durationPreset === preset
+                            ? 'bg-black text-white border-black'
+                            : 'bg-white text-neutral-700 border-neutral-300 hover:border-black'
+                        }`}
+                      >
+                        {labels[preset]}
+                      </button>
+                    );
+                  })}
+                  <button
+                    type="button"
+                    onClick={() => setDurationPreset('custom')}
+                    className={`px-2.5 py-1 text-xs rounded border font-semibold transition-colors ${
+                      durationPreset === 'custom'
+                        ? 'bg-black text-white border-black'
+                        : 'bg-white text-neutral-700 border-neutral-300 hover:border-black'
+                    }`}
+                  >
+                    Custom
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  <div>
+                    <label className="block text-[11px] uppercase tracking-wider font-semibold text-black mb-1">
+                      Start Date &amp; Time
+                    </label>
+                    <input
+                      type="datetime-local"
+                      required
+                      value={currentSale.starts_at || ''}
+                      onChange={(e) => {
+                        setDurationPreset('custom');
+                        setCurrentSale({ ...currentSale, starts_at: e.target.value });
+                      }}
+                      className="w-full bg-white border border-neutral-300 text-black px-3 py-2 text-xs rounded focus:border-black outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] uppercase tracking-wider font-semibold text-black mb-1">
+                      End Date &amp; Time
+                    </label>
+                    <input
+                      type="datetime-local"
+                      required
+                      value={currentSale.ends_at || ''}
+                      onChange={(e) => {
+                        setDurationPreset('custom');
+                        setCurrentSale({ ...currentSale, ends_at: e.target.value });
+                      }}
+                      className="w-full bg-white border border-neutral-300 text-black px-3 py-2 text-xs rounded focus:border-black outline-none"
+                    />
+                  </div>
+                </div>
+
+                <p className="text-[11px] text-neutral-500">
+                  Sale automatically goes live at the start date/time and expires after the end date/time. No manual intervention required.
+                </p>
+              </div>
+
+              {/* Active Toggle */}
+              <div className="pt-2 border-t border-neutral-200">
+                <label className="flex items-center gap-2.5 cursor-pointer text-xs text-black font-semibold">
+                  <input
+                    type="checkbox"
+                    checked={currentSale.is_active !== false}
+                    onChange={(e) => setCurrentSale({ ...currentSale, is_active: e.target.checked })}
+                    className="accent-black w-4 h-4 rounded"
+                  />
+                  <span>Sale is Active / Enabled</span>
+                </label>
+                <p className="text-[11px] text-neutral-500 mt-1 pl-6">
+                  If disabled, this promotion will not apply even if current date is within the scheduled start and end window.
+                </p>
+              </div>
+
+              {/* Modal Buttons */}
+              <div className="pt-4 flex items-center justify-end gap-3 border-t border-neutral-200">
+                <button
+                  type="button"
+                  onClick={() => setIsEditingSale(false)}
+                  className="px-4 py-2 border border-neutral-300 text-black hover:bg-neutral-100 rounded text-xs font-semibold uppercase tracking-wider transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSavingSale}
+                  className="btn-gold flex items-center gap-2"
+                >
+                  {isSavingSale && <Loader2 className="w-4 h-4 animate-spin" />}
+                  <span>{currentSale.id ? 'Save Changes' : 'Create & Schedule Sale'}</span>
                 </button>
               </div>
             </form>

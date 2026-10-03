@@ -4,6 +4,7 @@ import { useData } from '../context/DataContext';
 import { Product } from '../types';
 import { ClarityAnalytics } from '../lib/clarity';
 import { ProductCardRating } from './ProductCardRating';
+import { getProductSaleInfo } from '../lib/sales';
 
 interface CollectionProps {
   onSelectProduct?: (product: Product) => void;
@@ -12,7 +13,7 @@ interface CollectionProps {
 const PAGE_SIZE = 9;
 
 export const Collection: React.FC<CollectionProps> = () => {
-  const { products, activeCategory, setActiveCategory, searchQuery, setSearchQuery, reviews } = useData();
+  const { products, activeCategory, setActiveCategory, searchQuery, setSearchQuery, reviews, sales } = useData();
   const observerRef = useRef<IntersectionObserver | null>(null);
   const sectionRef = useRef<HTMLElement | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
@@ -178,6 +179,8 @@ export const Collection: React.FC<CollectionProps> = () => {
         {paginatedProducts.map((product, idx) => {
           const globalIndex = startIndex + idx;
           const stat = reviewStatsByProduct[product.id];
+          const saleInfo = getProductSaleInfo(product, sales);
+
           return (
             <Link
               key={product.id || globalIndex}
@@ -196,10 +199,22 @@ export const Collection: React.FC<CollectionProps> = () => {
                   loading="lazy"
                   decoding="async"
                 />
+                {saleInfo.hasSale && (
+                  <span className="product-sale-badge sm">
+                    {saleInfo.discountPercentage}% OFF
+                  </span>
+                )}
               </div>
               <div className="ci">
                 <h3>{product.name}</h3>
-                <span>£{product.price}</span>
+                {saleInfo.hasSale ? (
+                  <div className="price-wrap">
+                    <span className="price-old">£{saleInfo.originalPrice}</span>
+                    <span className="price-sale">£{saleInfo.salePrice}</span>
+                  </div>
+                ) : (
+                  <span>£{product.price}</span>
+                )}
               </div>
               {stat && stat.count > 0 && (
                 <ProductCardRating rating={stat.average} count={stat.count} theme="light" />

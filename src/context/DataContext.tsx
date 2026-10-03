@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import { supabase, isSupabaseConfigured, defaultSeedProducts, defaultSeedSettings } from '../lib/supabase';
 import { normalizeProductOptions } from '../lib/options';
-import { Product, Settings, Order, OrderStatus, Review, FeaturedImage } from '../types';
+import { Product, Settings, Order, OrderStatus, Review, FeaturedImage, Sale } from '../types';
 import { HomepageImage, fetchHomepageImages } from '../lib/homepageImages';
 import { DEFAULT_THEME, applyThemeToDocument } from '../lib/theme';
 import { useAuth } from './AuthContext';
@@ -14,6 +14,7 @@ interface DataContextType {
   featuredImages: FeaturedImage[];
   homepageImages: HomepageImage[];
   homepageSlots: Record<string, HomepageImage>;
+  sales: Sale[];
   loading: boolean;
   error: string | null;
   activeCategory: string;
@@ -26,6 +27,7 @@ interface DataContextType {
   refreshReviews: () => Promise<void>;
   refreshFeaturedImages: () => Promise<void>;
   refreshHomepageImages: () => Promise<void>;
+  refreshSales: () => Promise<void>;
   saveProduct: (productData: Partial<Product> & { id?: string }) => Promise<{ error?: string; product?: Product }>;
   deleteProduct: (id: string) => Promise<{ error?: string }>;
   toggleProductVisibility: (id: string, isVisible: boolean) => Promise<{ error?: string }>;
@@ -42,6 +44,9 @@ interface DataContextType {
     slotKey: string,
     patch: Partial<Pick<HomepageImage, 'image_url' | 'storage_path' | 'alt_text' | 'title' | 'description' | 'product_id' | 'is_active' | 'sort_order' | 'media_type'>>
   ) => Promise<{ error?: string }>;
+  saveSale: (saleData: Partial<Sale>) => Promise<{ data?: Sale; error?: string }>;
+  deleteSale: (id: string) => Promise<{ success: boolean; error?: string }>;
+  toggleSaleActive: (id: string, isActive: boolean) => Promise<{ success: boolean; error?: string }>;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -54,6 +59,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [reviews, setReviews] = useState<Review[]>([]);
   const [featuredImages, setFeaturedImages] = useState<FeaturedImage[]>([]);
   const [homepageImages, setHomepageImages] = useState<HomepageImage[]>([]);
+  const [sales, setSales] = useState<Sale[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>('All');
@@ -268,6 +274,53 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const refreshReviews = useCallback(async () => {
     setReviews(await fetchReviews());
   }, [fetchReviews]);
+
+  // ---- Sales (public read active; owner-only full read) ----
+  const fetchSales = useCallback(async (): Promise<Sale[]> => {
+    if (!isSupabaseConfigured) {
+      return [];
+    }
+
+    try {
+      let query = supabase
+        .from('sales')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (!user?.isOwner) {
+        query = query.eq('is_active', true);
+      }
+
+      const { data, error: salesErr } = await query;
+
+      if (salesErr) {
+        console.warn('Sales fetch notice (table may need migration):', salesErr.message);
+        return [];
+      }
+
+      return (data || []).map((s: any) => ({
+        id: s.id,
+        name: s.name || '',
+        discount_percentage: Number(s.discount_percentage || 0),
+        scope: s.scope || 'all',
+        category: s.category || null,
+        product_ids: Array.isArray(s.product_ids) ? s.product_ids : [],
+        starts_at: s.starts_at,
+        ends_at: s.ends_at,
+        is_active: Boolean(s.is_active ?? true),
+        banner_text: s.banner_text || null,
+        created_at: s.created_at,
+        updated_at: s.updated_at,
+      }));
+    } catch (err) {
+      console.warn('Failed to load sales:', err);
+      return [];
+    }
+  }, [user?.isOwner]);
+
+  const refreshSales = useCallback(async () => {
+    setSales(await fetchSales());
+  }, [fetchSales]);
 
   // ---- Admin: featured images ----
   const fetchFeaturedImages = useCallback(async (): Promise<FeaturedImage[]> => {
@@ -575,6 +628,105 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     [refreshFeaturedImages, user?.isOwner]
   );
 
+  // ---- Mutations: Sales ----
+  const saveSale = useCallback(
+    async (saleData: Partial<Sale>): Promise<{ data?: Sale; error?: string }> => {
+      if (!isSupabaseConfigured) return { error: 'Supabase is not configured.' };
+      if (!user?.isOwner) return { error: 'Unauthorized. Only store owners can manage sales.' };
+
+      try {
+        const payload: any = {
+          name: saleData.name?.trim(),
+          discount_percentage: Number(saleData.discount_percentage),
+          scope: saleData.scope || 'all',
+          category: saleData.scope === 'category' ? (saleData.category?.trim() || null) : null,
+          product_ids: saleData.scope === 'products' ? (saleData.product_ids || []) : [],
+          starts_at: saleData.starts_at,
+          ends_at: saleData.ends_at,
+          is_active: saleData.is_active ?? true,
+          banner_text: saleData.banner_text?.trim() || null,
+          updated_at: new Date().toISOString(),
+        };
+
+        let resultData: any = null;
+
+        if (saleData.id) {
+          const { data, error: updErr } = await supabase
+            .from('sales')
+            .update(payload)
+            .eq('id', saleData.id)
+            .select()
+            .single();
+
+          if (updErr) throw updErr;
+          resultData = data;
+        } else {
+          const { data, error: insErr } = await supabase
+            .from('sales')
+            .insert([{ ...payload, created_at: new Date().toISOString() }])
+            .select()
+            .single();
+
+          if (insErr) throw insErr;
+          resultData = data;
+        }
+
+        await refreshSales();
+        return { data: resultData as Sale };
+      } catch (err: any) {
+        console.error('Error saving sale:', err);
+        return { error: err.message || 'Failed to save sale.' };
+      }
+    },
+    [refreshSales, user?.isOwner]
+  );
+
+  const deleteSale = useCallback(
+    async (id: string): Promise<{ success: boolean; error?: string }> => {
+      if (!isSupabaseConfigured) return { success: false, error: 'Supabase is not configured.' };
+      if (!user?.isOwner) return { success: false, error: 'Unauthorized.' };
+
+      try {
+        const { error: delErr } = await supabase
+          .from('sales')
+          .delete()
+          .eq('id', id);
+
+        if (delErr) throw delErr;
+
+        await refreshSales();
+        return { success: true };
+      } catch (err: any) {
+        console.error('Error deleting sale:', err);
+        return { success: false, error: err.message || 'Failed to delete sale.' };
+      }
+    },
+    [refreshSales, user?.isOwner]
+  );
+
+  const toggleSaleActive = useCallback(
+    async (id: string, isActive: boolean): Promise<{ success: boolean; error?: string }> => {
+      if (!isSupabaseConfigured) return { success: false, error: 'Supabase is not configured.' };
+      if (!user?.isOwner) return { success: false, error: 'Unauthorized.' };
+
+      try {
+        const { error: updErr } = await supabase
+          .from('sales')
+          .update({ is_active: isActive, updated_at: new Date().toISOString() })
+          .eq('id', id);
+
+        if (updErr) throw updErr;
+
+        await refreshSales();
+        return { success: true };
+      } catch (err: any) {
+        console.error('Error toggling sale active status:', err);
+        return { success: false, error: err.message || 'Failed to update sale.' };
+      }
+    },
+    [refreshSales, user?.isOwner]
+  );
+
   const refreshData = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -588,15 +740,17 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setReviews([]);
         setFeaturedImages([]);
         setHomepageImages([]);
+        setSales([]);
       } else {
         // Fetch real Supabase data
-        const [loadedSettings, loadedProducts, loadedOrders, loadedReviews, loadedFeatured, loadedHomepage] = await Promise.all([
+        const [loadedSettings, loadedProducts, loadedOrders, loadedReviews, loadedFeatured, loadedHomepage, loadedSales] = await Promise.all([
           fetchSettings(),
           fetchProducts(Boolean(user?.isOwner)),
           fetchOrders(),
           fetchReviews(),
           fetchFeaturedImages(),
           fetchHomepageImages(),
+          fetchSales(),
         ]);
 
         if (loadedSettings) {
@@ -608,6 +762,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setReviews(loadedReviews);
         setFeaturedImages(loadedFeatured);
         setHomepageImages(loadedHomepage);
+        setSales(loadedSales);
       }
     } catch (err: any) {
       console.error('Data loading error:', err);
@@ -615,7 +770,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setLoading(false);
     }
-  }, [fetchSettings, fetchProducts, fetchOrders, fetchReviews, fetchFeaturedImages, user?.isOwner]);
+  }, [fetchSettings, fetchProducts, fetchOrders, fetchReviews, fetchFeaturedImages, fetchHomepageImages, fetchSales, user?.isOwner]);
 
   useEffect(() => {
     refreshData();
@@ -881,6 +1036,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         featuredImages,
         homepageImages,
         homepageSlots,
+        sales,
         loading,
         error,
         activeCategory,
@@ -893,6 +1049,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         refreshReviews,
         refreshFeaturedImages,
         refreshHomepageImages,
+        refreshSales,
         saveProduct,
         deleteProduct,
         toggleProductVisibility,
@@ -906,6 +1063,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         deleteFeaturedImage,
         reorderFeaturedImages,
         saveHomepageSlot,
+        saveSale,
+        deleteSale,
+        toggleSaleActive,
       }}
     >
       {children}

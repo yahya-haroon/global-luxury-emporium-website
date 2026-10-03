@@ -3,15 +3,17 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Search, X, ShoppingBag, Menu } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { useCart } from '../context/CartContext';
+import { getFeaturedActiveSale, getTimeRemaining } from '../lib/sales';
 
 export const Header: React.FC = () => {
   const [hasShadow, setHasShadow] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [now, setNow] = useState<Date>(() => new Date());
   const location = useLocation();
   const navigate = useNavigate();
-  const { searchQuery, setSearchQuery, homepageSlots } = useData();
+  const { searchQuery, setSearchQuery, homepageSlots, sales } = useData();
   const { totalCount, openCart } = useCart();
 
   const searchWrapRef = useRef<HTMLDivElement>(null);
@@ -132,6 +134,23 @@ export const Header: React.FC = () => {
     }
   };
 
+  // Live timer interval for announcement bar countdown
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setNow(new Date());
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const featuredSale = getFeaturedActiveSale(sales, now);
+  const remaining = featuredSale ? getTimeRemaining(featuredSale.ends_at, now) : null;
+  const remainingText =
+    remaining && !remaining.isExpired
+      ? remaining.days > 0
+        ? `${remaining.days}d ${remaining.hours}h left`
+        : `${remaining.hours}h ${remaining.minutes}m ${remaining.seconds}s left`
+      : null;
+
   return (
     <>
       {/* 2px Viewport Progress Bar */}
@@ -139,6 +158,19 @@ export const Header: React.FC = () => {
 
       {/* Announcement Bar */}
       <div className="announce sm" role="note">
+        {featuredSale && remainingText ? (
+          <>
+            <a
+              href="#shop"
+              onClick={(e) => handleNavClick(e, 'shop')}
+              className="hover:underline font-medium inline-flex items-center gap-1.5 transition-colors"
+              style={{ color: '#C9A24A' }}
+            >
+              <span>{featuredSale.name}: {featuredSale.discount_percentage}% OFF ({remainingText})</span>
+            </a>
+            <span aria-hidden="true">&middot;</span>
+          </>
+        ) : null}
         <span>Free delivery to UK</span>
         <span aria-hidden="true">&middot;</span>
         <span>Worldwide shipping</span>

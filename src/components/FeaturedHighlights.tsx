@@ -4,9 +4,10 @@ import { useData } from '../context/DataContext';
 import { DEFAULT_FEATURED_IMAGES } from '../lib/homepageImages';
 import { Product } from '../types';
 import { ProductCardRating } from './ProductCardRating';
+import { getProductSaleInfo } from '../lib/sales';
 
 export const FeaturedHighlights: React.FC = () => {
-  const { products, settings, homepageSlots, homepageImages, reviews } = useData();
+  const { products, settings, homepageSlots, homepageImages, reviews, sales } = useData();
 
   // Precompute average rating & published review count per product
   const reviewStatsByProduct = React.useMemo(() => {
@@ -75,18 +76,36 @@ export const FeaturedHighlights: React.FC = () => {
       <div className="hl-grid">
         {featured.map(({ product, image }) => {
           const stat = reviewStatsByProduct[product.id];
+          const saleInfo = getProductSaleInfo(product, sales);
+
           return (
             <Link key={product.id} className="hl-card" to={`/product/${product.id}`}>
-              <div className="hl-img">
+              <div className="hl-img" style={{ position: 'relative' }}>
                 <img src={image} alt={product.name} loading="lazy" decoding="async" />
+                {saleInfo.hasSale && (
+                  <span className="product-sale-badge sm">
+                    {saleInfo.discountPercentage}% OFF
+                  </span>
+                )}
               </div>
               <div className="hl-body">
                 <span className="sm hl-cat">{product.category}</span>
                 <h3>{product.name}</h3>
-                <span className="hl-price">
-                  {settings.currency}
-                  {product.price}
-                </span>
+                {saleInfo.hasSale ? (
+                  <div className="price-wrap">
+                    <span className="price-old" style={{ color: 'rgba(255, 255, 255, 0.45)' }}>
+                      {settings.currency}{saleInfo.originalPrice}
+                    </span>
+                    <span className="price-sale" style={{ color: '#FFFFFF', fontWeight: 600 }}>
+                      {settings.currency}{saleInfo.salePrice}
+                    </span>
+                  </div>
+                ) : (
+                  <span className="hl-price">
+                    {settings.currency}
+                    {product.price}
+                  </span>
+                )}
                 {stat && stat.count > 0 && (
                   <ProductCardRating rating={stat.average} count={stat.count} theme="dark" />
                 )}

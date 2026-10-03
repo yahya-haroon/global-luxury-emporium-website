@@ -1,6 +1,7 @@
 import React from 'react';
 import { PageLoader } from '../components/PageLoader';
 import { GenderHero } from '../components/GenderHero';
+import { SaleCountdownBanner } from '../components/SaleCountdownBanner';
 import { TrustStrip } from '../components/TrustStrip';
 import { OurStory } from '../components/OurStory';
 import { CategoryGrid } from '../components/CategoryGrid';
@@ -54,6 +55,9 @@ export const HomePage: React.FC = () => {
 
         {/* 3. Split FOR MEN / FOR WOMEN hero */}
         <GenderHero />
+
+        {/* Live Promotional Sale Countdown Banner */}
+        <SaleCountdownBanner />
 
         {/* Marquee trust strip */}
         <TrustStrip />

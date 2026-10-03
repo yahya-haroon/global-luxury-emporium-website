@@ -82,6 +82,9 @@ export interface CartItem {
   productId: string;
   productName: string;
   price: number;
+  originalPrice?: number;
+  discountPercentage?: number;
+  saleName?: string;
   image: string;
   size: string;
   selectedOptions?: Record<string, string>;
@@ -161,4 +164,38 @@ export interface UserSession {
   email: string | null;
   id: string | null;
   isOwner: boolean;
+}
+
+// ==========================================
+// Sales / Discounts
+// ==========================================
+
+export type SaleScope = 'all' | 'category' | 'products';
+
+export type SaleStatus = 'scheduled' | 'active' | 'expired' | 'disabled';
+
+export interface Sale {
+  id: string;
+  name: string;
+  discount_percentage: number;
+  scope: SaleScope;
+  category?: string | null;
+  product_ids: string[];
+  starts_at: string;
+  ends_at: string;
+  is_active: boolean;
+  banner_text?: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface ProductSaleCalculation {
+  hasSale: boolean;
+  originalPrice: number;
+  salePrice: number;
+  discountPercentage: number;
+  savings: number;
+  saleName?: string;
+  saleId?: string;
+  endsAt?: string;
 }

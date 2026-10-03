@@ -10,6 +10,7 @@ import { ProductReviews } from '../components/ProductReviews';
 import { SEO } from '../components/SEO';
 import { useCart } from '../context/CartContext';
 import { ClarityAnalytics } from '../lib/clarity';
+import { getProductSaleInfo } from '../lib/sales';
 import { ArrowLeft, AlertCircle, CheckCircle2, Loader2, ShieldCheck, ShoppingBag, Truck } from 'lucide-react';
 
 const CARD_ELEMENT_OPTIONS = {
@@ -69,13 +70,14 @@ export const ProductPage: React.FC = () => {
 
 const ProductPageContent: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { products, settings, loading, reviews } = useData();
+  const { products, settings, loading, reviews, sales } = useData();
   const navigate = useNavigate();
 
   const stripe = useStripe();
   const elements = useElements();
 
   const product = products.find((p) => p.id === id);
+  const saleInfo = product ? getProductSaleInfo(product, sales) : null;
 
   const productReviews = (reviews || []).filter((r) => r.product_id === product?.id && r.published);
   const averageRating =
@@ -139,7 +141,7 @@ const ProductPageContent: React.FC = () => {
           '@type': 'Offer',
           url: productUrl,
           priceCurrency,
-          price: Number(product.price).toFixed(2),
+          price: Number(saleInfo?.hasSale ? saleInfo.salePrice : product.price).toFixed(2),
           availability: 'https://schema.org/InStock',
           itemCondition: 'https://schema.org/NewCondition',
           seller: {
@@ -319,8 +321,8 @@ const ProductPageContent: React.FC = () => {
     deliveryZones.find((z) => z.id === orderForm.deliveryZoneId) ||
     deliveryZones[0] || { id: 'standard', name: 'Standard Delivery', price: 0 };
 
-  // Price calculations
-  const productPrice = product.price;
+  // Price calculations (dynamic sale discount support)
+  const productPrice = saleInfo?.hasSale ? saleInfo.salePrice : product.price;
 
   const hasPersonalisationInput = Boolean(personalisationText.trim());
   const personalisationFee =
@@ -439,6 +441,9 @@ const ProductPageContent: React.FC = () => {
       productId: product.id,
       productName: product.name,
       price: productPrice,
+      originalPrice: product.price,
+      discountPercentage: saleInfo?.hasSale ? saleInfo.discountPercentage : undefined,
+      saleName: saleInfo?.hasSale ? saleInfo.saleName : undefined,
       image: selectedImage || product.images[0] || '/assets/products/shearling-aviator-jacket-main.png',
       size: selectedSize,
       selectedOptions,
@@ -728,6 +733,11 @@ const ProductPageContent: React.FC = () => {
         {/* Left Column: Image Gallery */}
         <div className="flex flex-col gap-4 md:sticky md:top-24">
           <div className="aspect-[4/5] bg-ivory rounded overflow-hidden border border-hairline relative shadow-sm">
+            {saleInfo?.hasSale && (
+              <div className="product-sale-badge">
+                {saleInfo.discountPercentage}% OFF
+              </div>
+            )}
             <img
               src={selectedImage || product.images[0]}
               alt={product.name}
@@ -778,10 +788,34 @@ const ProductPageContent: React.FC = () => {
             {product.name}
           </h1>
 
-          <p className="text-2xl sm:text-3xl text-gold font-medium mt-3 mb-6 tracking-wide">
-            {settings.currency}
-            {product.price.toFixed(2)}
-          </p>
+          <div className="mt-3 mb-6">
+            {saleInfo?.hasSale ? (
+              <div className="space-y-1">
+                <div className="flex flex-wrap items-baseline gap-3">
+                  <span className="text-2xl sm:text-3xl text-red-600 font-semibold tracking-wide">
+                    {settings.currency}
+                    {saleInfo.salePrice.toFixed(2)}
+                  </span>
+                  <span className="text-lg sm:text-xl text-muted/70 line-through font-light">
+                    {settings.currency}
+                    {product.price.toFixed(2)}
+                  </span>
+                  <span className="inline-flex items-center px-2.5 py-1 text-xs uppercase tracking-wider font-semibold bg-red-50 text-red-700 border border-red-200 rounded">
+                    {saleInfo.discountPercentage}% OFF
+                    {saleInfo.saleName ? ` · ${saleInfo.saleName}` : ''}
+                  </span>
+                </div>
+                <p className="text-xs text-muted font-light pt-0.5">
+                  Promotional offer: You save {settings.currency}{(product.price - saleInfo.salePrice).toFixed(2)} ({saleInfo.discountPercentage}%)
+                </p>
+              </div>
+            ) : (
+              <p className="text-2xl sm:text-3xl text-gold font-medium tracking-wide">
+                {settings.currency}
+                {product.price.toFixed(2)}
+              </p>
+            )}
+          </div>
 
           <div className="border-t border-hairline pt-6 mb-6">
             <p className="text-muted text-base font-light leading-relaxed whitespace-pre-line">
@@ -1137,8 +1171,28 @@ const ProductPageContent: React.FC = () => {
 
               <div className="flex justify-between items-center text-sm text-text">
                 <span>Jacket</span>
-                <span>{settings.currency}{productPrice.toFixed(2)}</span>
+                <div className="text-right">
+                  {saleInfo?.hasSale ? (
+                    <div className="flex items-center gap-2 justify-end">
+                      <span className="text-xs text-muted/70 line-through">
+                        {settings.currency}{product.price.toFixed(2)}
+                      </span>
+                      <span className="text-red-600 font-medium">
+                        {settings.currency}{productPrice.toFixed(2)}
+                      </span>
+                    </div>
+                  ) : (
+                    <span>{settings.currency}{productPrice.toFixed(2)}</span>
+                  )}
+                </div>
               </div>
+
+              {saleInfo?.hasSale && (
+                <div className="flex justify-between items-center text-xs text-red-600 font-medium">
+                  <span>Sale Discount ({saleInfo.discountPercentage}% OFF)</span>
+                  <span>-{settings.currency}{(product.price - saleInfo.salePrice).toFixed(2)}</span>
+                </div>
+              )}
 
               {personalisationFee > 0 && (
                 <div className="flex justify-between items-center text-sm text-text">

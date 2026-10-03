@@ -103,6 +103,13 @@ const CartDrawerContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [completedOrder, setCompletedOrder] = useState<CompletedCartOrder | null>(null);
   const [copiedRef, setCopiedRef] = useState(false);
 
+  const totalPromotionalSavings = items.reduce((acc, it) => {
+    if (it.originalPrice && it.price < it.originalPrice) {
+      return acc + (it.originalPrice - it.price) * it.quantity;
+    }
+    return acc;
+  }, 0);
+
   const [orderForm, setOrderForm] = useState<OrderFormState>({
     fullName: '',
     email: '',
@@ -441,15 +448,43 @@ const CartDrawerContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
                               {/* Price */}
                               <div className="text-right">
-                                <span className="font-medium text-sm text-gold">
-                                  {settings.currency}
-                                  {(
-                                    (item.price +
-                                      (item.personalisationFee || 0) +
-                                      (item.requirementsFee || 0)) *
-                                    item.quantity
-                                  ).toFixed(2)}
-                                </span>
+                                {item.originalPrice && item.price < item.originalPrice ? (
+                                  <div className="space-y-0.5">
+                                    <div className="flex items-center gap-1.5 justify-end">
+                                      <span className="text-xs text-muted/70 line-through">
+                                        {settings.currency}
+                                        {(
+                                          (item.originalPrice +
+                                            (item.personalisationFee || 0) +
+                                            (item.requirementsFee || 0)) *
+                                          item.quantity
+                                        ).toFixed(2)}
+                                      </span>
+                                      <span className="font-semibold text-sm text-red-600">
+                                        {settings.currency}
+                                        {(
+                                          (item.price +
+                                            (item.personalisationFee || 0) +
+                                            (item.requirementsFee || 0)) *
+                                          item.quantity
+                                        ).toFixed(2)}
+                                      </span>
+                                    </div>
+                                    <span className="inline-block text-[9px] uppercase tracking-wider font-semibold text-red-700 bg-red-50 border border-red-200 px-1.5 py-0.5 rounded">
+                                      {item.discountPercentage}% OFF
+                                    </span>
+                                  </div>
+                                ) : (
+                                  <span className="font-medium text-sm text-gold">
+                                    {settings.currency}
+                                    {(
+                                      (item.price +
+                                        (item.personalisationFee || 0) +
+                                        (item.requirementsFee || 0)) *
+                                      item.quantity
+                                    ).toFixed(2)}
+                                  </span>
+                                )}
                                 {item.quantity > 1 && (
                                   <span className="block text-[10px] text-muted font-light">
                                     {settings.currency}{item.price.toFixed(2)} each
@@ -506,6 +541,13 @@ const CartDrawerContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                           {settings.currency}{itemsSubtotal.toFixed(2)}
                         </span>
                       </div>
+
+                      {totalPromotionalSavings > 0 && (
+                        <div className="flex justify-between text-red-600 font-medium">
+                          <span>Promotional Savings</span>
+                          <span>-{settings.currency}{totalPromotionalSavings.toFixed(2)}</span>
+                        </div>
+                      )}
 
                       {personalisationSubtotal > 0 && (
                         <div className="flex justify-between text-muted">

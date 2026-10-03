@@ -92,6 +92,53 @@ Deno.serve(async (req) => {
     let orderRecord: any = null;
     let description = '';
 
+    // 1b. Fetch active sales to enforce trusted server-side discounts
+    const nowIso = new Date().toISOString();
+    const { data: dbSales } = await supabase
+      .from('sales')
+      .select('*')
+      .eq('is_active', true)
+      .lte('starts_at', nowIso)
+      .gte('ends_at', nowIso);
+
+    const activeSales = dbSales || [];
+
+    const resolveSalePrice = (product: any): { salePrice: number; discount: number; saleName?: string } => {
+      if (!product || !activeSales.length) {
+        return { salePrice: Number(product?.price || 0), discount: 0 };
+      }
+      const prodId = String(product.id);
+      const prodCat = (product.category || '').trim().toLowerCase();
+
+      const eligible = activeSales.filter((s: any) => {
+        if (s.scope === 'all') return true;
+        if (s.scope === 'category') {
+          const sCat = (s.category || '').trim().toLowerCase();
+          if (sCat === prodCat) return true;
+          if (sCat === 'men' && prodCat.includes('men') && !prodCat.includes('women')) return true;
+          if (sCat === 'women' && (prodCat.includes('women') || prodCat.includes('ladies'))) return true;
+          return false;
+        }
+        if (s.scope === 'products') {
+          return Array.isArray(s.product_ids) && s.product_ids.some((id: any) => String(id).trim() === prodId);
+        }
+        return false;
+      });
+
+      if (!eligible.length) {
+        return { salePrice: Number(product.price || 0), discount: 0 };
+      }
+
+      // Deterministic rule: highest discount percentage wins
+      eligible.sort((a: any, b: any) => Number(b.discount_percentage) - Number(a.discount_percentage));
+      const best = eligible[0];
+      const discount = Number(best.discount_percentage);
+      const orig = Number(product.price || 0);
+      const rawSale = orig * (1 - discount / 100);
+      const salePrice = Math.round(rawSale * 100) / 100;
+      return { salePrice, discount, saleName: best.name };
+    };
+
     if (hasMultiItems) {
       // 2a. Multi-product cart checkout
       const productIds = Array.from(new Set(items.map((i: any) => String(i.productId))));
@@ -115,7 +162,9 @@ Deno.serve(async (req) => {
 
       const processedItems = items.map((item: any) => {
         const dbProd = productMap.get(String(item.productId));
-        const unitPrice = dbProd ? Number(dbProd.price) : Number(item.price || 0);
+        const { salePrice, discount, saleName } = resolveSalePrice(dbProd);
+        // Server calculates authoritative unit price using verified DB price & active sales
+        const unitPrice = dbProd ? salePrice : Number(item.price || 0);
         const quantity = Math.max(1, Number(item.quantity || 1));
 
         let pFee = 0;
@@ -138,6 +187,9 @@ Deno.serve(async (req) => {
           productId: String(item.productId),
           productName: dbProd?.name || item.productName || 'Bespoke Leather Jacket',
           price: unitPrice,
+          originalPrice: dbProd ? Number(dbProd.price) : unitPrice,
+          discountPercentage: discount,
+          saleName,
           image: item.image || (dbProd?.images?.[0] || ''),
           size: item.size || 'One size',
           selectedOptions: item.selectedOptions || {},
@@ -199,7 +251,8 @@ Deno.serve(async (req) => {
         );
       }
 
-      const productPrice = Number(product.price);
+      const { salePrice, discount, saleName } = resolveSalePrice(product);
+      const productPrice = salePrice;
 
       let personalisationFee = 0;
       const hasPersonalisationText = Boolean(personalisationText && personalisationText.trim().length > 0);
@@ -220,6 +273,9 @@ Deno.serve(async (req) => {
         productId: String(product.id),
         productName: product.name,
         price: productPrice,
+        originalPrice: Number(product.price),
+        discountPercentage: discount,
+        saleName,
         image: product.images?.[0] || '',
         size: size || 'One size',
         selectedOptions,
