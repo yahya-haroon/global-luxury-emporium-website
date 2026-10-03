@@ -139,9 +139,9 @@ export const Header: React.FC = () => {
 
       {/* Announcement Bar */}
       <div className="announce sm" role="note">
-        <span>Made to order</span>
+        <span>Free delivery to UK</span>
         <span aria-hidden="true">&middot;</span>
-        <span>Worldwide delivery</span>
+        <span>Worldwide shipping</span>
         <span aria-hidden="true">&middot;</span>
         <span>Secure Stripe checkout</span>
       </div>

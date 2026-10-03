@@ -5,30 +5,47 @@
   <!-- Core Brand Pages -->
   <url>
     <loc>https://www.globalluxuryemporium.com/</loc>
-    <lastmod>2026-10-02</lastmod>
+    <lastmod>2026-10-03</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/delivery</loc>
-    <lastmod>2026-10-02</lastmod>
+    <lastmod>2026-10-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/returns</loc>
-    <lastmod>2026-10-02</lastmod>
+    <lastmod>2026-10-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/privacy</loc>
-    <lastmod>2026-10-02</lastmod>
+    <lastmod>2026-10-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 
-  <!-- All 102 Handcrafted Leather Products -->
+  <!-- All 103 Handcrafted Leather Products -->
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/ca3aa2c3-1f02-4c74-bb76-4ac06f9774e1</loc>
+    <lastmod>2026-10-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790975250688-1d-Men-black-asymmetrical-zipper-jacket.jpg</image:loc>
+      <image:title>Black Leather Motorcycle Jacket Men</image:title>
+      <image:caption>Outer Shell: Real Leather
+Leather Type: Lamb Skin
+Inner Shell: Viscose lining
+Closure Style: Zipper
+Cuffs Style: Zipper
+Inside Pockets: Two
+Outside Pockets: Fou</image:caption>
+    </image:image>
+  </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/product/7fe17de8-de09-45a6-9a2e-1fd53fdec115</loc>
     <lastmod>2026-09-28</lastmod>
