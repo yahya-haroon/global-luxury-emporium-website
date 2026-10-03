@@ -6,6 +6,7 @@ import { CartProvider } from './context/CartContext';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { CartDrawer } from './components/CartDrawer';
+import { FloatingSaleCountdown } from './components/FloatingSaleCountdown';
 
 // Pages
 import { HomePage } from './pages/HomePage';
@@ -55,6 +56,7 @@ export const App: React.FC = () => {
               <Footer />
             </div>
             <CartDrawer />
+            <FloatingSaleCountdown />
           </CartProvider>
         </DataProvider>
       </AuthProvider>

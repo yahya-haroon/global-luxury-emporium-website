@@ -253,6 +253,14 @@ export function getTimeRemaining(targetDateIso: string, now = new Date()): TimeR
 }
 
 /**
+ * Returns all scheduled upcoming sales (enabled, starts in the future).
+ */
+export function getScheduledSales(sales: Sale[], now = new Date()): Sale[] {
+  if (!Array.isArray(sales)) return [];
+  return sales.filter((sale) => getSaleStatus(sale, now) === 'scheduled');
+}
+
+/**
  * Picks the most prominent active sale to highlight on the homepage
  * (e.g. for banners and countdown timers).
  */
@@ -273,4 +281,45 @@ export function getFeaturedActiveSale(sales: Sale[], now = new Date()): Sale | n
     // 3. Ending soonest
     return new Date(a.ends_at).getTime() - new Date(b.ends_at).getTime();
   })[0];
+}
+
+export type FeaturedSaleMode = 'active' | 'upcoming';
+
+export interface FeaturedSaleResult {
+  sale: Sale;
+  mode: FeaturedSaleMode;
+  targetDate: string; // ends_at for active sale, starts_at for upcoming sale
+}
+
+/**
+ * Returns the most prominent sale for countdown timers:
+ * 1. If a sale is currently active, counts down to ends_at (when the sale ends).
+ * 2. If no sale is currently active, but an upcoming sale is scheduled,
+ *    counts down to starts_at (when the sale will become active!).
+ */
+export function getFeaturedCountdownSale(sales: Sale[], now = new Date()): FeaturedSaleResult | null {
+  // 1. Prioritize active sale (shoppers can buy right now)
+  const activeSale = getFeaturedActiveSale(sales, now);
+  if (activeSale) {
+    return {
+      sale: activeSale,
+      mode: 'active',
+      targetDate: activeSale.ends_at,
+    };
+  }
+
+  // 2. Otherwise check for scheduled upcoming sales
+  const scheduled = getScheduledSales(sales, now);
+  if (scheduled.length === 0) return null;
+
+  // Pick the upcoming sale starting soonest
+  const soonestUpcoming = [...scheduled].sort((a, b) => {
+    return new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime();
+  })[0];
+
+  return {
+    sale: soonestUpcoming,
+    mode: 'upcoming',
+    targetDate: soonestUpcoming.starts_at,
+  };
 }

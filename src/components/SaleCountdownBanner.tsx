@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useData } from '../context/DataContext';
-import { getFeaturedActiveSale, getTimeRemaining, TimeRemaining } from '../lib/sales';
-import { Clock, ArrowRight, Sparkles } from 'lucide-react';
+import { getFeaturedCountdownSale, getTimeRemaining, TimeRemaining } from '../lib/sales';
+import { Clock, ArrowRight, Sparkles, Calendar } from 'lucide-react';
 
 export const SaleCountdownBanner: React.FC = () => {
   const { sales } = useData();
@@ -16,17 +16,20 @@ export const SaleCountdownBanner: React.FC = () => {
     return () => window.clearInterval(timer);
   }, []);
 
-  const featuredSale = getFeaturedActiveSale(sales, now);
+  const featured = getFeaturedCountdownSale(sales, now);
 
-  if (!featuredSale) {
+  if (!featured) {
     return null;
   }
 
-  const remaining: TimeRemaining = getTimeRemaining(featuredSale.ends_at, now);
+  const { sale: featuredSale, mode, targetDate } = featured;
+  const remaining: TimeRemaining = getTimeRemaining(targetDate, now);
 
   if (remaining.isExpired) {
     return null;
   }
+
+  const isUpcoming = mode === 'upcoming';
 
   const scrollToShop = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -53,13 +56,17 @@ export const SaleCountdownBanner: React.FC = () => {
     <aside
       className="relative z-20 w-full overflow-hidden border-y border-[#9A7628]/40 shadow-lg text-[#F7F3EA]"
       style={{
-        background: 'linear-gradient(135deg, #0B0A08 0%, #151310 50%, #0B0A08 100%)',
+        background: isUpcoming
+          ? 'linear-gradient(135deg, #0D0E12 0%, #151821 50%, #0D0E12 100%)'
+          : 'linear-gradient(135deg, #0B0A08 0%, #151310 50%, #0B0A08 100%)',
       }}
-      aria-label="Promotional Sale Countdown"
+      aria-label={isUpcoming ? 'Upcoming Sale Countdown' : 'Active Sale Countdown'}
     >
-      {/* Subtle gold accent aura */}
+      {/* Subtle gold / blue accent aura */}
       <div
-        className="pointer-events-none absolute -top-16 left-1/4 h-32 w-96 rounded-full bg-[#C9A24A]/10 blur-3xl"
+        className={`pointer-events-none absolute -top-16 left-1/4 h-32 w-96 rounded-full blur-3xl ${
+          isUpcoming ? 'bg-blue-400/10' : 'bg-[#C9A24A]/10'
+        }`}
         aria-hidden="true"
       />
 
@@ -67,16 +74,29 @@ export const SaleCountdownBanner: React.FC = () => {
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6">
           {/* Left Column: Headline, Discount Badge, and Scope */}
           <div className="flex items-center gap-3.5 text-center md:text-left">
-            <div className="hidden sm:flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-[#C9A24A]/15 border border-[#C9A24A]/30 text-[#C9A24A]">
-              <Sparkles className="h-5 w-5" />
+            <div
+              className={`hidden sm:flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full border ${
+                isUpcoming
+                  ? 'bg-amber-500/15 border-amber-400/30 text-amber-300'
+                  : 'bg-[#C9A24A]/15 border-[#C9A24A]/30 text-[#C9A24A]'
+              }`}
+            >
+              {isUpcoming ? <Calendar className="h-5 w-5" /> : <Sparkles className="h-5 w-5" />}
             </div>
 
             <div>
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
-                <span className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-bold text-[#C9A24A]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#C9A24A] animate-pulse" />
-                  Live Event
-                </span>
+                {isUpcoming ? (
+                  <span className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-bold text-amber-300">
+                    <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+                    Starts Soon
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-bold text-[#C9A24A]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#C9A24A] animate-pulse" />
+                    Live Event
+                  </span>
+                )}
                 <span className="text-[#A89F8B] text-xs font-light">&bull;</span>
                 <span className="text-[11px] uppercase tracking-wider text-[#A89F8B] font-medium">
                   {scopeLabel}
@@ -87,16 +107,26 @@ export const SaleCountdownBanner: React.FC = () => {
                 <h3 className="font-serif text-lg sm:text-xl font-medium tracking-wide text-white">
                   {featuredSale.name}
                 </h3>
-                <span className="inline-block px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider bg-[#C9A24A] text-black">
+                <span
+                  className={`inline-block px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider ${
+                    isUpcoming
+                      ? 'bg-amber-400 text-black'
+                      : 'bg-[#C9A24A] text-black'
+                  }`}
+                >
                   {featuredSale.discount_percentage}% OFF
                 </span>
               </div>
 
-              {featuredSale.banner_text && (
+              {featuredSale.banner_text ? (
                 <p className="text-xs text-[#D8CFBC] font-light mt-0.5 italic line-clamp-1 max-w-lg">
                   "{featuredSale.banner_text}"
                 </p>
-              )}
+              ) : isUpcoming ? (
+                <p className="text-xs text-[#A89F8B] font-light mt-0.5">
+                  Automated promotion launches automatically at the scheduled time.
+                </p>
+              ) : null}
             </div>
           </div>
 
@@ -105,7 +135,8 @@ export const SaleCountdownBanner: React.FC = () => {
             {/* Countdown Blocks */}
             <div className="flex items-center gap-1 sm:gap-2">
               <span className="text-[10px] uppercase tracking-widest text-[#A89F8B] font-medium mr-1 hidden lg:inline-flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5 text-[#C9A24A]" /> Ends in:
+                <Clock className={`w-3.5 h-3.5 ${isUpcoming ? 'text-amber-300' : 'text-[#C9A24A]'}`} />
+                <span>{isUpcoming ? 'Starts in:' : 'Ends in:'}</span>
               </span>
 
               {/* Days */}
@@ -153,7 +184,11 @@ export const SaleCountdownBanner: React.FC = () => {
               {/* Seconds */}
               <div className="flex flex-col items-center">
                 <div className="min-w-[42px] sm:min-w-[50px] px-2 py-1 rounded bg-black/60 border border-[#9A7628]/40 text-center shadow-inner">
-                  <span className="font-serif text-lg sm:text-xl font-semibold text-[#C9A24A] tabular-nums leading-none">
+                  <span
+                    className={`font-serif text-lg sm:text-xl font-semibold tabular-nums leading-none ${
+                      isUpcoming ? 'text-amber-300' : 'text-[#C9A24A]'
+                    }`}
+                  >
                     {formatUnit(remaining.seconds)}
                   </span>
                 </div>
@@ -163,13 +198,13 @@ export const SaleCountdownBanner: React.FC = () => {
               </div>
             </div>
 
-            {/* Shop The Sale Button */}
+            {/* Action Button */}
             <a
               href="#shop"
               onClick={scrollToShop}
               className="btn-gold text-xs py-2 px-4 inline-flex items-center gap-1.5 shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all whitespace-nowrap"
             >
-              <span>Shop The Sale</span>
+              <span>{isUpcoming ? 'Explore Collection' : 'Shop The Sale'}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </a>
           </div>
