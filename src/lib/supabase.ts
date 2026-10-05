@@ -65,7 +65,7 @@ export const defaultSeedProducts: Product[] = [
     name: 'Shearling Aviator Jacket',
     price: 349,
     category: 'Women',
-    description: 'Handcrafted from supple calfskin leather with a plush shearling collar and wool lining. Designed in London, cut and finished in our dedicated factory in Pakistan for lifetime durability.',
+    description: 'Handcrafted from supple calfskin leather with a plush shearling collar and wool lining. Designed in London, cut and finished in our dedicated atelier for lifetime durability.',
     sizes: 'XS, S, M, L, XL',
     options: [
       {

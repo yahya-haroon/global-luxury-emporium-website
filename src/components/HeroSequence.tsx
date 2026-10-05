@@ -644,9 +644,8 @@ export const HeroSequence: React.FC<HeroSequenceProps> = ({
         >
           <p>
             Designed in London. Made
-            in our own factory in
-            Pakistan. Shipped
-            worldwide.
+            in our dedicated atelier.
+            Shipped worldwide.
           </p>
 
           <a

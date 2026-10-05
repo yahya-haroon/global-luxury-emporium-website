@@ -3,7 +3,7 @@ import { useData } from '../context/DataContext';
 import { isVideoMedia } from '../lib/homepageImages';
 
 const STORY_TEXT =
-  'Global Luxury Emporium Ltd is a UK company in London. Every jacket is cut and stitched in our own factory in Pakistan, so we control the leather, the finish and the fit from start to delivery.';
+  'Global Luxury Emporium Ltd is a UK company in London. Every jacket is cut and stitched in our dedicated atelier, so we control the leather, the finish and the fit from start to delivery.';
 
 const DEFAULT_IMG = '/assets/models/campaign-quilted.webp';
 const DEFAULT_ALT = 'Model wearing a quilted burgundy biker leather jacket against a brick wall';

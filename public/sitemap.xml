@@ -5,30 +5,62 @@
   <!-- Core Brand Pages -->
   <url>
     <loc>https://www.globalluxuryemporium.com/</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-10-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/delivery</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-10-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/returns</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-10-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/privacy</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-10-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 
-  <!-- All 103 Handcrafted Leather Products -->
+  <!-- All 105 Handcrafted Leather Products -->
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/e18d2791-faa8-4914-8e69-74cc29fb4817</loc>
+    <lastmod>2026-10-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791128636784-17890084589623441983e8fe406d1fc10d04f63a2a.webp</image:loc>
+      <image:title>Women&apos;s Lapel Zipper Faux Leather Jacket</image:title>
+      <image:caption>Key Features:
+- Premium genuine leather construction
+- Classic double-rider biker design
+- Wide notch lapel collar
+- Front asymmetric-style zip closure
+- Multip</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/490cc983-352f-4b07-bcb5-d0cdffbe8250</loc>
+    <lastmod>2026-10-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791128132828-17724311117e87dffb024b28087bf3f3cac866b551.jpg</image:loc>
+      <image:title>Men&apos;s Retro American Motorcycle PU Leather Lapel Jacket</image:title>
+      <image:caption>Key Features:
+- Premium genuine leather construction
+- Classic double-rider biker design
+- Wide notch lapel collar
+- Front asymmetric-style zip closure
+- Multip</image:caption>
+    </image:image>
+  </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/product/ca3aa2c3-1f02-4c74-bb76-4ac06f9774e1</loc>
     <lastmod>2026-10-02</lastmod>
@@ -1147,11 +1179,11 @@ Cuffs Style: </image:caption>
   </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/product/624295a6-30cb-4cd0-8d8e-4eb2ff5bb045</loc>
-    <lastmod>2026-09-27</lastmod>
+    <lastmod>2026-10-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <image:image>
-      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790523115755-Green-brita.jpg</image:loc>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791206380619-change_ratio_2K_20261004223709.jpg</image:loc>
       <image:title>Green Leather Coats For Women</image:title>
       <image:caption>Outer Shell: Real Leather
 Leather Type: Sheepskin

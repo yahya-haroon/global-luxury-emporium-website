@@ -29,7 +29,7 @@ export const Hero: React.FC = () => {
           Leather jackets made to last a lifetime
         </h1>
         <p className="text-muted text-base sm:text-lg max-w-2xl mx-auto font-light leading-relaxed mb-8">
-          Designed in London. Crafted in our own factory in Pakistan. Shipped worldwide with uncompromising bespoke precision.
+          Designed in London. Master-crafted in our dedicated atelier. Shipped worldwide with uncompromising bespoke precision.
         </p>
         <div>
           <button

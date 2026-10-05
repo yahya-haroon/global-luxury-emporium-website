@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { useCart } from '../context/CartContext';
 import { useData } from '../context/DataContext';
@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 
 const CARD_ELEMENT_OPTIONS = {
+  hidePostalCode: true,
   style: {
     base: {
       color: 'var(--ink, #141210)',
@@ -94,6 +95,7 @@ const CartDrawerContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   } = useCart();
 
   const { settings } = useData();
+  const navigate = useNavigate();
   const stripe = useStripe();
   const elements = useElements();
 
@@ -854,11 +856,12 @@ const CartDrawerContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 type="button"
                 onClick={() => {
                   ClarityAnalytics.checkoutStarted({ totalAmount, itemCount: items.length });
-                  setStep('checkout');
+                  onClose();
+                  navigate('/checkout');
                 }}
-                className="btn-gold w-full py-3.5 flex items-center justify-center gap-2 text-sm font-semibold shadow-md active:scale-[0.99] transition-transform"
+                className="btn-gold w-full py-3.5 flex items-center justify-center gap-2 text-sm font-semibold shadow-md active:scale-[0.99] transition-transform tracking-wider uppercase"
               >
-                <span>Proceed to Checkout</span>
+                <span>Buy Now</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
 

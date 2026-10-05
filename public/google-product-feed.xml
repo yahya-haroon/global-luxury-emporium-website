@@ -15,8 +15,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790258064007-Womens-Winter-Shearling-Black-Aviator-Leather-Jacket.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -47,8 +45,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790613826416-R-Blue-front-tagai.4.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -77,8 +73,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790258506950-MEASUREMENT-CHART.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>129.99 GBP</g:price>
-      <g:sale_price>90.99 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -109,8 +103,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790257301666-j7.png</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>299.99 GBP</g:price>
-      <g:sale_price>209.99 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -137,8 +129,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790260374084-ChatGPT_Image_Sep_24__2026__07_29_00_PM2.png</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>129.99 GBP</g:price>
-      <g:sale_price>90.99 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -169,8 +159,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790263102565-MEASUREMENT-CHART.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>130.00 GBP</g:price>
-      <g:sale_price>91.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -196,8 +184,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790975259423-1e-asymmetrical-black-leather-motorcycle-jacket-620x732-1.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -224,8 +210,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790263199013-Product-1.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -242,6 +226,60 @@
       </g:shipping>
     </item>
     <item>
+      <g:id>490cc983-352f-4b07-bcb5-d0cdffbe8250</g:id>
+      <g:title>Men&apos;s Retro American Motorcycle PU Leather Lapel Jacket</g:title>
+      <g:description>Key Features: - Premium genuine leather construction - Classic double-rider biker design - Wide notch lapel collar - Front asymmetric-style zip closure - Multiple zippered pockets - Silver-tone snap buttons and hardware - Ribbed elasticated waistband - Adjustable cuffs - Comfortable inner lining - Timeless black finish - Suitable for casual, streetwear, and motorcycle-inspired styling Style: Classic Biker / Motorcycle</g:description>
+      <g:link>https://www.globalluxuryemporium.com/product/490cc983-352f-4b07-bcb5-d0cdffbe8250</g:link>
+      <g:image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791128132828-17724311117e87dffb024b28087bf3f3cac866b551.jpg</g:image_link>
+      <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791128140196-17627827338c225ba728933efe1a2ea5828b0eca25.jpg</g:additional_image_link>
+      <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791128156202-17627827335e5daefa4f916dc3c1b074283f720310.jpg</g:additional_image_link>
+      <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791128232887-177241998795160471959773bb455b8923ed3942aa.webp</g:additional_image_link>
+      <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791128242213-1755516543f99f71e8d50cc3e99042498a7e54c5fb.jpg</g:additional_image_link>
+      <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791128256588-1756193575cd4af492d8284b2a4aec2f36235258bf.jpg</g:additional_image_link>
+      <g:availability>in_stock</g:availability>
+      <g:price>120.00 GBP</g:price>
+      <g:brand>Global Luxury Emporium</g:brand>
+      <g:condition>new</g:condition>
+      <g:identifier_exists>no</g:identifier_exists>
+      <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
+      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:material>Genuine Leather</g:material>
+      <g:gender>male</g:gender>
+      <g:age_group>adult</g:age_group>
+      <g:size>XS, S, M, L, XL,XXL,XXXL,4XL</g:size>
+      <g:shipping>
+        <g:country>GB</g:country>
+        <g:service>Standard UK Delivery</g:service>
+        <g:price>0.00 GBP</g:price>
+      </g:shipping>
+    </item>
+    <item>
+      <g:id>e18d2791-faa8-4914-8e69-74cc29fb4817</g:id>
+      <g:title>Women&apos;s Lapel Zipper Faux Leather Jacket</g:title>
+      <g:description>Key Features: - Premium genuine leather construction - Classic double-rider biker design - Wide notch lapel collar - Front asymmetric-style zip closure - Multiple zippered pockets - Silver-tone snap buttons and hardware - Ribbed elasticated waistband - Adjustable cuffs - Comfortable inner lining - Timeless black finish - Suitable for casual, streetwear, and motorcycle-inspired styling Style: Classic Biker / Motorcycle</g:description>
+      <g:link>https://www.globalluxuryemporium.com/product/e18d2791-faa8-4914-8e69-74cc29fb4817</g:link>
+      <g:image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791128636784-17890084589623441983e8fe406d1fc10d04f63a2a.webp</g:image_link>
+      <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791128687480-17643267852874d6c12361c915d70544e2c8db21ed.webp</g:additional_image_link>
+      <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791128711211-1789008521886614ea24db75507d0ff1a482c0ab2d.webp</g:additional_image_link>
+      <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791128767127-1762501988c984cbcff522794b7034ac9b46e816d4.webp</g:additional_image_link>
+      <g:availability>in_stock</g:availability>
+      <g:price>120.00 GBP</g:price>
+      <g:brand>Global Luxury Emporium</g:brand>
+      <g:condition>new</g:condition>
+      <g:identifier_exists>no</g:identifier_exists>
+      <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
+      <g:product_type>Clothing &gt; Outerwear &gt; Women</g:product_type>
+      <g:material>Genuine Leather</g:material>
+      <g:gender>female</g:gender>
+      <g:age_group>adult</g:age_group>
+      <g:size>XS, S, M, L, XL,XXL,XXX,4XL</g:size>
+      <g:shipping>
+        <g:country>GB</g:country>
+        <g:service>Standard UK Delivery</g:service>
+        <g:price>0.00 GBP</g:price>
+      </g:shipping>
+    </item>
+    <item>
       <g:id>a6e8d4c1-e0e0-41eb-a601-eac39c134132</g:id>
       <g:title>Brown Leather Jacket Men</g:title>
       <g:description>Outer Shell: Real Leather Leather Type: Sheepskin Leather Finish: Napa waxed Inner Shell: Viscose lining Closure Style: Zipper Collar Style: Stand Inside Pockets: Two Outside Pockets: Two Color: Brown For this jacket style, we advise you to buy a larger size than you usually wear. Our all jackets &amp; coats are custom-made so if your size is not available in Size Guide you can select any size and then mention your size in Order Notes. Your jacket or coat typically takes 1-2 weeks for delivery.</g:description>
@@ -250,8 +288,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790427056634-302fc6be-94e8-458b-826c-c5376c2248bd.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -278,8 +314,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790514349004-wmremove-transformed-1.webp</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -305,8 +339,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790514927869-ChatGPT_Image_Sep_27__2026__06_10_28_PM2.png</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -332,8 +364,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790522658618-lady-conic-3-225x300.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -359,8 +389,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790516311799-wmremove-transformed-3.webp</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -386,8 +414,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790516705761-ChatGPT_Image_Sep_27__2026__06_44_17_PM.png</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -412,8 +438,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790516823590-pixnova_11ecd5a550c05e2ce1fbe89c9e2abe03.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -440,8 +464,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790517406077-ChatGPT_Image_Sep_27__2026__06_55_23_PM.png</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -466,8 +488,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790517607383-Mens-Quilted-Style-Brown-Leather-Biker-Jacket.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -493,8 +513,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790517999487-ChatGPT_Image_Sep_27__2026__07_03_34_PM1.png</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -519,8 +537,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790518096386-WhatsApp-Image-2025-05-05-at-1.07.09-PM-1.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -545,8 +561,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790255619503-pixnova_23ee4caed926392d21f7103c38db9f27.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -571,8 +585,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790518167955-pixnova_f06a0ddd3322762462e22643074b7031.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -597,8 +609,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790257087677-Mens-B3-Aviator-Flying-Pilot-Fur-Bomber-Jacket.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>130.00 GBP</g:price>
-      <g:sale_price>91.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -623,8 +633,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790518286767-WhatsApp-Image-2025-05-05-at-12.53.05-PM-1.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -653,8 +661,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790256726842-ChatGPT_Image_Sep_24__2026__06_29_39_PM4.png</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>89.00 GBP</g:price>
-      <g:sale_price>62.30 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -681,8 +687,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790518755765-ChatGPT_Image_Sep_27__2026__07_15_46_PM3.png</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -710,8 +714,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790518847060-MEASUREMENT-CHART.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -737,8 +739,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790518950777-MEASUREMENT-CHART.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -764,8 +764,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790519026891-MEASUREMENT-CHART.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -792,8 +790,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790519360585-MEASUREMENT-CHART.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -820,8 +816,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790519686619-ChatGPT_Image_Sep_27__2026__07_31_45_PM3.png</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -848,8 +842,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790520918687-black-normal.4.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -875,8 +867,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790520999815-black-lady-elastic2.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -903,8 +893,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790521085004-crust-blue-lady-1-225x300.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -930,8 +918,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790521166593-light-blue-lady2-194x300.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -959,8 +945,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790525176293-ChatGPT_Image_Sep_27__2026__09_04_23_PM1.png</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -986,8 +970,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790522303637-brown-half-coat-lady1-225x300.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1015,8 +997,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790522396475-bodo-lady-normal.4.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1042,8 +1022,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790522479979-blk-wilson-lady1.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1069,8 +1047,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790522568279-maroon-lady2.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1097,8 +1073,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790522739435-tan-lady2.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1124,8 +1098,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790522827452-lady-conic-3.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1152,8 +1124,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790522954363-green-lady1-194x300.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1180,8 +1150,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790523031564-brown-waxy-lady1.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1202,14 +1170,13 @@
       <g:title>Green Leather Coats For Women</g:title>
       <g:description>Outer Shell: Real Leather Leather Type: Sheepskin Leather Finish: Napa Inner Shell: Viscous Lining Outside Pockets: Four Color: Green For this jacket style, we advise you to buy a larger size than you usually wear. *Our all jackets &amp; coats are custom-made so if your size is not available in ?Size Guide? you can select any size and then mention your size in ?Order Notes?. **Your jacket or coat typically takes 1-2 weeks for delivery.</g:description>
       <g:link>https://www.globalluxuryemporium.com/product/624295a6-30cb-4cd0-8d8e-4eb2ff5bb045</g:link>
-      <g:image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790523115755-Green-brita.jpg</g:image_link>
+      <g:image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791206380619-change_ratio_2K_20261004223709.jpg</g:image_link>
+      <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790523115755-Green-brita.jpg</g:additional_image_link>
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790523119830-Green-brita2.jpg</g:additional_image_link>
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790523124981-Green-brita4-225x300.jpg</g:additional_image_link>
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790523148325-Green-brita1.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1218,7 +1185,7 @@
       <g:material>Genuine Leather</g:material>
       <g:gender>female</g:gender>
       <g:age_group>adult</g:age_group>
-      <g:size>XS, S, M, L, XL</g:size>
+      <g:size>XS, S, M, L, XL,XXL,XXXL,4XL</g:size>
       <g:shipping>
         <g:country>GB</g:country>
         <g:service>Standard UK Delivery</g:service>
@@ -1235,8 +1202,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790523235557-purple-lady-jkt2.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1263,8 +1228,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790523313579-Red-lady-biker.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1290,8 +1253,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790523386977-brita-red-lady2.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1319,8 +1280,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790523486089-saada-blue.3.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1349,8 +1308,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790524935261-ChatGPT_Image_Sep_27__2026__08_56_12_PM5.png</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>130.00 GBP</g:price>
-      <g:sale_price>91.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1377,8 +1334,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790525657443-MEASUREMENT-CHART.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>140.00 GBP</g:price>
-      <g:sale_price>98.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1403,8 +1358,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790526478321-Premium-Goose-Bomber-With-Hood-2.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>350.00 GBP</g:price>
-      <g:sale_price>245.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1430,8 +1383,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790600298188-MEASUREMENT-CHART-223x300.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1458,8 +1409,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790600416392-Jaffery-ruboff1-223x300.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1486,8 +1435,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790602924068-MEASUREMENT-CHART.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1514,8 +1461,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790603013940-MEASUREMENT-CHART.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1544,8 +1489,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790603121171-1b-quilted-maroon-leather-jacket-scaled-1-251x300.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1571,8 +1514,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790603620561-daniel-brown-jacket-3.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1598,8 +1539,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790603689455-azeem-blk2-223x300.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>130.00 GBP</g:price>
-      <g:sale_price>91.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1625,8 +1564,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790604088048-ChatGPT_Image_Sep_28__2026__06_58_49_PM.png</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1652,8 +1589,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790604179408-MEASUREMENT-CHART.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1679,8 +1614,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790604486603-ChatGPT_Image_Sep_28__2026__07_06_43_PM2.png</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1706,8 +1639,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790604875349-ChatGPT_Image_Sep_28__2026__07_12_50_PM1.png</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1733,8 +1664,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790605152524-ChatGPT_Image_Sep_28__2026__07_17_05_PM2.png</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1760,8 +1689,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790605312402-MEASUREMENT-CHART.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1788,8 +1715,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790606082708-ChatGPT_Image_Sep_28__2026__07_32_41_PM4.png</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1817,8 +1742,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790606180432-green4.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1844,8 +1767,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790606474303-ChatGPT_Image_Sep_28__2026__07_39_27_PM3.png</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1872,8 +1793,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790606549025-1A-men-black-leather-biker-jacket.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1898,8 +1817,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790606763666-ChatGPT_Image_Sep_28__2026__07_45_11_PM2.png</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1926,8 +1843,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790607062842-ChatGPT_Image_Sep_28__2026__07_48_47_PM3.png</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1954,8 +1869,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790607138358-p2-red3-225x300.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -1982,8 +1895,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790607702861-ChatGPT_Image_Sep_28__2026__07_58_36_PM4.png</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -2010,8 +1921,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790608012245-ChatGPT_Image_Sep_28__2026__08_03_10_PM3.png</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -2037,8 +1946,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790608059568-wilson-jacket-waxed-2-225x300.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -2066,8 +1973,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790608174238-bodo-dori.5.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -2092,8 +1997,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790608237109-l7-1.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -2121,8 +2024,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790608311832-bodo-hoody4-225x300.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -2150,8 +2051,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790608387428-yellow-lady3-225x300.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -2176,8 +2075,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790608483467-quilted-patches.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -2203,8 +2100,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790608569431-Product-Recovered1-225x300.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>119.98 GBP</g:price>
-      <g:sale_price>83.99 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -2231,8 +2126,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790608680388-red-lady-coat3.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -2257,8 +2150,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790608765897-A-tan-ladies1.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -2284,8 +2175,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790608832258-black-lady2-194x300.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -2314,8 +2203,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790608922199-R-blue-shoulder-tagai4.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -2342,8 +2229,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790608996299-bodo-biker-6-225x300.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -2371,8 +2256,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790609086481-conic-front-tagai.3.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -2401,8 +2284,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790609194103-black-hoody5.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -2428,8 +2309,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790609269892-light-brown-lady-jkt2.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -2458,8 +2337,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790609348949-conic-hoody-5.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -2485,8 +2362,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790609635986-FOREST-BIKER-GreenWaxed-1.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>130.00 GBP</g:price>
-      <g:sale_price>91.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -2512,8 +2387,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790609718725-motor-biker-jacket-black-3-225x300.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>130.00 GBP</g:price>
-      <g:sale_price>91.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -2539,8 +2412,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790609882495-1T5A6530.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>130.00 GBP</g:price>
-      <g:sale_price>91.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -2566,8 +2437,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790610047557-1T5A6560.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>130.00 GBP</g:price>
-      <g:sale_price>91.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -2594,8 +2463,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790610418828-ChatGPT_Image_Sep_28__2026__08_44_44_PM3.png</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>130.00 GBP</g:price>
-      <g:sale_price>91.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -2622,8 +2489,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790610683512-1T5A6344.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>130.00 GBP</g:price>
-      <g:sale_price>91.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -2651,8 +2516,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790611246439-1T5A6583.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>350.00 GBP</g:price>
-      <g:sale_price>245.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -2679,8 +2542,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790612255157-AT6_7571.jpeg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>130.00 GBP</g:price>
-      <g:sale_price>91.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -2707,8 +2568,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790612539074-1T5A6304.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>130.00 GBP</g:price>
-      <g:sale_price>91.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -2737,8 +2596,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790613002227-1T5A6450.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>130.00 GBP</g:price>
-      <g:sale_price>91.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -2763,8 +2620,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790613266688-Mens-Pilot-A2-Military-Aviator-Bomber-Jacket-for-Mens.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>130.00 GBP</g:price>
-      <g:sale_price>91.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -2791,8 +2646,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790613550607-bodo-dori.5-1.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -2820,8 +2673,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790613925886-black-tagai-shoulder.4.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
@@ -2848,8 +2699,6 @@
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790614060626-Women-Bolt-jacket.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>120.00 GBP</g:price>
-      <g:sale_price>84.00 GBP</g:sale_price>
-      <g:sale_price_effective_date>2026-10-03T23:00:00.000Z/2026-10-04T23:00:00.000Z</g:sale_price_effective_date>
       <g:brand>Global Luxury Emporium</g:brand>
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
