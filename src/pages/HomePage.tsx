@@ -4,7 +4,6 @@ import { GenderHero } from '../components/GenderHero';
 import { SaleCountdownBanner } from '../components/SaleCountdownBanner';
 import { TrustStrip } from '../components/TrustStrip';
 import { OurStory } from '../components/OurStory';
-import { CategoryGrid } from '../components/CategoryGrid';
 import { FeaturedGallery } from '../components/FeaturedGallery';
 import { Collection } from '../components/Collection';
 import { WhyChoose } from '../components/WhyChoose';
@@ -65,10 +64,7 @@ export const HomePage: React.FC = () => {
         {/* 4. Editorial story band */}
         <OurStory />
 
-        {/* 5. Visual category discovery mosaic */}
-        <CategoryGrid />
-
-        {/* 6. Product discovery: admin gallery lead-in + collection */}
+        {/* Product discovery: admin gallery lead-in + collection */}
         <FeaturedGallery />
         <Collection />
 

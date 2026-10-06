@@ -29,8 +29,22 @@ https.get(url, options, (res) => {
       const siteUrl = 'https://www.globalluxuryemporium.com';
       const today = new Date().toISOString().split('T')[0];
 
+      const categories = [
+        'all', 'biker', 'bomber', 'aviator', 'puffer', 'shearling', 'racer', 'varsity', 'casual', 'coats'
+      ];
+
       const staticUrls = [
         { loc: `${siteUrl}/`, changefreq: 'daily', priority: '1.0' },
+        ...categories.map((c) => ({
+          loc: `${siteUrl}/men/${c}`,
+          changefreq: 'weekly',
+          priority: '0.8',
+        })),
+        ...categories.map((c) => ({
+          loc: `${siteUrl}/women/${c}`,
+          changefreq: 'weekly',
+          priority: '0.8',
+        })),
         { loc: `${siteUrl}/delivery`, changefreq: 'monthly', priority: '0.6' },
         { loc: `${siteUrl}/returns`, changefreq: 'monthly', priority: '0.6' },
         { loc: `${siteUrl}/privacy`, changefreq: 'monthly', priority: '0.5' },

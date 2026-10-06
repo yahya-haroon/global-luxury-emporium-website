@@ -17,6 +17,8 @@ const ReturnsPage = React.lazy(() => import('./pages/ReturnsPage').then((m) => (
 const PrivacyPage = React.lazy(() => import('./pages/PrivacyPage').then((m) => ({ default: m.PrivacyPage })));
 const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })));
 const CheckoutPage = React.lazy(() => import('./pages/CheckoutPage').then((m) => ({ default: m.CheckoutPage })));
+const OrderConfirmationPage = React.lazy(() => import('./pages/OrderConfirmationPage').then((m) => ({ default: m.OrderConfirmationPage })));
+const CategoryPage = React.lazy(() => import('./pages/CategoryPage').then((m) => ({ default: m.CategoryPage })));
 
 import { initClarity } from './lib/clarity';
 
@@ -60,6 +62,12 @@ export const App: React.FC = () => {
                     <Route path="/returns" element={<ReturnsPage />} />
                     <Route path="/privacy" element={<PrivacyPage />} />
                     <Route path="/checkout" element={<CheckoutPage />} />
+                    <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
+                    <Route path="/men" element={<CategoryPage gender="men" defaultCategory="all" />} />
+                    <Route path="/men/:categorySlug" element={<CategoryPage gender="men" />} />
+                    <Route path="/women" element={<CategoryPage gender="women" defaultCategory="all" />} />
+                    <Route path="/women/:categorySlug" element={<CategoryPage gender="women" />} />
+                    <Route path="/category/:categorySlug" element={<CategoryPage />} />
                     <Route path="*" element={<NotFoundPage />} />
                   </Routes>
                 </React.Suspense>

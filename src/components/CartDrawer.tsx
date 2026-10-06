@@ -7,6 +7,7 @@ import { getStripe, createPaymentIntent } from '../lib/stripePayment';
 import { OrderAddress, CartItem } from '../types';
 import { countryNameToIso2 } from '../lib/countryUtils';
 import { ClarityAnalytics } from '../lib/clarity';
+import { GoogleCustomerReviewsOptIn } from './GoogleCustomerReviewsOptIn';
 import {
   X,
   Plus,
@@ -250,6 +251,7 @@ const CartDrawerContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             },
           },
         },
+        return_url: `${window.location.origin}/order-confirmation?order_id=${encodeURIComponent(intentRes.orderId)}`,
       });
 
       if (confirmResult.error) {
@@ -257,7 +259,7 @@ const CartDrawerContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       }
 
       if (confirmResult.paymentIntent?.status === 'succeeded') {
-        setCompletedOrder({
+        const orderData = {
           orderId: intentRes.orderId,
           items: [...items],
           customerName: orderForm.fullName.trim(),
@@ -267,7 +269,16 @@ const CartDrawerContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           deliveryPrice,
           totalAmount,
           currency: settings.currency || '£',
-        });
+        };
+        try {
+          sessionStorage.setItem('gle_completed_order', JSON.stringify({
+            ...orderData,
+            completedAt: new Date().toISOString(),
+          }));
+        } catch {
+          // ignore
+        }
+        setCompletedOrder(orderData);
         ClarityAnalytics.orderCompleted({
           orderId: intentRes.orderId,
           totalAmount,
@@ -760,6 +771,16 @@ const CartDrawerContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             {/* ================= STEP 3: ORDER CONFIRMED SUCCESS ================= */}
             {step === 'success' && completedOrder && (
               <div className="py-6 space-y-5 text-center" data-clarity-mask="true">
+                {/* Official Google Customer Reviews Opt-In */}
+                <GoogleCustomerReviewsOptIn
+                  orderId={completedOrder.orderId}
+                  email={completedOrder.email}
+                  deliveryCountry={completedOrder.address.country}
+                  hasCustomization={completedOrder.items.some(
+                    (i) => Boolean(i.personalisationText || i.requirementsText)
+                  )}
+                />
+
                 <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center mx-auto border border-emerald-300">
                   <CheckCircle2 className="w-8 h-8" />
                 </div>

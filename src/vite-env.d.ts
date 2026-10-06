@@ -5,6 +5,7 @@ interface ImportMetaEnv {
   readonly VITE_SUPABASE_ANON_KEY?: string;
   readonly VITE_STRIPE_PUBLISHABLE_KEY?: string;
   readonly VITE_CLARITY_PROJECT_ID?: string;
+  readonly VITE_GOOGLE_MERCHANT_ID?: string;
 }
 
 interface ImportMeta {

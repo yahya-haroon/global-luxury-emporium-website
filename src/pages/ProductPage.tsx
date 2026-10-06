@@ -365,13 +365,22 @@ export const ProductPage: React.FC = () => {
           )}
         </div>
 
-        {/* Right Column: Information, Options, and Actions */}
-        <div className="lg:col-span-5 flex flex-col space-y-6">
+        {/* Right Column: Information, Options, and Actions in Gray Product Box with Black Text */}
+        <div
+          className="lg:col-span-5 bg-gray-100 border border-gray-300 rounded-2xl p-6 sm:p-8 flex flex-col space-y-6 shadow-sm text-black"
+          style={{ backgroundColor: '#F3F4F6', color: '#000000' }}
+        >
           <div>
-            <span className="sm text-gold block mb-1 uppercase tracking-[0.24em] text-xs font-medium">
+            <span
+              className="block mb-1 uppercase tracking-[0.24em] text-xs font-bold text-black"
+              style={{ color: '#000000' }}
+            >
               {product.category} Collection
             </span>
-            <h1 className="font-serif text-3xl sm:text-4xl text-text font-medium leading-tight">
+            <h1
+              className="font-serif text-3xl sm:text-4xl text-black font-semibold leading-tight"
+              style={{ color: '#000000' }}
+            >
               {product.name}
             </h1>
 
@@ -380,27 +389,30 @@ export const ProductPage: React.FC = () => {
               {saleInfo?.hasSale ? (
                 <div className="space-y-1">
                   <div className="flex flex-wrap items-baseline gap-3">
-                    <span className="text-3xl text-red-600 font-semibold tracking-wide">
+                    <span className="text-3xl text-red-600 font-bold tracking-wide">
                       {settings.currency}
                       {saleInfo.salePrice.toFixed(2)}
                     </span>
-                    <span className="text-lg text-muted/70 line-through font-light">
+                    <span className="text-lg text-gray-500 line-through font-normal">
                       {settings.currency}
                       {originalPrice.toFixed(2)}
                     </span>
-                    <span className="bg-red-50 text-red-700 border border-red-200 text-xs px-2.5 py-0.5 rounded font-semibold uppercase tracking-wider">
+                    <span className="bg-red-50 text-red-700 border border-red-200 text-xs px-2.5 py-0.5 rounded font-bold uppercase tracking-wider">
                       Save {settings.currency}{saleInfo.savings.toFixed(2)} ({saleInfo.discountPercentage}%)
                     </span>
                   </div>
                   {saleInfo.saleName && (
-                    <div className="text-[11px] text-red-700/80 font-medium flex items-center gap-1.5 pt-0.5">
+                    <div className="text-[11px] text-red-700 font-medium flex items-center gap-1.5 pt-0.5">
                       <Sparkles className="w-3 h-3 text-red-500" />
                       <span>Applied promotion: <strong>{saleInfo.saleName}</strong></span>
                     </div>
                   )}
                 </div>
               ) : (
-                <div className="text-2xl sm:text-3xl text-gold font-medium tracking-wide">
+                <div
+                  className="text-2xl sm:text-3xl text-black font-bold tracking-wide"
+                  style={{ color: '#000000' }}
+                >
                   {settings.currency}
                   {product.price.toFixed(2)}
                 </div>
@@ -408,18 +420,21 @@ export const ProductPage: React.FC = () => {
             </div>
 
             {/* Description */}
-            <div className="text-muted font-light text-sm leading-relaxed border-t border-hairline pt-4 space-y-2 whitespace-pre-line">
+            <div
+              className="text-black font-normal text-sm leading-relaxed border-t border-gray-300 pt-4 space-y-2 whitespace-pre-line"
+              style={{ color: '#000000' }}
+            >
               {product.description}
             </div>
           </div>
 
           {/* Size Selection */}
-          <div className="border-t border-hairline pt-4 space-y-2.5">
+          <div className="border-t border-gray-300 pt-4 space-y-2.5">
             <div className="flex justify-between items-center">
-              <label className="text-xs uppercase tracking-wider font-semibold text-text">
-                Select Size <span className="text-red-500">*</span>
+              <label className="text-xs uppercase tracking-wider font-bold text-black" style={{ color: '#000000' }}>
+                Select Size <span className="text-red-600">*</span>
               </label>
-              <a href="#guide" className="text-xs text-gold hover:underline font-light">
+              <a href="#guide" className="text-xs text-black underline hover:text-neutral-700 font-semibold" style={{ color: '#000000' }}>
                 Size Guide
               </a>
             </div>
@@ -439,11 +454,12 @@ export const ProductPage: React.FC = () => {
                         setSelectedSize(size);
                         setErrorMessage(null);
                       }}
-                      className={`min-w-[44px] h-10 px-3 text-xs uppercase font-medium rounded border transition-all ${
+                      className={`min-w-[44px] h-10 px-3 text-xs uppercase font-semibold rounded border transition-all ${
                         isSelected
-                          ? 'border-gold bg-gold text-black shadow-sm'
-                          : 'border-hairline bg-white hover:border-gold text-text'
+                          ? 'border-black bg-black text-white shadow-sm font-bold'
+                          : 'border-gray-300 bg-white hover:border-black text-black'
                       }`}
+                      style={!isSelected ? { color: '#000000' } : undefined}
                     >
                       {size}
                     </button>
@@ -454,12 +470,12 @@ export const ProductPage: React.FC = () => {
 
           {/* Dynamic Product Options */}
           {productOptions.length > 0 && (
-            <div className="border-t border-hairline pt-4 space-y-4">
+            <div className="border-t border-gray-300 pt-4 space-y-4">
               {productOptions.map((option) => (
                 <div key={option.name} className="space-y-1.5">
-                  <label className="block text-xs uppercase tracking-wider font-semibold text-text">
+                  <label className="block text-xs uppercase tracking-wider font-bold text-black" style={{ color: '#000000' }}>
                     {option.label || option.name}{' '}
-                    {option.required && <span className="text-red-500">*</span>}
+                    {option.required && <span className="text-red-600">*</span>}
                   </label>
 
                   {/* Color Option */}
@@ -474,9 +490,10 @@ export const ProductPage: React.FC = () => {
                             onClick={() => handleOptionChange(option.name, val)}
                             className={`px-3 py-1.5 text-xs rounded border transition-all ${
                               isSelected
-                                ? 'border-gold bg-gold/10 text-gold-dark font-medium shadow-sm'
-                                : 'border-hairline bg-white hover:border-gold text-text'
+                                ? 'border-black bg-black text-white font-bold shadow-sm'
+                                : 'border-gray-300 bg-white hover:border-black text-black font-semibold'
                             }`}
+                            style={!isSelected ? { color: '#000000' } : undefined}
                           >
                             {val}
                           </button>
@@ -497,9 +514,10 @@ export const ProductPage: React.FC = () => {
                             onClick={() => handleOptionChange(option.name, val)}
                             className={`px-3 py-1.5 text-xs rounded border transition-all ${
                               isSelected
-                                ? 'border-gold bg-gold text-black font-semibold'
-                                : 'border-hairline bg-white hover:border-gold text-text'
+                                ? 'border-black bg-black text-white font-bold shadow-sm'
+                                : 'border-gray-300 bg-white hover:border-black text-black font-semibold'
                             }`}
+                            style={!isSelected ? { color: '#000000' } : undefined}
                           >
                             {val}
                           </button>
@@ -513,7 +531,8 @@ export const ProductPage: React.FC = () => {
                     <select
                       value={selectedOptions[option.name] || ''}
                       onChange={(e) => handleOptionChange(option.name, e.target.value)}
-                      className="w-full bg-white border border-hairline px-3 py-2 text-xs rounded focus:outline-none focus:border-gold text-text"
+                      className="w-full bg-white border border-gray-300 px-3 py-2 text-xs rounded focus:outline-none focus:border-black text-black font-medium"
+                      style={{ color: '#000000' }}
                     >
                       <option value="">Choose {option.label || option.name}...</option>
                       {option.values.map((val) => (
@@ -531,7 +550,8 @@ export const ProductPage: React.FC = () => {
                       placeholder={option.placeholder || `Enter ${option.name}...`}
                       value={selectedOptions[option.name] || ''}
                       onChange={(e) => handleOptionChange(option.name, e.target.value)}
-                      className="w-full bg-white border border-hairline px-3 py-2 text-xs rounded focus:outline-none focus:border-gold text-text"
+                      className="w-full bg-white border border-gray-300 px-3 py-2 text-xs rounded focus:outline-none focus:border-black text-black placeholder:text-gray-500 font-medium"
+                      style={{ color: '#000000' }}
                     />
                   )}
                 </div>
@@ -541,13 +561,13 @@ export const ProductPage: React.FC = () => {
 
           {/* Personalisation (Optional) */}
           {product.allow_personalisation && settings.personalisation?.enabled && (
-            <div className="border-t border-hairline pt-4 space-y-1.5">
+            <div className="border-t border-gray-300 pt-4 space-y-1.5">
               <div className="flex justify-between items-center text-xs">
-                <label className="uppercase tracking-wider font-semibold text-text">
+                <label className="uppercase tracking-wider font-bold text-black" style={{ color: '#000000' }}>
                   {settings.personalisation.label}
                 </label>
                 {settings.personalisation.charge && settings.personalisation.price > 0 && (
-                  <span className="text-gold font-medium">
+                  <span className="text-black font-bold" style={{ color: '#000000' }}>
                     +{settings.currency}{settings.personalisation.price.toFixed(2)}
                   </span>
                 )}
@@ -558,20 +578,21 @@ export const ProductPage: React.FC = () => {
                 placeholder={settings.personalisation.hint || 'Name or initials (up to 30 characters)'}
                 value={personalisationText}
                 onChange={(e) => setPersonalisationText(e.target.value)}
-                className="w-full bg-white border border-hairline px-3 py-2 text-xs rounded focus:outline-none focus:border-gold text-text"
+                className="w-full bg-white border border-gray-300 px-3 py-2 text-xs rounded focus:outline-none focus:border-black text-black placeholder:text-gray-500 font-medium"
+                style={{ color: '#000000' }}
               />
             </div>
           )}
 
           {/* Additional Requirements (Optional) */}
           {product.allow_requirements && settings.requirements?.enabled && (
-            <div className="border-t border-hairline pt-4 space-y-1.5">
+            <div className="border-t border-gray-300 pt-4 space-y-1.5">
               <div className="flex justify-between items-center text-xs">
-                <label className="uppercase tracking-wider font-semibold text-text">
+                <label className="uppercase tracking-wider font-bold text-black" style={{ color: '#000000' }}>
                   {settings.requirements.label}
                 </label>
                 {settings.requirements.charge && settings.requirements.price > 0 && (
-                  <span className="text-gold font-medium">
+                  <span className="text-black font-bold" style={{ color: '#000000' }}>
                     +{settings.currency}{settings.requirements.price.toFixed(2)}
                   </span>
                 )}
@@ -582,18 +603,19 @@ export const ProductPage: React.FC = () => {
                 placeholder={settings.requirements.hint || 'Custom notes or sizing instructions...'}
                 value={requirementsText}
                 onChange={(e) => setRequirementsText(e.target.value)}
-                className="w-full bg-white border border-hairline px-3 py-2 text-xs rounded focus:outline-none focus:border-gold text-text"
+                className="w-full bg-white border border-gray-300 px-3 py-2 text-xs rounded focus:outline-none focus:border-black text-black placeholder:text-gray-500 font-medium"
+                style={{ color: '#000000' }}
               />
             </div>
           )}
 
           {/* ACTION BUTTONS: BUY NOW & ADD TO BAG */}
-          <div className="border-t border-hairline pt-6 space-y-3">
+          <div className="border-t border-gray-300 pt-6 space-y-3">
             {/* Primary: Buy Now (Redirects to /checkout) */}
             <button
               type="button"
               onClick={handleBuyNow}
-              className="btn-gold w-full py-4 flex items-center justify-center gap-2 text-sm uppercase tracking-wider font-semibold shadow-md active:scale-[0.99] transition-transform"
+              className="w-full py-4 flex items-center justify-center gap-2 text-sm uppercase tracking-wider font-bold bg-black text-white hover:bg-neutral-800 rounded shadow-md active:scale-[0.99] transition-all"
             >
               <span>Buy Now</span>
               <ArrowRight className="w-4 h-4" />
@@ -603,28 +625,29 @@ export const ProductPage: React.FC = () => {
             <button
               type="button"
               onClick={handleAddToBag}
-              className="btn-ghost w-full py-3.5 flex items-center justify-center gap-2 text-xs uppercase tracking-wider font-medium border border-gold/40 hover:border-gold text-gold hover:text-gold-dark transition-colors"
+              className="w-full py-3.5 flex items-center justify-center gap-2 text-xs uppercase tracking-wider font-semibold border-2 border-black bg-white hover:bg-gray-200 text-black rounded transition-colors"
+              style={{ color: '#000000' }}
             >
-              <ShoppingBag className="w-4 h-4" />
+              <ShoppingBag className="w-4 h-4 text-black" />
               <span>{addedToCartToast ? 'Added to Bag ✓' : 'Add to Shopping Bag'}</span>
             </button>
 
             {/* Error Message */}
             {errorMessage && (
-              <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded flex items-center gap-2">
+              <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded flex items-center gap-2 font-medium">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 <span>{errorMessage}</span>
               </div>
             )}
 
             {/* Trust and Delivery Strip */}
-            <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-muted font-light">
-              <div className="flex items-center gap-1.5">
-                <Truck className="w-3.5 h-3.5 text-gold flex-shrink-0" />
+            <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-black font-semibold" style={{ color: '#000000' }}>
+              <div className="flex items-center gap-1.5 text-black" style={{ color: '#000000' }}>
+                <Truck className="w-3.5 h-3.5 text-black flex-shrink-0" />
                 <span>Complimentary UK delivery</span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-gold flex-shrink-0" />
+              <div className="flex items-center gap-1.5 text-black" style={{ color: '#000000' }}>
+                <ShieldCheck className="w-3.5 h-3.5 text-black flex-shrink-0" />
                 <span>256-bit encrypted checkout</span>
               </div>
             </div>

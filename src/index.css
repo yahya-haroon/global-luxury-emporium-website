@@ -671,20 +671,24 @@ h2.section-title {
   gap: 28px;
 }
 
-.tabs button {
+.tabs button,
+.tabs a {
   background: none;
   border: 0;
   padding: 6px 0;
   color: var(--mu);
   position: relative;
   cursor: pointer;
+  text-decoration: none;
 }
 
-.tabs button.on {
+.tabs button.on,
+.tabs a.on {
   color: var(--ink);
 }
 
-.tabs button::after {
+.tabs button::after,
+.tabs a::after {
   content: '';
   position: absolute;
   left: 0;
@@ -696,7 +700,8 @@ h2.section-title {
   transition: transform .5s var(--e);
 }
 
-.tabs button.on::after {
+.tabs button.on::after,
+.tabs a.on::after {
   transform: scaleX(1);
 }
 

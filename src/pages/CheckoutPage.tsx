@@ -31,6 +31,7 @@ import {
   KeyRound,
 } from 'lucide-react';
 import { SEO } from '../components/SEO';
+import { GoogleCustomerReviewsOptIn } from '../components/GoogleCustomerReviewsOptIn';
 
 // Stripe Split Card Element Styling: Sharp black text and dark clear placeholders
 const SPLIT_CARD_ELEMENT_OPTIONS = {
@@ -115,6 +116,21 @@ const CheckoutContent: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [completedOrder, setCompletedOrder] = useState<CompletedOrderInfo | null>(null);
   const [copiedOrderId, setCopiedOrderId] = useState(false);
+
+  // Restore completed order if customer refreshes the confirmation page during the session
+  useEffect(() => {
+    try {
+      const cached = sessionStorage.getItem('gle_completed_order');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed?.orderId && parsed?.email) {
+          setCompletedOrder(parsed);
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
 
   // Automatically synchronize delivery zone with country selection
   useEffect(() => {
@@ -245,6 +261,14 @@ const CheckoutContent: React.FC = () => {
           totalAmount,
           currency: settings.currency || '£',
         };
+        try {
+          sessionStorage.setItem('gle_completed_order', JSON.stringify({
+            ...orderData,
+            completedAt: new Date().toISOString(),
+          }));
+        } catch {
+          // ignore
+        }
         setCompletedOrder(orderData);
         ClarityAnalytics.orderCompleted({
           orderId: intentRes.orderId,
@@ -272,6 +296,7 @@ const CheckoutContent: React.FC = () => {
             },
           },
         },
+        return_url: `${window.location.origin}/order-confirmation?order_id=${encodeURIComponent(intentRes.orderId)}`,
       });
 
       if (confirmResult.error) {
@@ -290,6 +315,14 @@ const CheckoutContent: React.FC = () => {
           totalAmount,
           currency: settings.currency || '£',
         };
+        try {
+          sessionStorage.setItem('gle_completed_order', JSON.stringify({
+            ...orderData,
+            completedAt: new Date().toISOString(),
+          }));
+        } catch {
+          // ignore
+        }
         setCompletedOrder(orderData);
         ClarityAnalytics.orderCompleted({
           orderId: intentRes.orderId,
@@ -321,6 +354,16 @@ const CheckoutContent: React.FC = () => {
           title="Order Confirmed | Global Luxury Emporium"
           description="Your handcrafted bespoke leather order has been received and confirmed."
           canonical="/checkout"
+        />
+
+        {/* Official Google Customer Reviews Opt-In for verified post-purchase survey */}
+        <GoogleCustomerReviewsOptIn
+          orderId={completedOrder.orderId}
+          email={completedOrder.email}
+          deliveryCountry={completedOrder.address.country}
+          hasCustomization={completedOrder.items.some(
+            (i) => Boolean(i.personalisationText || i.requirementsText)
+          )}
         />
 
         <div className="w-16 h-16 bg-black text-gold rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">

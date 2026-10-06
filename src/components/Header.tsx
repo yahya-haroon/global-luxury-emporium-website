@@ -1,14 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Search, X, ShoppingBag, Menu } from 'lucide-react';
+import { Search, X, ShoppingBag, Menu, ChevronDown } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { useCart } from '../context/CartContext';
+import { CATEGORY_LIST } from '../lib/categories';
 
 export const Header: React.FC = () => {
   const [hasShadow, setHasShadow] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [menDropdownOpen, setMenDropdownOpen] = useState(false);
+  const [womenDropdownOpen, setWomenDropdownOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { searchQuery, setSearchQuery, homepageSlots } = useData();
@@ -62,9 +65,11 @@ export const Header: React.FC = () => {
     return () => document.removeEventListener('mousedown', onDocClick);
   }, [searchOpen]);
 
-  // Close mobile navigation drawer on route changes
+  // Close mobile navigation drawer and category dropdowns on route changes
   useEffect(() => {
     setMobileMenuOpen(false);
+    setMenDropdownOpen(false);
+    setWomenDropdownOpen(false);
   }, [location.pathname]);
 
   const scrollToCollection = () => {
@@ -164,6 +169,99 @@ export const Header: React.FC = () => {
             <a href="#shop" onClick={(e) => handleNavClick(e, 'shop')}>
               Collection
             </a>
+
+            {/* Men Dropdown */}
+            <div
+              className="relative"
+              onMouseEnter={() => setMenDropdownOpen(true)}
+              onMouseLeave={() => setMenDropdownOpen(false)}
+            >
+              <button
+                type="button"
+                onClick={() => setMenDropdownOpen((prev) => !prev)}
+                className="inline-flex items-center gap-1 hover:text-gold transition-colors py-1 cursor-pointer focus:outline-none"
+                aria-expanded={menDropdownOpen}
+              >
+                <span>Men</span>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                    menDropdownOpen ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+
+              {menDropdownOpen && (
+                <div
+                  className="absolute top-full left-0 mt-1 w-52 bg-ivory border border-hairline rounded shadow-xl py-2 z-50 animate-fade-in text-left"
+                  style={{ backgroundColor: 'var(--top-bg, var(--iv, #F7F3EA))', borderColor: 'var(--ln, #DDD5C4)' }}
+                >
+                  <div
+                    className="px-3.5 py-1 text-[10px] uppercase font-bold tracking-widest text-text border-b border-hairline mb-1"
+                    style={{ color: 'var(--top-text, var(--ink, #141210))', borderColor: 'var(--ln, #DDD5C4)' }}
+                  >
+                    Men's Jackets
+                  </div>
+                  {CATEGORY_LIST.map((cat) => (
+                    <Link
+                      key={cat.slug}
+                      to={`/men/${cat.slug}`}
+                      onClick={() => setMenDropdownOpen(false)}
+                      className="block px-3.5 py-2 text-xs text-text font-semibold hover:bg-gold/15 hover:text-gold-dark transition-colors"
+                      style={{ color: 'var(--top-text, var(--ink, #141210))' }}
+                    >
+                      {cat.name} Jackets
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Women Dropdown */}
+            <div
+              className="relative"
+              onMouseEnter={() => setWomenDropdownOpen(true)}
+              onMouseLeave={() => setWomenDropdownOpen(false)}
+            >
+              <button
+                type="button"
+                onClick={() => setWomenDropdownOpen((prev) => !prev)}
+                className="inline-flex items-center gap-1 hover:text-gold transition-colors py-1 cursor-pointer focus:outline-none"
+                aria-expanded={womenDropdownOpen}
+              >
+                <span>Women</span>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                    womenDropdownOpen ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+
+              {womenDropdownOpen && (
+                <div
+                  className="absolute top-full left-0 mt-1 w-52 bg-ivory border border-hairline rounded shadow-xl py-2 z-50 animate-fade-in text-left"
+                  style={{ backgroundColor: 'var(--top-bg, var(--iv, #F7F3EA))', borderColor: 'var(--ln, #DDD5C4)' }}
+                >
+                  <div
+                    className="px-3.5 py-1 text-[10px] uppercase font-bold tracking-widest text-text border-b border-hairline mb-1"
+                    style={{ color: 'var(--top-text, var(--ink, #141210))', borderColor: 'var(--ln, #DDD5C4)' }}
+                  >
+                    Women's Jackets
+                  </div>
+                  {CATEGORY_LIST.map((cat) => (
+                    <Link
+                      key={cat.slug}
+                      to={`/women/${cat.slug}`}
+                      onClick={() => setWomenDropdownOpen(false)}
+                      className="block px-3.5 py-2 text-xs text-text font-semibold hover:bg-gold/15 hover:text-gold-dark transition-colors"
+                      style={{ color: 'var(--top-text, var(--ink, #141210))' }}
+                    >
+                      {cat.name} Jackets
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <a href="#story" onClick={(e) => handleNavClick(e, 'story')}>
               Our story
             </a>
@@ -256,8 +354,54 @@ export const Header: React.FC = () => {
               }}
               className="py-1 hover:text-gold transition-colors border-b border-hairline/40 pb-2"
             >
-              Collection
+              All Collection
             </a>
+
+            {/* Mobile Men's Categories */}
+            <div className="border-b border-hairline/40 pb-3">
+              <span
+                className="text-[11px] uppercase tracking-wider text-text font-bold block mb-2 font-mono"
+                style={{ color: 'var(--top-text, var(--ink, #141210))' }}
+              >
+                Men's Jackets
+              </span>
+              <div className="grid grid-cols-2 gap-1.5 text-xs font-serif">
+                {CATEGORY_LIST.map((cat) => (
+                  <Link
+                    key={`men-${cat.slug}`}
+                    to={`/men/${cat.slug}`}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="py-2 px-2.5 rounded bg-ivory hover:bg-[#EAE4D5] transition-colors text-text border border-hairline font-semibold text-center"
+                    style={{ backgroundColor: 'var(--top-bg, var(--iv, #F7F3EA))', color: 'var(--top-text, var(--ink, #141210))', borderColor: 'var(--ln, #DDD5C4)' }}
+                  >
+                    {cat.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* Mobile Women's Categories */}
+            <div className="border-b border-hairline/40 pb-3">
+              <span
+                className="text-[11px] uppercase tracking-wider text-text font-bold block mb-2 font-mono"
+                style={{ color: 'var(--top-text, var(--ink, #141210))' }}
+              >
+                Women's Jackets
+              </span>
+              <div className="grid grid-cols-2 gap-1.5 text-xs font-serif">
+                {CATEGORY_LIST.map((cat) => (
+                  <Link
+                    key={`women-${cat.slug}`}
+                    to={`/women/${cat.slug}`}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="py-2 px-2.5 rounded bg-ivory hover:bg-[#EAE4D5] transition-colors text-text border border-hairline font-semibold text-center"
+                    style={{ backgroundColor: 'var(--top-bg, var(--iv, #F7F3EA))', color: 'var(--top-text, var(--ink, #141210))', borderColor: 'var(--ln, #DDD5C4)' }}
+                  >
+                    {cat.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
             <a
               href="#story"
               onClick={(e) => {
