@@ -243,6 +243,16 @@ export const OrderConfirmationPage: React.FC = () => {
             <span className="font-medium text-black">Delivery Method:</span>
             <span className="text-black font-bold">{order.deliveryZoneName}</span>
           </div>
+          {order.deliveryPrice === 0 && (
+            <div className="flex justify-between text-gray-700">
+              <span className="font-medium text-black">Delivery Charge:</span>
+              <span className="text-emerald-700 font-bold">
+                {order.deliveryZoneName.toLowerCase().includes('repeat') || order.deliveryZoneName.toLowerCase().includes('vip')
+                  ? 'FREE (Repeat Client Privilege)'
+                  : 'FREE (Complimentary)'}
+              </span>
+            </div>
+          )}
           <div className="flex justify-between text-gray-700">
             <span className="font-medium text-black">Destination:</span>
             <span className="text-black font-bold text-right truncate max-w-[240px]">

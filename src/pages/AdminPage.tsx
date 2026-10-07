@@ -44,6 +44,7 @@ import {
   Calendar,
   Clock,
   Sparkles,
+  CreditCard,
 } from 'lucide-react';
 import { generateSitemapXml } from '../lib/sitemapGenerator';
 import { generateGoogleProductFeedXml } from '../lib/googleMerchantFeed';
@@ -2218,14 +2219,67 @@ export const AdminPage: React.FC = () => {
                               </div>
                             </div>
 
-                            {/* Stripe Payment Intent ID */}
-                            <div className="pt-2">
-                              <span className="text-[10px] uppercase tracking-wider text-muted font-medium block">
-                                Stripe Payment Intent
-                              </span>
-                              <code className="block mt-1 font-mono text-[10px] bg-ivory p-1.5 rounded border border-hairline text-text truncate select-all" title={order.stripe_payment_intent_id}>
-                                {order.stripe_payment_intent_id || 'N/A'}
-                              </code>
+                            {/* Payment Details: Stripe or PayPal */}
+                            <div className="pt-2 space-y-1.5">
+                              {order.payment_method === 'paypal' || order.payment_method === 'paylater' || order.payment_method === 'paypal_card' || order.paypal_order_id ? (
+                                <>
+                                  <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-muted font-medium">
+                                    <span>Payment Gateway</span>
+                                    <span className="font-bold bg-[#FFC439]/30 text-[#003087] px-2 py-0.5 rounded border border-[#FFC439]/60">
+                                      {order.payment_method === 'paypal_card'
+                                        ? 'PayPal (Credit/Debit Card)'
+                                        : order.payment_method === 'paylater'
+                                        ? 'PayPal (Pay Later)'
+                                        : 'PayPal'}
+                                    </span>
+                                  </div>
+                                  {order.card_brand && order.card_last4 && (
+                                    <div className="flex items-center justify-between text-[10px] text-muted">
+                                      <span>Card Charged</span>
+                                      <span className="font-mono font-semibold uppercase text-text">
+                                        {order.card_brand} &bull;&bull;&bull;&bull; {order.card_last4}
+                                      </span>
+                                    </div>
+                                  )}
+                                  {order.paypal_order_id && (
+                                    <div>
+                                      <span className="text-[10px] uppercase tracking-wider text-muted font-medium block">
+                                        PayPal Order ID
+                                      </span>
+                                      <code className="block mt-0.5 font-mono text-[10px] bg-ivory p-1.5 rounded border border-hairline text-text truncate select-all" title={order.paypal_order_id}>
+                                        {order.paypal_order_id}
+                                      </code>
+                                    </div>
+                                  )}
+                                  {order.paypal_capture_id && (
+                                    <div>
+                                      <span className="text-[10px] uppercase tracking-wider text-muted font-medium block">
+                                        PayPal Capture ID
+                                      </span>
+                                      <code className="block mt-0.5 font-mono text-[10px] bg-ivory p-1.5 rounded border border-hairline text-text truncate select-all" title={order.paypal_capture_id}>
+                                        {order.paypal_capture_id}
+                                      </code>
+                                    </div>
+                                  )}
+                                </>
+                              ) : (
+                                <>
+                                  <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-muted font-medium">
+                                    <span>Payment Gateway</span>
+                                    <span className="font-bold bg-gray-100 text-gray-800 px-2 py-0.5 rounded border border-gray-200">
+                                      Stripe Card
+                                    </span>
+                                  </div>
+                                  <div>
+                                    <span className="text-[10px] uppercase tracking-wider text-muted font-medium block">
+                                      Stripe Payment Intent
+                                    </span>
+                                    <code className="block mt-1 font-mono text-[10px] bg-ivory p-1.5 rounded border border-hairline text-text truncate select-all" title={order.stripe_payment_intent_id}>
+                                      {order.stripe_payment_intent_id || 'N/A'}
+                                    </code>
+                                  </div>
+                                </>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -4537,6 +4591,85 @@ export const AdminPage: React.FC = () => {
                     </div>
                   </div>
                 ))}
+              </div>
+
+              {/* Repeat Customer VIP Free Delivery Policy Indicator */}
+              <div className="p-3 bg-amber-50/80 border border-amber-200/80 rounded flex items-start gap-2.5 text-xs text-amber-950">
+                <Sparkles className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <strong className="block text-black font-semibold">
+                    Repeat Customer Loyalty Benefit Active:
+                  </strong>
+                  <span>
+                    Returning clients with verified prior completed orders automatically receive complimentary delivery (£0.00) across all zones, driving repeat sales and client lifetime value.
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Payment Gateways: Stripe & PayPal */}
+            <div className="space-y-4 pt-4 border-t border-hairline">
+              <div className="flex items-center justify-between border-b border-hairline pb-2">
+                <div>
+                  <h3 className="text-xs uppercase tracking-wider font-semibold text-gold-dark flex items-center gap-1.5">
+                    <CreditCard className="w-3.5 h-3.5" />
+                    Payment Gateways &amp; Methods
+                  </h3>
+                  <p className="text-[11px] text-muted mt-0.5">
+                    Configure customer checkout payment options including Debit/Credit Cards, PayPal, and Pay Later.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* 1. Stripe (Debit / Credit Cards) */}
+                <div className="bg-ivory/50 border border-hairline rounded p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-xs text-text flex items-center gap-1.5">
+                      <CreditCard className="w-3.5 h-3.5 text-gold" />
+                      Stripe (Card Payments)
+                    </span>
+                    <span className="text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">
+                      Active
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-muted">
+                    Accepts Mastercard, Visa, Discover, American Express, Apple Pay, and Google Pay with 256-bit SSL encryption.
+                  </p>
+                </div>
+
+                {/* 2. PayPal & Pay Later */}
+                <div className="bg-ivory/50 border border-hairline rounded p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-xs text-text flex items-center gap-1.5">
+                      <span className="font-bold text-[#003087]">Pay</span><span className="font-bold text-[#0079C1]">Pal</span> &amp; Pay Later
+                    </span>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={settingsForm.paypal_enabled ?? true}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, paypal_enabled: e.target.checked })}
+                        className="rounded border-hairline text-gold focus:ring-gold"
+                      />
+                      <span className="text-xs text-text">Enabled</span>
+                    </label>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] uppercase tracking-wider font-medium text-text mb-1">
+                      PayPal Client ID (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={settingsForm.paypal_client_id || ''}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, paypal_client_id: e.target.value })}
+                      placeholder="e.g. AeA1... (Leave blank for Express Demo Mode)"
+                      className="w-full bg-white border border-hairline px-3 py-1.5 text-xs rounded focus:border-gold font-mono"
+                    />
+                    <p className="text-[10px] text-muted mt-1">
+                      Obtain your Live or Sandbox Client ID from the PayPal Developer Portal.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
 

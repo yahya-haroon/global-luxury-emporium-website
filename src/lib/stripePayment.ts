@@ -25,6 +25,7 @@ export interface CreatePaymentIntentPayload {
   customerName: string;
   email: string;
   address: OrderAddress;
+  isRepeatCustomer?: boolean;
 }
 
 export interface CreatePaymentIntentResponse {
@@ -84,8 +85,8 @@ async function mockCreatePaymentIntent(
         ((item.requirementsFee || 0) * (item.quantity || 1)),
       0
     );
-    // Flat delivery fee (defaults to 15 if zone id not resolved locally)
-    const delivery = 15;
+    // Flat delivery fee (waived for repeat customers, defaults to 15 otherwise)
+    const delivery = payload.isRepeatCustomer ? 0 : 15;
     total = itemsTotal + delivery;
   } else {
     total = 349;

@@ -126,6 +126,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       },
       delivery_zones: parsedDeliveryZones,
       theme: parsedTheme,
+      paypal_client_id: data.paypal_client_id || '',
+      paypal_enabled: data.paypal_enabled ?? true,
     };
   }, []);
 
@@ -1002,6 +1004,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         delivery_zones: newSettings.delivery_zones || defaultSeedSettings.delivery_zones,
         theme: newSettings.theme || DEFAULT_THEME,
+        paypal_client_id: newSettings.paypal_client_id ?? '',
+        paypal_enabled: Boolean(newSettings.paypal_enabled ?? true),
 
         updated_at: new Date().toISOString(),
       };

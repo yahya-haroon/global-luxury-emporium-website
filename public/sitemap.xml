@@ -1,154 +1,1007 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 
   <!-- Core Brand Pages -->
   <url>
     <loc>https://www.globalluxuryemporium.com/</loc>
-    <lastmod>2026-10-06</lastmod>
+    <lastmod>2026-10-07</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/men/all</loc>
-    <lastmod>2026-10-06</lastmod>
+    <lastmod>2026-10-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/men/biker</loc>
-    <lastmod>2026-10-06</lastmod>
+    <lastmod>2026-10-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/men/bomber</loc>
-    <lastmod>2026-10-06</lastmod>
+    <lastmod>2026-10-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/men/aviator</loc>
-    <lastmod>2026-10-06</lastmod>
+    <lastmod>2026-10-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/men/puffer</loc>
-    <lastmod>2026-10-06</lastmod>
+    <lastmod>2026-10-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/men/shearling</loc>
-    <lastmod>2026-10-06</lastmod>
+    <lastmod>2026-10-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/men/racer</loc>
-    <lastmod>2026-10-06</lastmod>
+    <lastmod>2026-10-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/men/varsity</loc>
-    <lastmod>2026-10-06</lastmod>
+    <lastmod>2026-10-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/men/casual</loc>
-    <lastmod>2026-10-06</lastmod>
+    <lastmod>2026-10-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/men/coats</loc>
-    <lastmod>2026-10-06</lastmod>
+    <lastmod>2026-10-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/women/all</loc>
-    <lastmod>2026-10-06</lastmod>
+    <lastmod>2026-10-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/women/biker</loc>
-    <lastmod>2026-10-06</lastmod>
+    <lastmod>2026-10-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/women/bomber</loc>
-    <lastmod>2026-10-06</lastmod>
+    <lastmod>2026-10-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/women/aviator</loc>
-    <lastmod>2026-10-06</lastmod>
+    <lastmod>2026-10-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/women/puffer</loc>
-    <lastmod>2026-10-06</lastmod>
+    <lastmod>2026-10-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/women/shearling</loc>
-    <lastmod>2026-10-06</lastmod>
+    <lastmod>2026-10-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/women/racer</loc>
-    <lastmod>2026-10-06</lastmod>
+    <lastmod>2026-10-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/women/varsity</loc>
-    <lastmod>2026-10-06</lastmod>
+    <lastmod>2026-10-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/women/casual</loc>
-    <lastmod>2026-10-06</lastmod>
+    <lastmod>2026-10-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/women/coats</loc>
-    <lastmod>2026-10-06</lastmod>
+    <lastmod>2026-10-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/delivery</loc>
-    <lastmod>2026-10-06</lastmod>
+    <lastmod>2026-10-07</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/returns</loc>
-    <lastmod>2026-10-06</lastmod>
+    <lastmod>2026-10-07</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/privacy</loc>
-    <lastmod>2026-10-06</lastmod>
+    <lastmod>2026-10-07</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 
-  <!-- All 105 Handcrafted Leather Products -->
+  <!-- All 157 Handcrafted Leather Products -->
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/86f7989b-ad1f-49b7-81ab-674b38cf92aa</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791315003311-Black_Pea_Coat__50752_zoom.webp</image:loc>
+      <image:title>Armando Men&apos;s Mid Length Wool Coat</image:title>
+      <image:caption>Specification:
+
+Material: Premium Quality Wool Blend.
+Lining: Polyester inner lining.
+Closure: 4 Button closure.
+Collar: Shirt Style Collar.
+Pockets: Two outer </image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/655bb842-5b50-4444-9cbd-54660f86dae1</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791314919919-mens-blue-double-breasted-pea-coat__95763_zoom.webp</image:loc>
+      <image:title>Men&apos;s Navy Blue Modern Fit Wool Peacoat</image:title>
+      <image:caption>Specifications:
+
+Wool blend: 65% wool and 35% polyester.
+Lining: Soft polyester inner lining
+Style: Classic peacoat design
+Closure: Double-breasted front
+Fit: M</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/1c50f01e-4409-49a1-b85c-40ff27eeb6aa</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791314818234-mens-blue-double-breasted-wool-coat__49912_zoom.webp</image:loc>
+      <image:title>Men’s Navy Blue Long Wool Overcoat — Double Breasted Style</image:title>
+      <image:caption>Specifications:
+
+Wool blend: 65% wool and 35% polyester.
+Lining: Soft polyester inner lining
+Closure: Double-breasted button front
+Collar: Wide lapel collar
+Det</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/77f84e3c-da55-4063-8b8d-a1171961db14</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791314723085-Mens_camel_hooded_wool_coat__70001_zoom__52070_zoom.webp</image:loc>
+      <image:title>Men&apos;s Camel Knee Length Hooded Wool Coat</image:title>
+      <image:caption>Specification:
+
+Material: Premium Wool Blend
+Lining: Polyester inner lining
+Style: Hooded wool coat
+Closure: Zipper closure
+Pockets: Two outer pockets and two i</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/4a6a28bd-270a-4bfa-a623-c6d03a839804</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791314255845-black_long_wool_coat__72319_zoom.webp</image:loc>
+      <image:title>Men&apos;s Black Double-Breasted Wool Long Coat – Peak Lapel Overcoat</image:title>
+      <image:caption>Specifications:
+
+Fabric: Premium Wool Blend
+Internal: Soft Polyester Lining
+Front: Double-Breasted Button Closure
+Collar: Wide Peak Lapel
+Pockets Outside: Two S</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/2b76c3a6-7378-40d3-9c3a-042e7c7ffbc1</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791314177622-contrast-velvet-collar-overcoat__95996_zoom.webp</image:loc>
+      <image:title>Men&apos;s Blue Wool Coat with Black Collar – Long Tailored Overcoat</image:title>
+      <image:caption>Specifications:
+
+Fabric: Premium Wool Blend
+Internal: Soft Polyester Lining
+Front: Button Closure
+Collar: Contrast Black Wool Collar
+Pockets Outside: Two Side P</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/100baf78-f2ff-4215-99fe-7bc53e1a3c86</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791314089739-mens-brown-wool-shearling-coat__81298_zoom.webp</image:loc>
+      <image:title>Gary Men&apos;s Long Camel Brown Shearling Wool Overcoat</image:title>
+      <image:caption>Specification:
+
+Material: Premium wool blend with shearling fabric inside the lapels
+Lining: Smooth inner lining
+Color: Camel brown
+Closure: Hidden hook and but</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/975ed55e-2c4d-42a0-958b-5f8ec6387027</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791313894056-turlock_mens_shearling_coat__69726_zoom.webp</image:loc>
+      <image:title>Men&apos;s Black Leather Long Faux Shearling Coat</image:title>
+      <image:caption>Specification
+
+Best for: Cold weather commutes, winter evenings out, and urban settings
+Not ideal for: Extreme heavy rain.
+Fit &amp; length: Above-knee length (hits</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/7afa6056-0d6c-4eea-822f-3015c3bb4299</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791313803318-mens-shearling-leather-coat-black__43340_zoom.webp</image:loc>
+      <image:title>Men&apos;s Black Real Leather Shearling Coat</image:title>
+      <image:caption>Specification:
+
+100% Real Lambskin Leather.
+Lining: Faux Shearling Lining.
+Color: Deep Black. Dark Brown Faux Fur.
+Style: Long Coat with Shearling Detail.
+Closu</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/244fbaac-74ff-4168-8716-3a207b8ef944</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791313732318-Bane_Coat__67236_zoom__31372_zoom.webp</image:loc>
+      <image:title>Men&apos;s Dark Brown Sherpa Coat — White Faux Fur</image:title>
+      <image:caption>Specification:
+
+Material: 100% Real Leather
+Lining: Faux White Sherpa
+Color: Dark Brown
+Pockets: Two outside &amp; Two inside pockets
+Collar: Wide Collar
+Closure: T</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/3861ca0c-94e9-4a13-84c4-329115060720</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791313624907-mens_brown_shearling_coat__86960_zoom.webp</image:loc>
+      <image:title>Men&apos;s Dark Brown Real Leather Coat — with Black Shearling Fur</image:title>
+      <image:caption>Specification:
+
+100% Real Lambskin Leather.
+Lining: Faux Shearling Lining.
+Color: Dark brown, with black faux fur.
+Style: Long coat with shearling detail.
+Closu</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/9ee7780b-ac22-4d75-b597-5c061f444267</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791313503641-mens_dark_brown_shearling_leather_coat__12001_zoom.webp</image:loc>
+      <image:title>Turlock Men&apos;s Dark Brown 3/4 Coat with Light Brown Shearling Fur</image:title>
+      <image:caption>Specification:
+
+100% Real Lambskin Leather.
+Color: Dark Brown.
+Style: 3/4 Length Coat.
+Lining: Faux light brown shearling lining, belted collar.
+Collar: Wide La</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/a8e963f5-cb56-4f15-be82-089d6cefa2de</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791311923166-black_leather_coat_men_shearling__43538_zoom.webp</image:loc>
+      <image:title>Men Black Leather Shearling Coat with Beige Faux Shearling</image:title>
+      <image:caption>Specification:
+
+Color: Black with beige fur interior.
+Material: 100% real Leather, faux shearling.
+Fit: Tailored for masculine shape. 
+Closure: Button front. 
+P</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/4d982bc7-0538-4fee-bcaf-5ed0208e9538</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791311790085-mens_bomber_shearling_jacket__34075_zoom.webp</image:loc>
+      <image:title>Men&apos;s Black Shearling Leather Bomber Jacket</image:title>
+      <image:caption>Specification:
+
+Material: 100% Real Lambskin Leather
+Lining: Faux Shearling
+Closure: Zippered Front Closure
+Collar: Belted Shearling Collar
+Pockets: Two side an</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/1dabf317-46c6-48f1-b495-a989ab256055</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791307714644-tom_shearling_leather_jacket__64597_zoom.webp</image:loc>
+      <image:title>Real Leather Dark Brown Bomber Aviator Jacket with Faux Beige Fur</image:title>
+      <image:caption>Real Leather Dark Brown Bomber Aviator Jacket with Faux Beige Fur</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/8944c950-b8e4-4ccb-8d5d-1cd14c10f872</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791307553910-bane_leather_bomber_jacket__50322_zoom.webp</image:loc>
+      <image:title>Bane Swedish Bomber Real Leather Black Winter Coat</image:title>
+      <image:caption>Specification:
+
+100% Real Lambskin Leather
+Leather Type: Natural Grain.
+Lining: Sherpa Lining for Added Comfort
+Pockets: Two Exterior and Two Interior Pockets
+O</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/9b12f82f-8264-497a-ac4c-28dd740fee94</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791307091456-mens-leather-jacket-brown-shearling__04281_zoom.webp</image:loc>
+      <image:title>Men&apos;s Dark Brown Asymmetrical Shearling Leather Jacket</image:title>
+      <image:caption>Specification:
+
+100% Real lambskin leather.
+Lining: Faux shearling lining.
+Color: Dark brown.
+Design: Asymmetrical front zipper closure.
+Collar: Faux Shearling </image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/eee26aa4-145c-43ac-b4c9-345ef4521619</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791296676838-womens_cognac_and_black_leather_jacket__39004_zoom__22683_zoom.webp</image:loc>
+      <image:title>Women&apos;s Black Wide Lapel Cognac Cropped Leather Jacket</image:title>
+      <image:caption>Specification:
+
+Material: 100% Real Lambskin Leather
+Lining: Soft Polyester Lining
+Collar: Wide Lapel Collar with Snap Button Detail
+Closure: Front Zipper with </image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/25c3a40a-3baa-415d-b0a4-075b0b21bfe5</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791296519643-erin_mens_black_leather_jacket_wide_lapel__76068_zoom.webp</image:loc>
+      <image:title>Men&apos;s Black Wide-Lapel Leather Jacket — 3/4 Length, Dual Closure</image:title>
+      <image:caption>Specification:
+
+Material: Real Lambskin Leather.
+Lining: Soft Polyester Lining.
+Closure: Premium Front Zipper with Dual Snap-Button Closure.
+Collar: Wide Notch </image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/69b87016-7540-44c8-a4fc-1fb2380db0f3</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791296461739-womens-red-leather-jacket-biker__42668_zoom.webp</image:loc>
+      <image:title>Dodge Women&apos;s Cafe Racer Red Leather Jacket</image:title>
+      <image:caption>Specification:
+
+100% Real Lambskin Leather.
+Internal full soft polyester lining.
+Style for all seasons.
+Stand-up collar with smooth zip YKK closure.
+Four outer </image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/d20c6700-4e6f-4bb0-9397-4813003737fa</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791296398018-blue_leather_cafer_racer_jacket__57533_zoom.webp</image:loc>
+      <image:title>Dodge Mens Cafe Racer Blue Leather Jacket</image:title>
+      <image:caption>Specification:
+
+100% Real Lambskin Leather.
+Internal full lined with Polyester Fabric.
+Front zipper closure, zippered cuffs.
+Four outer pockets, two inside. 
+On</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/9d6d842b-d6ea-4c29-9d00-f163bf59d90b</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791296170965-womens-camel-leather-jacket__76901_zoom.webp</image:loc>
+      <image:title>Women&apos;s Dodge Camel Brown Cafe Racer Leather Jacket</image:title>
+      <image:caption>Specification:
+
+100% Real Lambskin Leather.
+Style: Biker-inspired fashion jacket for daily wear.
+Internal full soft polyester lining.
+Stand-up collar with smoot</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/9945ab48-b710-48f4-bb04-88a8a380e2aa</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791296091832-mens-black-leather-jacket-trucker-style__74921_zoom.webp</image:loc>
+      <image:title>Men’s Black Real Leather Trucker Jacket | Washed Distressed</image:title>
+      <image:caption>Specifications:
+
+Material: 100% Real Lambskin Leather.
+Lining: Soft skin-friendly polyester.
+Collar: Shirt-style collar.
+Closure: Button-up front closure.
+Pocke</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/2d119e02-ca8f-47a9-9861-11f6d89b896b</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791295969395-maroon_womens_leather_jacket__91760_zoom.webp</image:loc>
+      <image:title>Jose Women&apos;s Burgundy Harrington Leather Jacket</image:title>
+      <image:caption>Specification:.
+
+100% Real Lambskin Leather.
+Internal polyester lining.
+Shirt collar style with zip closure.
+Two side pockets.
+One inside pocket for mobile.
+Sna</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/358dff88-cddc-4279-a2ac-36efa0573d67</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791295865510-womens_washed_leather_jacket__63558_zoom.webp</image:loc>
+      <image:title>Women&apos;s Black Leather Harrington Jacket – Vintage Washed</image:title>
+      <image:caption>Specification:.
+
+Material: 100% Real Lambskin Leather
+Lining: Internal soft polyester lining
+Color: Washed Black
+Collar Style: Shirt-style collar
+Closure: Front</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/af48067f-a15b-4f56-9ac3-0ec8253190ec</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791295695057-maroon_womens_hooded_jacket__17931_zoom.webp</image:loc>
+      <image:title>Women&apos;s Burgundy Hooded Leather Jacket — Thumbholes Sleeves</image:title>
+      <image:caption>Specifications:
+
+Material: 100% Real Lambskin Leather.
+Lining: Fully lined with soft polyester for comfort.
+Color: Burgundy finish for a bold.
+Collar Style: Shi</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/4797fc8f-9afa-4c46-822e-9dea2f00e8d2</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791295628347-black-cropped-leather-jacket-womens__98981_zoom.webp</image:loc>
+      <image:title>Edna Black Cropped Leather Jacket Womens</image:title>
+      <image:caption>Specification:
+
+Material: 100% Real Lambskin Leather.
+Color: Black
+Lining: Soft polyester.
+Details: Snap-tab collar and elegant padding.
+Pockets: Two outside po</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/ab76176e-72bb-439a-ba0e-d413e7d5dc01</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791295541107-thomas_shelby_coat__22490_zoom.jpg</image:loc>
+      <image:title>Shelby Mens Black Long Wool Overcoat with Sherpa Lapel</image:title>
+      <image:caption>Specification:
+
+Wool blend.
+Polyester inner lining.
+Single breasted closure.
+Wide lapel collar with black sherpa.
+Four outer pockets 
+Two inside pockets.
+Black </image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/aa973171-5b9f-4e7d-8344-1b5c9ae08f7a</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791295471595-womens_brown_cropped_leather_jacket__35745_zoom.webp</image:loc>
+      <image:title>Women&apos;s Cognac Brown Cropped Leather Jacket — Shirt Collar, Buttoned Front</image:title>
+      <image:caption>Women&apos;s Cognac Brown Cropped Leather Jacket — Shirt Collar, Buttoned Front</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/1989c470-df8b-4e76-9f93-645a91ca1d1f</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791295231644-black-leather-jacket-mens-shirt-collar-style__10941_zoom.webp</image:loc>
+      <image:title>Men&apos;s Black Leather Jacket — Harrington Style</image:title>
+      <image:caption>Specification:
+
+100% Real Lambskin Leather.
+Lining: Soft Polyester.
+Collar: Shirt Collar.
+Closure: Zipped Closure
+Pockets: 2 Outside and 2 inside Pockets 
+One e</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/d0b2094c-8ffb-4145-b942-352814bf3c70</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791295085538-womens_leather_coat_brown__76192_zoom.webp</image:loc>
+      <image:title>Kandis Women&apos;s Cognac Brown Leather Car Coat</image:title>
+      <image:caption>Specification:
+
+100% Real Lambskin Leather.
+Internal full polyester lining.
+Shirt Collar with front 5-button closure.
+Two front side pockets.
+One inside mobile </image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/db6698de-e11b-4100-8f02-3d6b660b407b</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791294964576-maroon_leather_jacket_women__60409_zoom.webp</image:loc>
+      <image:title>Dodge Women&apos;s Burgundy Cafe Racer Leather Jacket</image:title>
+      <image:caption>Specification:
+
+100% Real Lambskin Leather.
+Lining: Soft polyester lining inside
+Closure: Front zippered closure.
+Style: Classic cafe racer design.
+Collar: Snap</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/c1e82902-2032-4d3d-8907-bd72e3e69bf1</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791294775051-cafe-racer-leather-jacket-beige__76520_zoom.webp</image:loc>
+      <image:title>Dodge Women&apos;s Beige Cafe Racer Leather Jacket</image:title>
+      <image:caption>Specifications:
+
+Material: Real Lambskin Leather.
+Style: Biker-inspired fashion jacket for daily wear.
+Lining: Soft Polyester.
+Closure: Zipper.
+Collar: Snap-tab</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/9596b795-5e08-4eb3-ab57-8fcebc2d7ddd</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791294685323-hooded-leather-jacket-purple__98466_zoom.webp</image:loc>
+      <image:title>Women&apos;s Purple Hooded Leather Jacket — Removable Hood, Thumbhole Cuffs</image:title>
+      <image:caption>Specifications:
+
+100% Real Lambskin leather.
+Internal full lined with soft polyester
+Thumbhole for better grip.
+Shirt collar with removable hood. (with drawstri</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/e7ad62ed-27af-4488-9d87-fc235c73c476</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791294564570-womens-shearling-leather-jacket__56921_zoom.webp</image:loc>
+      <image:title>Women&apos;s Black Asymmetrical Shearling Leather Jacket</image:title>
+      <image:caption>Specification:
+
+100% real lambskin leather.
+Bomber style, faux fur lining and cuffs.
+Double belted collar.
+Regular fit style
+Two exterior zipped pockets and one</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/117694dd-0817-44d7-aba0-a1343e07844b</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791294496372-real_purple_biker_jacket_womens__30730_zoom.webp</image:loc>
+      <image:title>Women Purple Quilted Leather Cafe Racer Jacket</image:title>
+      <image:caption>Specification:
+
+Material: Real Lambskin Leather.
+Details: Snap Button Cuff, Quilted Shoulder Pattern
+Closure: Zippered
+Pockets: Four Pockets, One Inside
+Lining:</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/a5066a1b-a0b7-4899-8fc4-2f531b00e815</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791294229887-black-leather-jacket-womens-hooded__03338_zoom.webp</image:loc>
+      <image:title>Women&apos;s Black Real Leather Jacket — Removable Hood</image:title>
+      <image:caption>Specifications:
+
+100% Real Lambskin Leather.
+Internal full lined with soft polyester.
+Zip-closure / snap-collar with removable hood.
+Four zipped exterior &amp; one </image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/4faf2c1a-7750-47ec-b655-8a2a28c1b5f7</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791294153940-harrington-womens-leather-jacket-black__75295_zoom.webp</image:loc>
+      <image:title>Women&apos;s Harrington Style Black Leather Jacket</image:title>
+      <image:caption>Specifications:
+Material: 100% Real Lambskin Leather.
+Lining: Soft Polyester.
+Closure: Front Zipper.
+Collar Style: Shirt-Style Collar.
+Pockets: Two Outer, one i</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/737f2d20-c5d4-4687-8a42-b08a217638c5</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791294004424-black_leather_jacket_womens__31652_zoom.webp</image:loc>
+      <image:title>Women&apos;s Black Cafe Racer Leather Jacket</image:title>
+      <image:caption>Specification:
+
+100% Real Lambskin leather.
+Internal full lined with soft polyester. 
+Mandarin collar, zip closure.
+One deep inside pocket
+Available in black co</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/80676981-df3d-4d06-9b9e-34ae670e8c53</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791293826738-austin_leather_cafe_racer__67543_zoom.webp</image:loc>
+      <image:title>Women&apos;s Black Cafe Racer Real Lambskin Leather Jacket</image:title>
+      <image:caption>Specification:
+
+Material: Real Lambskin Leather.
+Style: Biker-inspired fashion jacket for daily wear.
+Lining: Soft Polyester Lining.
+Color: Black.
+Closure: Zip-</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/dcc29012-6df8-43e1-9d13-7ace438aff8e</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791293739852-black-leather-jacket-womens__68931_zoom.webp</image:loc>
+      <image:title>Erin Women&apos;s Wide Lapel Black Leather Jacket</image:title>
+      <image:caption>Specification:
+
+Material: 100% Real Lambskin Leather.
+Lining: Soft Polyester Lining.
+Collar: Wide Collar with Snap Button Detail.
+Closure: Premium Front Zipper </image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/eddb5ae3-1ae7-460c-b10f-b56f1763406d</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791292169569-glen-womens-quilted-leather-coat__18058_zoom.webp</image:loc>
+      <image:title>Glen Women&apos;s Black Quilted Real Leather Car Coat</image:title>
+      <image:caption>Specification:
+
+Material: 100% Real Lambskin Leather.
+Lining: Full Polyester Lining with Quilted Foam.
+Collar: Snap button Shirt Collar
+Closure: Zipper Front wi</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/0b181900-34af-4904-a1f8-c43aad3ba9e7</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791292087951-womens-black-leather-jacket-biker__20610_zoom.webp</image:loc>
+      <image:title>Women&apos;s Cafe Racer Black Leather Jacket</image:title>
+      <image:caption>100% Real Lambskin Leather.
+Internal fully lined with soft polyester. 
+Upright collar with padding details.
+Two front zipper pockets &amp; one inside mobile pocket.</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/3bae4726-2fa2-41b0-83cf-8f1ba7976427</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791292003090-mens_brown_biker_leather_jacket__70233_zoom.webp</image:loc>
+      <image:title>Dodge Men&apos;s Rub-off Dark Brown Leather Jacket</image:title>
+      <image:caption>Specification:
+
+Material: Real Lambskin Leather.
+Color: Rub-off Dark Brown.
+Closure: Front zipper closure.
+Pockets: Multiple zip pockets.
+Waist: Adjustable butt</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/4e43a0dd-d915-488d-b517-554110bbd0b6</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791291939743-womens-black-leather-blazer-buttoned__58743_zoom.webp</image:loc>
+      <image:title>Women&apos;s Two Button Black Real Leather Blazer Jacket</image:title>
+      <image:caption>Specifications.
+
+100% real lambskin leather.
+Internal full lined with soft polyester.
+Wide notch lapel and two button closure.
+Two outside and one inside pocket</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/8410dbd3-83d8-4a3e-ade8-6ec565579d19</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791291836485-womens-leather-jacket-black__18614_zoom.webp</image:loc>
+      <image:title>Women&apos;s Black Lambskin Leather Biker Jacket</image:title>
+      <image:caption>Specification:
+
+Material: 100% Real Lambskin Leather.
+Style: Biker-inspired fashion jacket for daily wear.
+Lining: Fully lined with skin-friendly soft polyester</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/e648236c-f1d8-48e3-88e8-fc8344a9dd20</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791291174118-blue_leather_jacket__86465_zoom.webp</image:loc>
+      <image:title>Tavares Women&apos;s Wax Blue Leather Biker Jacket</image:title>
+      <image:caption>Tavares Women&apos;s Wax Blue Leather Biker Jacket</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/3ce4680f-23aa-4734-bac8-9b3ac607eaa4</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791290671970-womens-black-hooded-jacket__14702_zoom.webp</image:loc>
+      <image:title>Women&apos;s Bomber Black Leather Jacket with Removable Hood</image:title>
+      <image:caption>100% Real Lambskin Leather
+Soft Polyester Lining.
+Removable hood, rib-knit cuffs and hems.
+Drawstrings with YKK zip closure.
+Three exterior and one internal poc</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/e56b8dd1-3658-4e79-b6c4-963fc179a60d</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791290396565-reeves_black_leather_jacket__11910_zoom.webp</image:loc>
+      <image:title>Reeves Men’s Black Real Harrington Leather Jacket</image:title>
+      <image:caption>Specifications
+
+Material: 100% real lambskin leather
+Lining: Soft polyester
+Collar: Traditional shirt collar
+Closure: Front zipper
+Outside pockets: Two
+Inside p</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/56756be6-f891-4169-83a4-f29554cc2381</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791290287076-brown-leather-jacket-hooded-womens__82990_zoom.webp</image:loc>
+      <image:title>Women&apos;s Bomber Cognac Brown Leather Jacket with Removable Hood</image:title>
+      <image:caption>Specification:
+
+100% Real Lambskin Leather.
+Inner detachable hood with soft polyester lining.
+Adjustable snap-tab collar.
+Drawstrings with smooth zip YKK closur</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/f4dfbb6f-805e-4f8b-8487-6bf890b1b8da</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791290154985-womens-black-hooded-leather-jacket__93210_zoom.webp</image:loc>
+      <image:title>Women&apos;s Black Hooded Leather Jacket — Removable Hood</image:title>
+      <image:caption>pecifications:
+
+100% Real Lambskin Leather.
+Internal full lined with soft polyester
+Thumbhole sleeves for better grip.
+Shirt style collar with removable hood.
+F</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.globalluxuryemporium.com/product/83ca82fc-b331-4e4b-8657-06c18761fdac</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1791289900124-mens-leather-jacket-brown__19965_zoom.webp</image:loc>
+      <image:title>Reeves Men&apos;s Harrington Cognac Brown Real Leather Jacket</image:title>
+      <image:caption>Specification:
+
+Material: 100% Real Lambskin Leather.
+Lining: Soft Polyester.
+Color: Cognac brown.
+Collar: Shirt Collar.
+Closure: Zipper Closure
+Cuffs &amp; Fit: Sn</image:caption>
+    </image:image>
+  </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/product/e18d2791-faa8-4914-8e69-74cc29fb4817</loc>
     <lastmod>2026-10-04</lastmod>
@@ -2035,7 +2888,7 @@ Color: Brown</image:caption>
   </url>
   <url>
     <loc>https://www.globalluxuryemporium.com/product/0b392748-5b6f-4ac0-8a11-e94b15b5349d</loc>
-    <lastmod>2026-09-24</lastmod>
+    <lastmod>2026-10-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <image:image>

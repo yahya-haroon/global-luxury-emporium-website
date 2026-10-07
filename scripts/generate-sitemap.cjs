@@ -51,6 +51,7 @@ https.get(url, options, (res) => {
       ];
 
       let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+      xml += '<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>\n';
       xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n';
       xml += '        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n\n';
       xml += '  <!-- Core Brand Pages -->\n';
@@ -92,6 +93,13 @@ https.get(url, options, (res) => {
       const targetPath = path.resolve(__dirname, '..', 'public', 'sitemap.xml');
       fs.writeFileSync(targetPath, xml, 'utf8');
       console.log(`Successfully generated ${targetPath} with ${products.length} products!`);
+
+      const distDir = path.resolve(__dirname, '..', 'dist');
+      if (fs.existsSync(distDir)) {
+        const distPath = path.resolve(distDir, 'sitemap.xml');
+        fs.writeFileSync(distPath, xml, 'utf8');
+        console.log(`[Sitemap Generator] Mirrored to ${distPath}`);
+      }
     } catch (err) {
       console.error('Error generating sitemap:', err);
     }

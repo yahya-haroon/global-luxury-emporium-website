@@ -84,9 +84,27 @@ Deno.serve(async (req) => {
       (z: any) => z.id === deliveryZoneId || z.name?.toLowerCase() === String(deliveryZoneId).toLowerCase()
     ) || deliveryZones[0] || { name: 'Standard Delivery', price: 0 };
 
-    // Flat delivery price charged ONCE for the entire order
-    const deliveryPrice = Number(matchedZone.price || 0);
-    const deliveryZoneName = matchedZone.name || 'Standard Delivery';
+    // Check if customer has prior completed orders for complimentary repeat delivery
+    let isRepeatCustomer = false;
+    if (email && typeof email === 'string') {
+      const cleanEmail = email.trim().toLowerCase();
+      const { count: priorOrdersCount } = await supabase
+        .from('orders')
+        .select('id', { count: 'exact', head: true })
+        .ilike('email', cleanEmail)
+        .in('status', ['paid', 'processing', 'shipped', 'delivered', 'completed']);
+
+      if ((priorOrdersCount || 0) > 0) {
+        isRepeatCustomer = true;
+      }
+    }
+
+    // Flat delivery price charged ONCE for the entire order - waived for repeat customers
+    const baseDeliveryPrice = Number(matchedZone.price || 0);
+    const deliveryPrice = isRepeatCustomer ? 0 : baseDeliveryPrice;
+    const deliveryZoneName = isRepeatCustomer && baseDeliveryPrice > 0
+      ? `${matchedZone.name || 'Standard Delivery'} (Repeat Customer Free Delivery)`
+      : (matchedZone.name || 'Standard Delivery');
 
     let totalAmount = 0;
     let orderRecord: any = null;

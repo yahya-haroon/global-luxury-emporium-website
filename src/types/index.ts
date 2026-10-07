@@ -68,6 +68,8 @@ export interface Settings {
   requirements: RequirementsSettings;
   delivery_zones: DeliveryZone[];
   theme?: ColorTheme;
+  paypal_client_id?: string;
+  paypal_enabled?: boolean;
 }
 
 export interface OrderAddress {
@@ -114,7 +116,14 @@ export interface Order {
   email: string;
   address: OrderAddress;
   status: OrderStatus;
-  stripe_payment_intent_id: string;
+  stripe_payment_intent_id?: string;
+  payment_method?: 'stripe' | 'paypal' | 'paylater' | 'paypal_card' | string;
+  paypal_order_id?: string;
+  paypal_capture_id?: string;
+  card_brand?: string;
+  card_last4?: string;
+  payment_status?: string;
+  paid_at?: string;
   items?: CartItem[];
   created_at: string;
   updated_at?: string;

@@ -6,6 +6,7 @@ import { useData } from '../context/DataContext';
 import { getStripe, createPaymentIntent } from '../lib/stripePayment';
 import { OrderAddress, CartItem } from '../types';
 import { countryNameToIso2 } from '../lib/countryUtils';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { ClarityAnalytics } from '../lib/clarity';
 import { GoogleCustomerReviewsOptIn } from './GoogleCustomerReviewsOptIn';
 import {
@@ -24,6 +25,7 @@ import {
   Lock,
   Copy,
   Check,
+  Sparkles,
 } from 'lucide-react';
 
 const CARD_ELEMENT_OPTIONS = {
@@ -85,8 +87,7 @@ const CartDrawerContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     itemsSubtotal,
     personalisationSubtotal,
     requirementsSubtotal,
-    deliveryPrice,
-    totalAmount,
+    deliveryPrice: cartDeliveryPrice,
     selectedZone,
     selectedZoneId,
     setSelectedZoneId,
@@ -105,6 +106,8 @@ const CartDrawerContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [completedOrder, setCompletedOrder] = useState<CompletedCartOrder | null>(null);
   const [copiedRef, setCopiedRef] = useState(false);
+  const [isRepeatCustomer, setIsRepeatCustomer] = useState(false);
+  const [isCheckingCustomer, setIsCheckingCustomer] = useState(false);
 
   const totalPromotionalSavings = items.reduce((acc, it) => {
     if (it.originalPrice && it.price < it.originalPrice) {
@@ -121,6 +124,71 @@ const CartDrawerContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     postalCode: '',
     country: '',
   });
+
+  // Pre-recognize returning customer from local storage
+  useEffect(() => {
+    try {
+      const savedEmail = localStorage.getItem('gle_customer_email')?.trim().toLowerCase();
+      if (savedEmail) {
+        setIsRepeatCustomer(true);
+        setOrderForm((prev) => (prev.email ? prev : { ...prev, email: savedEmail }));
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  // Check email for repeat customer status to grant free delivery
+  useEffect(() => {
+    const email = orderForm.email.trim().toLowerCase();
+    if (!email || !email.includes('@') || email.length < 5) {
+      return;
+    }
+
+    try {
+      const savedEmail = localStorage.getItem('gle_customer_email')?.trim().toLowerCase();
+      if (savedEmail && savedEmail === email) {
+        setIsRepeatCustomer(true);
+      }
+    } catch {
+      // ignore
+    }
+
+    let isCancelled = false;
+    const timer = setTimeout(async () => {
+      if (!isSupabaseConfigured) return;
+      setIsCheckingCustomer(true);
+      try {
+        const { data, error } = await supabase.rpc('check_repeat_customer', {
+          p_email: email,
+        });
+        if (!isCancelled && !error && typeof data === 'boolean') {
+          setIsRepeatCustomer(data);
+          if (data) {
+            try {
+              localStorage.setItem('gle_customer_email', email);
+            } catch {
+              // ignore
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('Cart repeat customer check error:', err);
+      } finally {
+        if (!isCancelled) setIsCheckingCustomer(false);
+      }
+    }, 450);
+
+    return () => {
+      isCancelled = true;
+      clearTimeout(timer);
+    };
+  }, [orderForm.email]);
+
+  const effectiveDeliveryPrice = isRepeatCustomer ? 0 : cartDeliveryPrice;
+  const effectiveTotalAmount = Number(
+    (itemsSubtotal + personalisationSubtotal + requirementsSubtotal + effectiveDeliveryPrice).toFixed(2)
+  );
 
   // Lock body scroll and listen for ESC key
   useEffect(() => {
@@ -205,11 +273,16 @@ const CartDrawerContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         customerName: orderForm.fullName.trim(),
         email: orderForm.email.trim(),
         address: addressPayload,
+        isRepeatCustomer,
       });
 
       if (!intentRes.clientSecret) {
         throw new Error(intentRes.error || 'Failed to initialize payment with the processor.');
       }
+
+      const effectiveDeliveryName = isRepeatCustomer && cartDeliveryPrice > 0
+        ? `${selectedZone.name} (Repeat Customer Free Delivery)`
+        : selectedZone.name;
 
       // Check for offline/demo mock secret
       if (intentRes.clientSecret.includes('mock_pi_')) {
@@ -220,14 +293,19 @@ const CartDrawerContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           customerName: orderForm.fullName.trim(),
           email: orderForm.email.trim(),
           address: addressPayload,
-          deliveryZoneName: selectedZone.name,
-          deliveryPrice,
-          totalAmount,
+          deliveryZoneName: effectiveDeliveryName,
+          deliveryPrice: effectiveDeliveryPrice,
+          totalAmount: effectiveTotalAmount,
           currency: settings.currency || '£',
         });
+        try {
+          localStorage.setItem('gle_customer_email', orderForm.email.trim().toLowerCase());
+        } catch {
+          // ignore
+        }
         ClarityAnalytics.orderCompleted({
           orderId: intentRes.orderId,
-          totalAmount,
+          totalAmount: effectiveTotalAmount,
           currency: settings.currency || '£',
         });
         clearCart();
@@ -265,9 +343,9 @@ const CartDrawerContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           customerName: orderForm.fullName.trim(),
           email: orderForm.email.trim(),
           address: addressPayload,
-          deliveryZoneName: selectedZone.name,
-          deliveryPrice,
-          totalAmount,
+          deliveryZoneName: effectiveDeliveryName,
+          deliveryPrice: effectiveDeliveryPrice,
+          totalAmount: effectiveTotalAmount,
           currency: settings.currency || '£',
         };
         try {
@@ -275,13 +353,14 @@ const CartDrawerContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             ...orderData,
             completedAt: new Date().toISOString(),
           }));
+          localStorage.setItem('gle_customer_email', orderForm.email.trim().toLowerCase());
         } catch {
           // ignore
         }
         setCompletedOrder(orderData);
         ClarityAnalytics.orderCompleted({
           orderId: intentRes.orderId,
-          totalAmount,
+          totalAmount: effectiveTotalAmount,
           currency: settings.currency || '£',
         });
         clearCart();
@@ -581,16 +660,33 @@ const CartDrawerContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                       )}
 
                       <div className="flex justify-between text-muted">
-                        <span>Delivery ({selectedZone.name})</span>
-                        <span className="text-text font-medium">
-                          {deliveryPrice > 0 ? `${settings.currency}${deliveryPrice.toFixed(2)}` : 'Free'}
-                        </span>
+                        <span>Delivery ({selectedZone.name}){isRepeatCustomer ? ' (VIP)' : ''}</span>
+                        <div className="text-right">
+                          {isRepeatCustomer && cartDeliveryPrice > 0 && (
+                            <span className="text-[10px] text-muted line-through mr-1 font-light">
+                              {settings.currency}{cartDeliveryPrice.toFixed(2)}
+                            </span>
+                          )}
+                          <span className={isRepeatCustomer && cartDeliveryPrice > 0 ? 'text-gold font-bold' : 'text-text font-medium'}>
+                            {effectiveDeliveryPrice > 0 ? `${settings.currency}${effectiveDeliveryPrice.toFixed(2)}` : 'Free'}
+                          </span>
+                        </div>
                       </div>
+
+                      {isRepeatCustomer && cartDeliveryPrice > 0 && (
+                        <div className="flex justify-between text-emerald-800 text-[11px] font-medium bg-emerald-50 px-2 py-1 rounded border border-emerald-200">
+                          <span className="flex items-center gap-1">
+                            <Sparkles className="w-3 h-3 text-gold" />
+                            Repeat Client Free Delivery:
+                          </span>
+                          <span>-{settings.currency}{cartDeliveryPrice.toFixed(2)}</span>
+                        </div>
+                      )}
 
                       <div className="border-t border-hairline pt-2.5 flex justify-between items-center text-sm font-semibold">
                         <span className="text-text">Total</span>
                         <span className="text-gold text-lg">
-                          {settings.currency}{totalAmount.toFixed(2)}
+                          {settings.currency}{effectiveTotalAmount.toFixed(2)}
                         </span>
                       </div>
                     </div>
@@ -618,10 +714,12 @@ const CartDrawerContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 <div className="p-3 bg-ivory/60 rounded border border-hairline flex items-center justify-between text-xs">
                   <div>
                     <span className="font-medium text-text">{totalCount} {totalCount === 1 ? 'jacket' : 'jackets'}</span>
-                    <span className="text-muted block text-[11px]">Delivery to {selectedZone.name}</span>
+                    <span className="text-muted block text-[11px]">
+                      Delivery to {selectedZone.name} {isRepeatCustomer ? '(VIP Free)' : ''}
+                    </span>
                   </div>
                   <span className="text-gold font-bold text-base">
-                    {settings.currency}{totalAmount.toFixed(2)}
+                    {settings.currency}{effectiveTotalAmount.toFixed(2)}
                   </span>
                 </div>
 
@@ -646,9 +744,17 @@ const CartDrawerContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   </div>
 
                   <div>
-                    <label className="block text-[11px] uppercase tracking-wider font-medium text-muted mb-1">
-                      Email Address <span className="text-red-500">*</span>
-                    </label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-[11px] uppercase tracking-wider font-medium text-muted">
+                        Email Address <span className="text-red-500">*</span>
+                      </label>
+                      {isCheckingCustomer && (
+                        <span className="text-[10px] text-muted flex items-center gap-1">
+                          <Loader2 className="w-2.5 h-2.5 animate-spin" />
+                          Checking...
+                        </span>
+                      )}
+                    </div>
                     <input
                       type="email"
                       required
@@ -657,6 +763,12 @@ const CartDrawerContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                       onChange={(e) => handleInputChange('email', e.target.value)}
                       className="w-full bg-white border border-hairline px-3 py-2 text-base sm:text-sm text-text rounded focus:outline-none focus:border-gold"
                     />
+                    {isRepeatCustomer && (
+                      <div className="mt-1 flex items-center gap-1.5 text-[11px] text-emerald-800 font-medium">
+                        <Sparkles className="w-3 h-3 text-gold flex-shrink-0" />
+                        <span>Returning client recognized &bull; Complimentary delivery unlocked</span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -761,7 +873,7 @@ const CartDrawerContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   ) : (
                     <>
                       <Lock className="w-4 h-4" />
-                      <span>Pay {settings.currency}{totalAmount.toFixed(2)}</span>
+                      <span>Pay {settings.currency}{effectiveTotalAmount.toFixed(2)}</span>
                     </>
                   )}
                 </button>
@@ -876,7 +988,7 @@ const CartDrawerContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               <button
                 type="button"
                 onClick={() => {
-                  ClarityAnalytics.checkoutStarted({ totalAmount, itemCount: items.length });
+                  ClarityAnalytics.checkoutStarted({ totalAmount: effectiveTotalAmount, itemCount: items.length });
                   onClose();
                   navigate('/checkout');
                 }}

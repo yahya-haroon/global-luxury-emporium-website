@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Elements,
@@ -12,6 +12,7 @@ import { useCart } from '../context/CartContext';
 import { useData } from '../context/DataContext';
 import { getStripe, createPaymentIntent } from '../lib/stripePayment';
 import { countryNameToIso2 } from '../lib/countryUtils';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { CartItem, OrderAddress } from '../types';
 import { ClarityAnalytics } from '../lib/clarity';
 import {
@@ -29,9 +30,19 @@ import {
   CreditCard,
   Calendar,
   KeyRound,
+  Sparkles,
 } from 'lucide-react';
 import { SEO } from '../components/SEO';
 import { GoogleCustomerReviewsOptIn } from '../components/GoogleCustomerReviewsOptIn';
+import {
+  CheckoutPaymentSelector,
+  PaymentMethodType,
+} from '../components/CheckoutPaymentSelector';
+import {
+  createPayPalServerOrder,
+  capturePayPalServerOrder,
+  PayPalFundingSource,
+} from '../lib/paypal';
 
 // Stripe Split Card Element Styling: Sharp black text and dark clear placeholders
 const SPLIT_CARD_ELEMENT_OPTIONS = {
@@ -116,6 +127,12 @@ const CheckoutContent: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [completedOrder, setCompletedOrder] = useState<CompletedOrderInfo | null>(null);
   const [copiedOrderId, setCopiedOrderId] = useState(false);
+  const [isRepeatCustomer, setIsRepeatCustomer] = useState(false);
+  const [isCheckingCustomer, setIsCheckingCustomer] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethodType>('card');
+  const [isProcessingPayPal, setIsProcessingPayPal] = useState(false);
+  const createdPayPalOrderIdRef = useRef<string | null>(null);
+  const createdInternalOrderIdRef = useRef<string | null>(null);
 
   // Restore completed order if customer refreshes the confirmation page during the session
   useEffect(() => {
@@ -131,6 +148,56 @@ const CheckoutContent: React.FC = () => {
       // ignore
     }
   }, []);
+
+  // Check returning / repeat customer status to grant complimentary VIP delivery
+  useEffect(() => {
+    const email = orderForm.email.trim().toLowerCase();
+    if (!email || !email.includes('@') || email.length < 5) {
+      setIsRepeatCustomer(false);
+      return;
+    }
+
+    // 1. Quick local recognition if this browser placed a prior order with this email
+    try {
+      const savedEmail = localStorage.getItem('gle_customer_email')?.trim().toLowerCase();
+      if (savedEmail && savedEmail === email) {
+        setIsRepeatCustomer(true);
+      }
+    } catch {
+      // ignore
+    }
+
+    // 2. Secure database check via Supabase RPC
+    let isCancelled = false;
+    const timer = setTimeout(async () => {
+      if (!isSupabaseConfigured) return;
+      setIsCheckingCustomer(true);
+      try {
+        const { data, error } = await supabase.rpc('check_repeat_customer', {
+          p_email: email,
+        });
+        if (!isCancelled && !error && typeof data === 'boolean') {
+          setIsRepeatCustomer(data);
+          if (data) {
+            try {
+              localStorage.setItem('gle_customer_email', email);
+            } catch {
+              // ignore
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('Repeat customer check failed:', err);
+      } finally {
+        if (!isCancelled) setIsCheckingCustomer(false);
+      }
+    }, 450);
+
+    return () => {
+      isCancelled = true;
+      clearTimeout(timer);
+    };
+  }, [orderForm.email]);
 
   // Automatically synchronize delivery zone with country selection
   useEffect(() => {
@@ -162,7 +229,9 @@ const CheckoutContent: React.FC = () => {
     settings.delivery_zones?.find((z) => z.id === selectedZoneId) ||
     settings.delivery_zones?.[0] || { id: 'uk', name: 'United Kingdom', price: 0 };
 
-  const deliveryPrice = Number(selectedZone.price || 0);
+  const baseDeliveryPrice = Number(selectedZone.price || 0);
+  // Free delivery for repeat customers across all zones
+  const deliveryPrice = isRepeatCustomer ? 0 : baseDeliveryPrice;
   const totalAmount = itemsSubtotal + itemsPersonalisationFee + itemsRequirementsFee + deliveryPrice;
 
   // Track checkout view
@@ -241,11 +310,16 @@ const CheckoutContent: React.FC = () => {
         customerName: orderForm.fullName.trim(),
         email: orderForm.email.trim(),
         address: addressPayload,
+        isRepeatCustomer,
       });
 
       if (!intentRes.clientSecret) {
         throw new Error(intentRes.error || 'Failed to initialize payment.');
       }
+
+      const effectiveDeliveryName = isRepeatCustomer && baseDeliveryPrice > 0
+        ? `${selectedZone.name} (Repeat Customer Free Delivery)`
+        : selectedZone.name;
 
       // Check for offline/demo mock
       if (intentRes.clientSecret.includes('mock_pi_')) {
@@ -256,7 +330,7 @@ const CheckoutContent: React.FC = () => {
           customerName: orderForm.fullName.trim(),
           email: orderForm.email.trim(),
           address: addressPayload,
-          deliveryZoneName: selectedZone.name,
+          deliveryZoneName: effectiveDeliveryName,
           deliveryPrice,
           totalAmount,
           currency: settings.currency || '£',
@@ -266,6 +340,7 @@ const CheckoutContent: React.FC = () => {
             ...orderData,
             completedAt: new Date().toISOString(),
           }));
+          localStorage.setItem('gle_customer_email', orderForm.email.trim().toLowerCase());
         } catch {
           // ignore
         }
@@ -310,7 +385,7 @@ const CheckoutContent: React.FC = () => {
           customerName: orderForm.fullName.trim(),
           email: orderForm.email.trim(),
           address: addressPayload,
-          deliveryZoneName: selectedZone.name,
+          deliveryZoneName: effectiveDeliveryName,
           deliveryPrice,
           totalAmount,
           currency: settings.currency || '£',
@@ -320,6 +395,7 @@ const CheckoutContent: React.FC = () => {
             ...orderData,
             completedAt: new Date().toISOString(),
           }));
+          localStorage.setItem('gle_customer_email', orderForm.email.trim().toLowerCase());
         } catch {
           // ignore
         }
@@ -338,6 +414,129 @@ const CheckoutContent: React.FC = () => {
       setErrorMessage(err.message || 'An error occurred during payment processing. Please try again.');
     } finally {
       setIsProcessing(false);
+    }
+  };
+
+  const validateOrderForm = (): boolean => {
+    setErrorMessage(null);
+    if (!orderForm.fullName.trim()) {
+      setErrorMessage('Please enter your full name for delivery.');
+      return false;
+    }
+    if (!orderForm.email.trim() || !orderForm.email.includes('@')) {
+      setErrorMessage('Please enter a valid email address for delivery updates.');
+      return false;
+    }
+    if (!orderForm.line1.trim()) {
+      setErrorMessage('Please enter your street address for delivery.');
+      return false;
+    }
+    if (!orderForm.city.trim()) {
+      setErrorMessage('Please enter your town/city for delivery.');
+      return false;
+    }
+    if (!orderForm.postalCode.trim()) {
+      setErrorMessage('Please enter your postal or ZIP code for delivery.');
+      return false;
+    }
+    return true;
+  };
+
+  const handleCreatePayPalServerOrder = async (fundingSource: PayPalFundingSource): Promise<string> => {
+    setIsProcessingPayPal(true);
+    setErrorMessage(null);
+
+    try {
+      const addressPayload: OrderAddress = {
+        line1: orderForm.line1.trim(),
+        city: orderForm.city.trim(),
+        postal_code: orderForm.postalCode.trim() || 'N/A',
+        country: orderForm.country.trim(),
+      };
+
+      const res = await createPayPalServerOrder({
+        items,
+        deliveryZoneId: selectedZoneId || selectedZone.id,
+        customerName: orderForm.fullName.trim(),
+        email: orderForm.email.trim(),
+        address: addressPayload,
+        fundingSource,
+      });
+
+      createdPayPalOrderIdRef.current = res.paypalOrderId;
+      createdInternalOrderIdRef.current = res.orderId;
+      return res.paypalOrderId;
+    } catch (err: any) {
+      console.error('Error creating PayPal server order:', err);
+      setIsProcessingPayPal(false);
+      throw err;
+    }
+  };
+
+  const handleCapturePayPalServerOrder = async (paypalOrderId: string, fundingSource: PayPalFundingSource) => {
+    setIsProcessingPayPal(true);
+    setErrorMessage(null);
+
+    try {
+      const internalOrderId = createdInternalOrderIdRef.current;
+      const captureRes = await capturePayPalServerOrder({
+        orderId: internalOrderId || undefined,
+        paypalOrderId,
+        fundingSource,
+      });
+
+      const addressPayload: OrderAddress = {
+        line1: orderForm.line1.trim(),
+        city: orderForm.city.trim(),
+        postal_code: orderForm.postalCode.trim() || 'N/A',
+        country: orderForm.country.trim(),
+      };
+
+      const effectiveDeliveryName = isRepeatCustomer && baseDeliveryPrice > 0
+        ? `${selectedZone.name} (Repeat Customer Free Delivery)`
+        : selectedZone.name;
+
+      const finalOrderId = captureRes.orderId || internalOrderId || `ORD_${paypalOrderId.slice(-8).toUpperCase()}`;
+      const finalCustomerName = captureRes.payer?.name || orderForm.fullName.trim();
+      const finalEmail = captureRes.payer?.email || orderForm.email.trim();
+
+      const orderData: CompletedOrderInfo = {
+        orderId: finalOrderId,
+        items: [...items],
+        customerName: finalCustomerName,
+        email: finalEmail,
+        address: addressPayload,
+        deliveryZoneName: effectiveDeliveryName,
+        deliveryPrice,
+        totalAmount,
+        currency: settings.currency || '£',
+      };
+
+      try {
+        sessionStorage.setItem('gle_completed_order', JSON.stringify({
+          ...orderData,
+          completedAt: new Date().toISOString(),
+          paymentMethod: fundingSource,
+          paypalOrderId,
+          paypalCaptureId: captureRes.captureId,
+        }));
+        localStorage.setItem('gle_customer_email', finalEmail.toLowerCase());
+      } catch {
+        // ignore
+      }
+
+      setCompletedOrder(orderData);
+      ClarityAnalytics.orderCompleted({
+        orderId: finalOrderId,
+        totalAmount,
+        currency: settings.currency || '£',
+      });
+      clearCart();
+    } catch (err: any) {
+      console.error('PayPal capture error:', err);
+      setErrorMessage(err.message || 'Payment could not be completed. Please try PayPal again or choose another payment method.');
+    } finally {
+      setIsProcessingPayPal(false);
     }
   };
 
@@ -545,9 +744,17 @@ const CheckoutContent: React.FC = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="customer-email" className="block text-[11px] uppercase tracking-wider font-bold text-black mb-1.5">
-                    Email Address <span className="text-red-500">*</span>
-                  </label>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label htmlFor="customer-email" className="block text-[11px] uppercase tracking-wider font-bold text-black">
+                      Email Address <span className="text-red-500">*</span>
+                    </label>
+                    {isCheckingCustomer && (
+                      <span className="text-[10px] text-gray-500 flex items-center gap-1 font-medium">
+                        <Loader2 className="w-2.5 h-2.5 animate-spin" />
+                        Checking repeat client...
+                      </span>
+                    )}
+                  </div>
                   <input
                     id="customer-email"
                     type="email"
@@ -557,6 +764,12 @@ const CheckoutContent: React.FC = () => {
                     onChange={(e) => handleInputChange('email', e.target.value)}
                     className="w-full bg-white border border-gray-300 px-3.5 py-2.5 text-sm text-black placeholder:text-gray-500 rounded focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-all shadow-sm"
                   />
+                  {isRepeatCustomer && (
+                    <div className="mt-1.5 flex items-center gap-1.5 text-[11px] text-amber-900 font-semibold bg-amber-50 px-2.5 py-1 rounded border border-amber-200">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-600 flex-shrink-0" />
+                      <span>Repeat customer recognized &bull; Complimentary delivery unlocked</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -644,13 +857,38 @@ const CheckoutContent: React.FC = () => {
 
               {/* Delivery Zone Selector */}
               {settings.delivery_zones && settings.delivery_zones.length > 0 && (
-                <div className="pt-2">
-                  <label className="block text-[11px] uppercase tracking-wider font-bold text-black mb-2">
-                    Shipping Method
-                  </label>
+                <div className="pt-2 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-[11px] uppercase tracking-wider font-bold text-black">
+                      Shipping Method
+                    </label>
+                    {isRepeatCustomer && (
+                      <span className="text-[10px] font-bold uppercase tracking-wider bg-black text-gold px-2.5 py-1 rounded border border-gold/40 shadow-xs flex items-center gap-1">
+                        <Sparkles className="w-3 h-3 text-gold" />
+                        VIP Repeat Customer Delivery: FREE
+                      </span>
+                    )}
+                  </div>
+
+                  {isRepeatCustomer && (
+                    <div className="p-3.5 bg-amber-50 border border-amber-200 rounded text-xs text-amber-950 flex items-start gap-2.5 shadow-xs">
+                      <Sparkles className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-bold block text-black">
+                          Welcome Back! Repeat Customer Benefit Applied
+                        </span>
+                        <span className="text-gray-700 leading-relaxed block mt-0.5">
+                          As a valued returning client, your delivery fee has been waived across all destinations. Enjoy complimentary insured courier delivery on this order.
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {settings.delivery_zones.map((zone) => {
                       const isSelected = selectedZoneId === zone.id;
+                      const isZoneFree = isRepeatCustomer || zone.price === 0;
+
                       return (
                         <button
                           key={zone.id}
@@ -667,12 +905,23 @@ const CheckoutContent: React.FC = () => {
                               {zone.name}
                             </span>
                             <span className="text-[11px] text-gray-600 font-normal">
-                              {zone.price === 0 ? 'Complimentary Insured Delivery' : 'Express Tracked Courier'}
+                              {zone.price === 0
+                                ? 'Complimentary Insured Delivery'
+                                : isRepeatCustomer
+                                ? 'Express Tracked Courier (VIP Free)'
+                                : 'Express Tracked Courier'}
                             </span>
                           </div>
-                          <span className="text-xs font-bold text-black">
-                            {zone.price === 0 ? 'FREE' : `${settings.currency}${zone.price.toFixed(2)}`}
-                          </span>
+                          <div className="text-right">
+                            {isRepeatCustomer && zone.price > 0 && (
+                              <span className="block text-[10px] text-gray-400 line-through">
+                                {settings.currency}{zone.price.toFixed(2)}
+                              </span>
+                            )}
+                            <span className={`text-xs font-bold ${isRepeatCustomer && zone.price > 0 ? 'text-amber-800' : 'text-black'}`}>
+                              {isZoneFree ? 'FREE' : `${settings.currency}${zone.price.toFixed(2)}`}
+                            </span>
+                          </div>
                         </button>
                       );
                     })}
@@ -681,7 +930,7 @@ const CheckoutContent: React.FC = () => {
               )}
             </div>
 
-            {/* STEP 2: PAYMENT CARD DETAILS WITH SEPARATE BOXES */}
+            {/* STEP 2: PAYMENT METHOD & DETAILS */}
             <div className="bg-white border border-gray-200 rounded-lg p-5 sm:p-7 shadow-sm space-y-6">
               <div className="border-b border-gray-200 pb-4 flex items-center justify-between">
                 <div>
@@ -689,105 +938,157 @@ const CheckoutContent: React.FC = () => {
                     Step 2 of 2
                   </span>
                   <h2 className="font-serif text-2xl text-black font-semibold mt-1">
-                    Card Payment Details
+                    Payment Method
                   </h2>
                   <p className="text-xs text-gray-600 font-normal mt-0.5">
-                    Enter your card details in the secure boxes below.
+                    Select your preferred payment method below.
                   </p>
                 </div>
                 <ShieldCheck className="w-7 h-7 text-black flex-shrink-0" />
               </div>
 
-              {/* THREE SEPARATE BOXES FOR CARD NUMBER, EXPIRY, AND CVV */}
-              <div className="space-y-4">
-                {/* 1. SEPARATE BOX: CARD NUMBER */}
-                <div>
-                  <label className="block text-[11px] uppercase tracking-wider font-bold text-black mb-1.5 flex items-center justify-between">
-                    <span className="flex items-center gap-1.5">
-                      <CreditCard className="w-3.5 h-3.5 text-black" />
-                      <span>Card Number</span>
+              {/* PAYMENT SELECTOR: DEBIT/CREDIT CARD + BADGES + PAYPAL + PAY LATER */}
+              <CheckoutPaymentSelector
+                selectedMethod={paymentMethod}
+                onSelectMethod={(method) => {
+                  setPaymentMethod(method);
+                  setErrorMessage(null);
+                }}
+                totalAmount={totalAmount}
+                currency={settings.currency || '£'}
+                clientId={settings.paypal_client_id}
+                customerName={orderForm.fullName.trim()}
+                address={{
+                  line1: orderForm.line1.trim(),
+                  city: orderForm.city.trim(),
+                  postal_code: orderForm.postalCode.trim() || 'N/A',
+                  country: orderForm.country.trim(),
+                }}
+                onValidate={validateOrderForm}
+                onCreateServerOrder={handleCreatePayPalServerOrder}
+                onCaptureServerOrder={handleCapturePayPalServerOrder}
+                onPayPalError={(err) => {
+                  console.error('PayPal checkout error:', err);
+                  setErrorMessage(err?.message || 'Payment could not be completed. Please try PayPal again or choose another payment method.');
+                  setIsProcessingPayPal(false);
+                }}
+                disabled={isProcessing || isProcessingPayPal}
+              />
+
+              {/* STRIPE CARD DETAILS FORM (ACTIVE WHEN STRIPE IS SELECTED) */}
+              {paymentMethod === 'stripe' || paymentMethod === 'card' ? (
+                <div className="pt-4 border-t border-gray-200 space-y-4 animate-fade-in">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs uppercase tracking-wider font-bold text-black">
+                      Card Details
                     </span>
-                    <span className="text-red-500">*</span>
-                  </label>
-                  <div className="p-3.5 bg-white border border-gray-300 rounded focus-within:border-black focus-within:ring-1 focus-within:ring-black transition-all shadow-sm">
-                    <CardNumberElement options={SPLIT_CARD_ELEMENT_OPTIONS} />
+                    <span className="text-[11px] text-gray-500 font-normal">
+                      256-Bit SSL Encrypted
+                    </span>
                   </div>
-                </div>
 
-                {/* 2 & 3. SEPARATE BOXES: EXPIRY DATE AND CVV */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* EXPIRY DATE BOX */}
+                  {/* 1. SEPARATE BOX: CARD NUMBER */}
                   <div>
                     <label className="block text-[11px] uppercase tracking-wider font-bold text-black mb-1.5 flex items-center justify-between">
                       <span className="flex items-center gap-1.5">
-                        <Calendar className="w-3.5 h-3.5 text-black" />
-                        <span>Expiry Date</span>
+                        <CreditCard className="w-3.5 h-3.5 text-black" />
+                        <span>Card Number</span>
                       </span>
                       <span className="text-red-500">*</span>
                     </label>
                     <div className="p-3.5 bg-white border border-gray-300 rounded focus-within:border-black focus-within:ring-1 focus-within:ring-black transition-all shadow-sm">
-                      <CardExpiryElement options={SPLIT_CARD_ELEMENT_OPTIONS} />
+                      <CardNumberElement options={SPLIT_CARD_ELEMENT_OPTIONS} />
                     </div>
                   </div>
 
-                  {/* CVV / CVC BOX */}
+                  {/* 2 & 3. SEPARATE BOXES: EXPIRY DATE AND CVV */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* EXPIRY DATE BOX */}
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider font-bold text-black mb-1.5 flex items-center justify-between">
+                        <span className="flex items-center gap-1.5">
+                          <Calendar className="w-3.5 h-3.5 text-black" />
+                          <span>Expiry Date</span>
+                        </span>
+                        <span className="text-red-500">*</span>
+                      </label>
+                      <div className="p-3.5 bg-white border border-gray-300 rounded focus-within:border-black focus-within:ring-1 focus-within:ring-black transition-all shadow-sm">
+                        <CardExpiryElement options={SPLIT_CARD_ELEMENT_OPTIONS} />
+                      </div>
+                    </div>
+
+                    {/* CVV / CVC BOX */}
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider font-bold text-black mb-1.5 flex items-center justify-between">
+                        <span className="flex items-center gap-1.5">
+                          <KeyRound className="w-3.5 h-3.5 text-black" />
+                          <span>CVV / CVC</span>
+                        </span>
+                        <span className="text-red-500">*</span>
+                      </label>
+                      <div className="p-3.5 bg-white border border-gray-300 rounded focus-within:border-black focus-within:ring-1 focus-within:ring-black transition-all shadow-sm">
+                        <CardCvcElement options={SPLIT_CARD_ELEMENT_OPTIONS} />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 text-[11px] text-gray-700 font-normal pt-1">
+                    <Lock className="w-3.5 h-3.5 text-black flex-shrink-0" />
+                    <span>Encrypted 256-bit Stripe authorization. Card information is processed securely.</span>
+                  </div>
+
+                  {/* Error banner */}
+                  {errorMessage && (
+                    <div className="p-3.5 bg-red-50 border border-red-200 text-red-700 text-xs rounded flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                      <span>{errorMessage}</span>
+                    </div>
+                  )}
+
+                  {/* Place Order / Buy Now Button */}
                   <div>
-                    <label className="block text-[11px] uppercase tracking-wider font-bold text-black mb-1.5 flex items-center justify-between">
-                      <span className="flex items-center gap-1.5">
-                        <KeyRound className="w-3.5 h-3.5 text-black" />
-                        <span>CVV / CVC</span>
-                      </span>
-                      <span className="text-red-500">*</span>
-                    </label>
-                    <div className="p-3.5 bg-white border border-gray-300 rounded focus-within:border-black focus-within:ring-1 focus-within:ring-black transition-all shadow-sm">
-                      <CardCvcElement options={SPLIT_CARD_ELEMENT_OPTIONS} />
-                    </div>
+                    <button
+                      type="submit"
+                      disabled={isProcessing}
+                      className="btn-gold w-full py-4 text-sm font-bold tracking-wider uppercase flex items-center justify-center gap-2 shadow-md active:scale-[0.99] transition-transform text-black"
+                    >
+                      {isProcessing ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin text-black" />
+                          <span>Authorising Secure Payment...</span>
+                        </>
+                      ) : (
+                        <span>
+                          Pay {settings.currency || '£'}
+                          {totalAmount.toFixed(2)} &nbsp;&bull;&nbsp; Complete Order
+                        </span>
+                      )}
+                    </button>
+
+                    <p className="text-center text-[11px] text-gray-600 mt-3 font-normal">
+                      By clicking complete order, your card will be charged{' '}
+                      <strong className="text-black font-bold">
+                        {settings.currency || '£'}
+                        {totalAmount.toFixed(2)}
+                      </strong>
+                      .
+                    </p>
                   </div>
                 </div>
-
-                <div className="flex items-center gap-1.5 text-[11px] text-gray-700 font-normal pt-1">
-                  <Lock className="w-3.5 h-3.5 text-black flex-shrink-0" />
-                  <span>Encrypted 256-bit Stripe authorization. Card information is processed securely.</span>
-                </div>
-              </div>
-
-              {/* Error banner */}
-              {errorMessage && (
-                <div className="p-3.5 bg-red-50 border border-red-200 text-red-700 text-xs rounded flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                  <span>{errorMessage}</span>
+              ) : (
+                <div className="pt-4 border-t border-gray-200 space-y-3 animate-fade-in text-center">
+                  <div className="p-4 bg-amber-50/70 border border-amber-200 rounded-lg text-xs text-amber-950 space-y-2">
+                    <span className="font-bold text-sm block text-black">
+                      {paymentMethod === 'paylater' ? 'PayPal Pay in 4 Selected' : 'PayPal Selected'}
+                    </span>
+                    <p className="text-gray-700 max-w-md mx-auto">
+                      {paymentMethod === 'paylater'
+                        ? `You can split your ${settings.currency || '£'}${totalAmount.toFixed(2)} total into 4 payments of ${settings.currency || '£'}${(totalAmount / 4).toFixed(2)} with no interest using the Pay Later button above.`
+                        : `Click the gold PayPal button above to securely authenticate and complete your order of ${settings.currency || '£'}${totalAmount.toFixed(2)}.`}
+                    </p>
+                  </div>
                 </div>
               )}
-
-              {/* Place Order / Buy Now Button */}
-              <div>
-                <button
-                  type="submit"
-                  disabled={isProcessing}
-                  className="btn-gold w-full py-4 text-sm font-bold tracking-wider uppercase flex items-center justify-center gap-2 shadow-md active:scale-[0.99] transition-transform text-black"
-                >
-                  {isProcessing ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin text-black" />
-                      <span>Authorising Secure Payment...</span>
-                    </>
-                  ) : (
-                    <span>
-                      Pay {settings.currency || '£'}
-                      {totalAmount.toFixed(2)} &nbsp;&bull;&nbsp; Complete Order
-                    </span>
-                  )}
-                </button>
-
-                <p className="text-center text-[11px] text-gray-600 mt-3 font-normal">
-                  By clicking complete order, your card will be charged{' '}
-                  <strong className="text-black font-bold">
-                    {settings.currency || '£'}
-                    {totalAmount.toFixed(2)}
-                  </strong>
-                  .
-                </p>
-              </div>
             </div>
           </form>
         </div>
@@ -860,11 +1161,32 @@ const CheckoutContent: React.FC = () => {
             )}
 
             <div className="flex justify-between text-gray-700">
-              <span className="font-medium text-black">Delivery ({selectedZone.name}):</span>
-              <span className="text-black font-bold">
-                {deliveryPrice === 0 ? 'FREE' : `${settings.currency || '£'}${deliveryPrice.toFixed(2)}`}
+              <span className="font-medium text-black">
+                Delivery ({selectedZone.name}){isRepeatCustomer ? ' (VIP Benefit)' : ''}:
               </span>
+              <div className="text-right">
+                {isRepeatCustomer && baseDeliveryPrice > 0 && (
+                  <span className="text-[11px] text-gray-400 line-through mr-1.5 font-normal">
+                    {settings.currency || '£'}{baseDeliveryPrice.toFixed(2)}
+                  </span>
+                )}
+                <span className={`font-bold ${isRepeatCustomer && baseDeliveryPrice > 0 ? 'text-amber-800' : 'text-black'}`}>
+                  {deliveryPrice === 0 ? 'FREE' : `${settings.currency || '£'}${deliveryPrice.toFixed(2)}`}
+                </span>
+              </div>
             </div>
+
+            {isRepeatCustomer && baseDeliveryPrice > 0 && (
+              <div className="flex justify-between text-xs text-amber-900 font-medium bg-amber-50 px-2.5 py-1.5 rounded border border-amber-200">
+                <span className="flex items-center gap-1 font-semibold text-black">
+                  <Sparkles className="w-3 h-3 text-amber-600" />
+                  Repeat Customer Saving:
+                </span>
+                <span className="font-bold text-amber-900">
+                  -{settings.currency || '£'}{baseDeliveryPrice.toFixed(2)}
+                </span>
+              </div>
+            )}
 
             <div className="flex justify-between text-base font-serif font-bold text-black pt-3 border-t border-gray-200">
               <span>Total Due:</span>
