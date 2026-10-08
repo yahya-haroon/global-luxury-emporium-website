@@ -328,6 +328,8 @@ export const ProductPage: React.FC = () => {
             <img
               src={selectedImage || product.images[0] || '/assets/products/shearling-aviator-jacket-main.png'}
               alt={product.name}
+              fetchPriority="high"
+              decoding="async"
               className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.02]"
             />
             {saleInfo?.hasSale && (

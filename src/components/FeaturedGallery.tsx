@@ -129,7 +129,8 @@ export const FeaturedGallery: React.FC = () => {
               className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out"
               style={{ opacity: index === activeIndex ? 1 : 0 }}
               aria-hidden={index !== activeIndex}
-              loading={index === 0 ? 'eager' : 'lazy'}
+              loading="lazy"
+              decoding="async"
             />
           ))}
 

@@ -21,9 +21,9 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Women</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; shearling</g:product_type>
       <g:material>Genuine Leather</g:material>
-      <g:gender>female</g:gender>
+      <g:gender>unisex</g:gender>
       <g:age_group>adult</g:age_group>
       <g:size>XS, S, M, L, XL,XXL,XXXL,4XL</g:size>
       <g:shipping>
@@ -83,9 +83,9 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; biker</g:product_type>
       <g:material>Genuine Leather</g:material>
-      <g:gender>male</g:gender>
+      <g:gender>unisex</g:gender>
       <g:age_group>adult</g:age_group>
       <g:size>XS, S, M, L, XL,XXL,XXXL,4XL</g:size>
       <g:shipping>
@@ -143,7 +143,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Women</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; coats</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>female</g:gender>
       <g:age_group>adult</g:age_group>
@@ -175,9 +175,9 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; shearling</g:product_type>
       <g:material>Genuine Leather</g:material>
-      <g:gender>male</g:gender>
+      <g:gender>unisex</g:gender>
       <g:age_group>adult</g:age_group>
       <g:size>XS, S, M, L, XL,XXL,XXXL,4XL</g:size>
       <g:shipping>
@@ -202,7 +202,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; biker</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>male</g:gender>
       <g:age_group>adult</g:age_group>
@@ -230,9 +230,9 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; biker</g:product_type>
       <g:material>Genuine Leather</g:material>
-      <g:gender>male</g:gender>
+      <g:gender>unisex</g:gender>
       <g:age_group>adult</g:age_group>
       <g:size>XS, S, M, L, XL,XXL,XXXL,4XL</g:size>
       <g:shipping>
@@ -476,9 +476,9 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; biker</g:product_type>
       <g:material>Genuine Leather</g:material>
-      <g:gender>male</g:gender>
+      <g:gender>unisex</g:gender>
       <g:age_group>adult</g:age_group>
       <g:size>XS, S, M, L, XL.XXL.XXXL,4XL</g:size>
       <g:shipping>
@@ -530,7 +530,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; biker</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>male</g:gender>
       <g:age_group>adult</g:age_group>
@@ -661,9 +661,9 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; shearling</g:product_type>
       <g:material>Genuine Leather</g:material>
-      <g:gender>male</g:gender>
+      <g:gender>unisex</g:gender>
       <g:age_group>adult</g:age_group>
       <g:size>XS, S, M, L, XL,XXXL,4XL</g:size>
       <g:shipping>
@@ -687,7 +687,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; biker</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>male</g:gender>
       <g:age_group>adult</g:age_group>
@@ -717,9 +717,9 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; biker</g:product_type>
       <g:material>Genuine Leather</g:material>
-      <g:gender>male</g:gender>
+      <g:gender>unisex</g:gender>
       <g:age_group>adult</g:age_group>
       <g:size>XS, S, M, L, XL,XXL,XXXL,4XL</g:size>
       <g:shipping>
@@ -745,7 +745,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; biker</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>male</g:gender>
       <g:age_group>adult</g:age_group>
@@ -1328,7 +1328,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Women</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; biker</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>female</g:gender>
       <g:age_group>adult</g:age_group>
@@ -1442,7 +1442,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; shearling</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>male</g:gender>
       <g:age_group>adult</g:age_group>
@@ -1495,7 +1495,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; biker</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>male</g:gender>
       <g:age_group>adult</g:age_group>
@@ -1636,9 +1636,9 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; biker</g:product_type>
       <g:material>Genuine Leather</g:material>
-      <g:gender>male</g:gender>
+      <g:gender>unisex</g:gender>
       <g:age_group>adult</g:age_group>
       <g:size>XS, S, M, L, XL,XXL,XXXL,4XL</g:size>
       <g:shipping>
@@ -1744,7 +1744,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; biker</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>male</g:gender>
       <g:age_group>adult</g:age_group>
@@ -1853,7 +1853,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; biker</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>male</g:gender>
       <g:age_group>adult</g:age_group>
@@ -1882,9 +1882,9 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; biker</g:product_type>
       <g:material>Genuine Leather</g:material>
-      <g:gender>male</g:gender>
+      <g:gender>unisex</g:gender>
       <g:age_group>adult</g:age_group>
       <g:size>XS, S, M, L, XL,XXL,XXXL,4XL</g:size>
       <g:shipping>
@@ -1991,7 +1991,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; biker</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>male</g:gender>
       <g:age_group>adult</g:age_group>
@@ -2131,9 +2131,9 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Women</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; biker</g:product_type>
       <g:material>Genuine Leather</g:material>
-      <g:gender>female</g:gender>
+      <g:gender>unisex</g:gender>
       <g:age_group>adult</g:age_group>
       <g:size>XS, S, M, L, XL,XXL,XXXL,4XL</g:size>
       <g:shipping>
@@ -2349,7 +2349,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Women</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; biker</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>female</g:gender>
       <g:age_group>adult</g:age_group>
@@ -2379,7 +2379,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Women</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; biker</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>female</g:gender>
       <g:age_group>adult</g:age_group>
@@ -2407,7 +2407,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Women</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; biker</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>female</g:gender>
       <g:age_group>adult</g:age_group>
@@ -2550,9 +2550,9 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; biker</g:product_type>
       <g:material>Genuine Leather</g:material>
-      <g:gender>male</g:gender>
+      <g:gender>unisex</g:gender>
       <g:age_group>adult</g:age_group>
       <g:size>XS, S, M, L, XL,XXL,XXXL,4XL</g:size>
       <g:shipping>
@@ -2577,7 +2577,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; biker</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>male</g:gender>
       <g:age_group>adult</g:age_group>
@@ -2593,8 +2593,8 @@
       <g:title>Ribble Biker Blue Rebuff Lamb Leather Biker Jacket</g:title>
       <g:description>Men’s Biker Jackets, 100% soft leather, selected materials The style proposed ?Jacket Biker mod in genuine leather, 100% soft Lamb leather is composed by: 3 Frontal zip pockets; 2 Inside pocket; Cross?zip; Zip at?the sleeves; Slim fit. Black color For this jacket style we advice you to buy a larger size than you usually wear. *Our all jackets &amp; coats are custom-made so if your size is not available in ?Size Guide? you can select any size and then mention your size in ?Order Notes?. **Your jacket or coat typically takes 1-2 weeks for delivery.</g:description>
       <g:link>https://www.globalluxuryemporium.com/product/c8baa72d-3fc8-47a3-b8f9-e6bd3fe0fea2</g:link>
-      <g:image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790609880952-1T5A6523.jpg</g:image_link>
-      <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790609882044-1T5A6525.jpg</g:additional_image_link>
+      <g:image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790609882044-1T5A6525.jpg</g:image_link>
+      <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790609880952-1T5A6523.jpg</g:additional_image_link>
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790609882495-1T5A6530.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>130.00 GBP</g:price>
@@ -2604,9 +2604,9 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; biker</g:product_type>
       <g:material>Genuine Leather</g:material>
-      <g:gender>male</g:gender>
+      <g:gender>unisex</g:gender>
       <g:age_group>adult</g:age_group>
       <g:size>XS, S, M, L, XL,XXL,XXXL,4XL</g:size>
       <g:shipping>
@@ -2620,8 +2620,8 @@
       <g:title>Ribble Brown Distress Lamb Leather Motorcycle Jacket</g:title>
       <g:description>Men?s Biker Jackets, 100% soft leather, selected materials The style proposed ?Jacket Biker mod in genuine leather, 100% soft leather is composed by: 3 Frontal zip pockets; 2 Inside pocket; Cross?zip; Zip at?the sleeves; Slim fit. For this jacket style, we advise you to buy a larger size than you usually wear. *Our all jackets &amp; coats are custom-made so if your size is not available in ?Size Guide? you can select any size and then mention your size in ?Order Notes?. **Your jacket or coat typically takes 1-2 weeks for delivery.</g:description>
       <g:link>https://www.globalluxuryemporium.com/product/7f90100e-a4e6-454a-87b6-7bb9d39fff51</g:link>
-      <g:image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790610044914-1T5A6552.jpg</g:image_link>
-      <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790610046712-1T5A6557.jpg</g:additional_image_link>
+      <g:image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790610046712-1T5A6557.jpg</g:image_link>
+      <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790610044914-1T5A6552.jpg</g:additional_image_link>
       <g:additional_image_link>https://zwmpibunoyyqvagebotn.supabase.co/storage/v1/object/public/product-images/uploads/1790610047557-1T5A6560.jpg</g:additional_image_link>
       <g:availability>in_stock</g:availability>
       <g:price>130.00 GBP</g:price>
@@ -2631,9 +2631,9 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; biker</g:product_type>
       <g:material>Genuine Leather</g:material>
-      <g:gender>male</g:gender>
+      <g:gender>unisex</g:gender>
       <g:age_group>adult</g:age_group>
       <g:size>XS, S, M, L, XL,XXL,XXXL,4XL</g:size>
       <g:shipping>
@@ -2659,7 +2659,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; biker</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>male</g:gender>
       <g:age_group>adult</g:age_group>
@@ -2687,9 +2687,9 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; biker</g:product_type>
       <g:material>Genuine Leather</g:material>
-      <g:gender>male</g:gender>
+      <g:gender>unisex</g:gender>
       <g:age_group>adult</g:age_group>
       <g:size>XS, S, M, L, XL,XXL,XXXL,4XL</g:size>
       <g:shipping>
@@ -2856,7 +2856,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Women</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; shearling</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>female</g:gender>
       <g:age_group>adult</g:age_group>
@@ -2913,7 +2913,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Women</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; shearling</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>female</g:gender>
       <g:age_group>adult</g:age_group>
@@ -3082,7 +3082,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Women</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; biker</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>female</g:gender>
       <g:age_group>adult</g:age_group>
@@ -3110,7 +3110,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Women</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; biker</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>female</g:gender>
       <g:age_group>adult</g:age_group>
@@ -3226,7 +3226,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Women</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; coats</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>female</g:gender>
       <g:age_group>adult</g:age_group>
@@ -3286,7 +3286,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Women</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; biker</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>female</g:gender>
       <g:age_group>adult</g:age_group>
@@ -3431,7 +3431,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Women</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; shearling</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>female</g:gender>
       <g:age_group>adult</g:age_group>
@@ -3486,7 +3486,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Women</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; biker</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>female</g:gender>
       <g:age_group>adult</g:age_group>
@@ -3543,7 +3543,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Women</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; coats</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>female</g:gender>
       <g:age_group>adult</g:age_group>
@@ -3626,7 +3626,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; coats</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>male</g:gender>
       <g:age_group>adult</g:age_group>
@@ -3798,7 +3798,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Women</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; biker</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>female</g:gender>
       <g:age_group>adult</g:age_group>
@@ -3884,7 +3884,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; biker</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>male</g:gender>
       <g:age_group>adult</g:age_group>
@@ -3915,7 +3915,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Women</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; biker</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>female</g:gender>
       <g:age_group>adult</g:age_group>
@@ -3942,7 +3942,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; shearling</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>male</g:gender>
       <g:age_group>adult</g:age_group>
@@ -3968,9 +3968,9 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Women</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; shearling</g:product_type>
       <g:material>Genuine Leather</g:material>
-      <g:gender>female</g:gender>
+      <g:gender>unisex</g:gender>
       <g:age_group>adult</g:age_group>
       <g:size>XS, S, M, L, XL,XXL,XXXL,4XL</g:size>
       <g:shipping>
@@ -3997,9 +3997,9 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; shearling</g:product_type>
       <g:material>Genuine Leather</g:material>
-      <g:gender>male</g:gender>
+      <g:gender>unisex</g:gender>
       <g:age_group>adult</g:age_group>
       <g:size>XS, S, M, L, XL,XXL,XXXL,4XL</g:size>
       <g:shipping>
@@ -4023,7 +4023,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; shearling</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>male</g:gender>
       <g:age_group>adult</g:age_group>
@@ -4052,7 +4052,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; shearling</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>male</g:gender>
       <g:age_group>adult</g:age_group>
@@ -4084,7 +4084,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; shearling</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>male</g:gender>
       <g:age_group>adult</g:age_group>
@@ -4113,7 +4113,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; shearling</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>male</g:gender>
       <g:age_group>adult</g:age_group>
@@ -4140,9 +4140,9 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Women</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; shearling</g:product_type>
       <g:material>Genuine Leather</g:material>
-      <g:gender>unisex</g:gender>
+      <g:gender>male</g:gender>
       <g:age_group>adult</g:age_group>
       <g:size>XS, S, M, L, XL,XXL,XXXL,4XL</g:size>
       <g:shipping>
@@ -4171,7 +4171,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; shearling</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>male</g:gender>
       <g:age_group>adult</g:age_group>
@@ -4199,7 +4199,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; shearling</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>male</g:gender>
       <g:age_group>adult</g:age_group>
@@ -4225,7 +4225,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; shearling</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>male</g:gender>
       <g:age_group>adult</g:age_group>
@@ -4254,7 +4254,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; coats</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>male</g:gender>
       <g:age_group>adult</g:age_group>
@@ -4284,7 +4284,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; coats</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>male</g:gender>
       <g:age_group>adult</g:age_group>
@@ -4310,7 +4310,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; coats</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>male</g:gender>
       <g:age_group>adult</g:age_group>
@@ -4339,7 +4339,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; coats</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>male</g:gender>
       <g:age_group>adult</g:age_group>
@@ -4365,7 +4365,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; coats</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>male</g:gender>
       <g:age_group>adult</g:age_group>
@@ -4397,7 +4397,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Men</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; coats</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>male</g:gender>
       <g:age_group>adult</g:age_group>

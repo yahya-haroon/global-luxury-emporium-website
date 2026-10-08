@@ -41,7 +41,7 @@ export const GenderHero: React.FC = () => {
         Global Luxury Emporium — premium leather jackets for men and women
       </h1>
 
-      {PANELS.map((panel, idx) => {
+      {PANELS.map((panel) => {
         const slot = homepageSlots[panel.slotKey];
         const isVideo = isVideoMedia(slot);
         const img = slot?.image_url || panel.defaultImg;
@@ -70,7 +70,7 @@ export const GenderHero: React.FC = () => {
                 alt={alt}
                 loading="eager"
                 // Prioritize the primary hero images (LCP)
-                fetchPriority={idx === 0 ? 'high' : 'auto'}
+                fetchPriority="high"
                 decoding="async"
                 width={800}
                 height={1000}

@@ -177,7 +177,7 @@ export const WhyChoose: React.FC = () => {
                 alt={i === index ? s.alt : ''}
                 aria-hidden={i === index ? undefined : true}
                 className={i === index ? 'on' : ''}
-                loading={i === 0 ? 'eager' : 'lazy'}
+                loading="lazy"
                 decoding="async"
                 draggable={false}
               />

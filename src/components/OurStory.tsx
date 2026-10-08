@@ -4,6 +4,7 @@ import { isVideoMedia } from '../lib/homepageImages';
 
 const STORY_TEXT =
   'Global Luxury Emporium Ltd is a UK company in London. Every jacket is cut and stitched in our dedicated atelier, so we control the leather, the finish and the fit from start to delivery.';
+const STORY_WORDS = STORY_TEXT.split(' ');
 
 const DEFAULT_IMG = '/assets/models/campaign-quilted.webp';
 const DEFAULT_ALT = 'Model wearing a quilted burgundy biker leather jacket against a brick wall';
@@ -40,7 +41,6 @@ export const OurStory: React.FC = () => {
     };
   }, []);
 
-  const words = STORY_TEXT.split(' ');
   const isVideo = isVideoMedia(homepageSlots.editorial_story);
 
   return (
@@ -54,7 +54,7 @@ export const OurStory: React.FC = () => {
             Premium Leather, Built for the Ride of Life.
           </h2>
           <p className="wr" id="wr" ref={wordsRef}>
-            {words.map((word, i) => (
+            {STORY_WORDS.map((word, i) => (
               <span key={i} style={{ '--d': `${i * 0.035}s` } as React.CSSProperties}>
                 {word}{' '}
               </span>

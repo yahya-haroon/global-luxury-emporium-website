@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 import { getCategoryFallbackImage, HomepageCategory } from '../lib/homepageCategories';
@@ -7,9 +7,11 @@ export const ShopByCategory: React.FC = () => {
   const { homepageCategories } = useData();
 
   // Filter only active categories, sorted by display_order
-  const activeCategories = (homepageCategories || [])
-    .filter((cat) => cat.is_active)
-    .sort((a, b) => a.display_order - b.display_order);
+  const activeCategories = useMemo(() => {
+    return (homepageCategories || [])
+      .filter((cat) => cat.is_active)
+      .sort((a, b) => a.display_order - b.display_order);
+  }, [homepageCategories]);
 
   if (activeCategories.length === 0) {
     return null;
@@ -59,7 +61,7 @@ export const ShopByCategory: React.FC = () => {
         {/* Responsive Grid */}
         <div className={getGridClasses(activeCategories.length)}>
           {activeCategories.map((category, idx) => (
-            <CategoryCard key={category.id || idx} category={category} priority={idx < 4} />
+            <CategoryCard key={category.id || idx} category={category} />
           ))}
         </div>
       </div>
@@ -67,10 +69,7 @@ export const ShopByCategory: React.FC = () => {
   );
 };
 
-const CategoryCard: React.FC<{ category: HomepageCategory; priority?: boolean }> = ({
-  category,
-  priority = false,
-}) => {
+const CategoryCard: React.FC<{ category: HomepageCategory }> = ({ category }) => {
   const [imageError, setImageError] = useState(false);
 
   const fallbackSrc = getCategoryFallbackImage(category.destination_category);
@@ -88,8 +87,10 @@ const CategoryCard: React.FC<{ category: HomepageCategory; priority?: boolean }>
         <img
           src={imageSrc}
           alt={category.alt_text || category.name}
-          loading={priority ? 'eager' : 'lazy'}
+          loading="lazy"
           decoding="async"
+          width={400}
+          height={500}
           onError={() => setImageError(true)}
           className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-700 ease-out"
         />

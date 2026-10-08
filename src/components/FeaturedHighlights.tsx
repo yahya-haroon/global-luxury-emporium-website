@@ -35,14 +35,15 @@ export const FeaturedHighlights: React.FC = () => {
 
   // Admin-configured featured cards (product selection + optional image
   // override); falls back to the first products when nothing is configured.
-  const configured = homepageImages
-    .filter((r) => r.is_active && r.slot_key.startsWith('featured_') && r.product_id)
-    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-  const configuredProducts = configured
-    .map((row) => ({ row, product: products.find((p) => p.id === row.product_id) }))
-    .filter((entry): entry is { row: (typeof configured)[number]; product: Product } => Boolean(entry.product));
-
   const featured = React.useMemo(() => {
+    const configured = homepageImages
+      .filter((r) => r.is_active && r.slot_key.startsWith('featured_') && r.product_id)
+      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+
+    const configuredProducts = configured
+      .map((row) => ({ row, product: products.find((p) => p.id === row.product_id) }))
+      .filter((entry): entry is { row: (typeof configured)[number]; product: Product } => Boolean(entry.product));
+
     return configuredProducts.length > 0
       ? configuredProducts.map((entry) => ({
           product: entry.product,
@@ -60,7 +61,7 @@ export const FeaturedHighlights: React.FC = () => {
             product.images[1] ||
             product.images[0],
         }));
-  }, [configuredProducts, products, homepageSlots]);
+  }, [homepageImages, products, homepageSlots]);
 
   if (featured.length === 0) return null;
 
