@@ -5,6 +5,7 @@ import { Product } from '../types';
 import { ClarityAnalytics } from '../lib/clarity';
 import { ProductCardRating } from './ProductCardRating';
 import { getProductSaleInfo } from '../lib/sales';
+import { deriveProductGender, productMatchesCategory } from '../lib/categories';
 
 interface CollectionProps {
   onSelectProduct?: (product: Product) => void;
@@ -13,33 +14,22 @@ interface CollectionProps {
 const PAGE_SIZE = 9;
 
 export const Collection: React.FC<CollectionProps> = () => {
-  const { products, activeCategory, setActiveCategory, searchQuery, setSearchQuery, reviews, sales } = useData();
+  const {
+    products,
+    activeCategory,
+    setActiveCategory,
+    searchQuery,
+    setSearchQuery,
+    reviews,
+    sales,
+    customCategories,
+  } = useData();
   const observerRef = useRef<IntersectionObserver | null>(null);
   const sectionRef = useRef<HTMLElement | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
 
-  const categories = React.useMemo(() => {
-    const map = new Map<string, string>();
-    map.set('all', 'All');
-
-    products.forEach((p) => {
-      const cat = p.category?.trim();
-      if (cat) {
-        const lower = cat.toLowerCase();
-        if (!map.has(lower)) {
-          const display = cat.charAt(0).toUpperCase() + cat.slice(1);
-          map.set(lower, display);
-        }
-      }
-    });
-
-    if (map.size === 1) {
-      map.set('women', 'Women');
-      map.set('men', 'Men');
-    }
-
-    return Array.from(map.values());
-  }, [products]);
+  // Storefront collection tabs: strictly All, Men, and Women
+  const categories = ['All', 'Men', 'Women'];
 
   // Build a lowercase searchable string from existing product fields only
   // (name, description, category, sizes, and option names/labels/values).
@@ -61,15 +51,24 @@ export const Collection: React.FC<CollectionProps> = () => {
 
   const filteredProducts = React.useMemo(() => {
     return products.filter((p) => {
-      const matchesCategory =
-        activeCategory === 'All' ||
-        (p.category && p.category.trim().toLowerCase() === activeCategory.trim().toLowerCase());
+      let matchesCategory = true;
+
+      if (activeCategory === 'Men') {
+        matchesCategory = deriveProductGender(p) === 'men';
+      } else if (activeCategory === 'Women') {
+        matchesCategory = deriveProductGender(p) === 'women';
+      } else if (activeCategory !== 'All') {
+        matchesCategory =
+          (p.category && p.category.trim().toLowerCase() === activeCategory.trim().toLowerCase()) ||
+          productMatchesCategory(p, activeCategory, customCategories);
+      }
+
       if (!matchesCategory) return false;
       if (tokens.length === 0) return true;
       const haystack = buildHaystack(p);
       return tokens.every((t) => haystack.includes(t));
     });
-  }, [products, activeCategory, tokens]);
+  }, [products, activeCategory, tokens, customCategories]);
 
   const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PAGE_SIZE));
   const startIndex = currentPage * PAGE_SIZE;
