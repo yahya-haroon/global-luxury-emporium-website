@@ -38,7 +38,7 @@ export const ShopByCategory: React.FC = () => {
 
   return (
     <section
-      className="shop-by-category-section py-16 sm:py-24 px-4 sm:px-8 border-b border-hairline bg-[#FAF7F0]"
+      className="shop-by-category-section py-16 sm:py-24 px-4 sm:px-8 border-b border-hairline bg-ivory"
       aria-label="Shop by category"
     >
       <div className="max-w-7xl mx-auto">
