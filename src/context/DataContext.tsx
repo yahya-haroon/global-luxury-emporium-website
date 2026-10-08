@@ -1125,9 +1125,30 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Derive categories list from current products + custom categories
   const categories = useMemo(() => {
-    const fromProducts = products.map((p) => p.category?.trim()).filter(Boolean);
-    const fromCustom = customCategories.map((c) => c.name);
-    return ['All', ...Array.from(new Set([...fromProducts, ...fromCustom]))];
+    const map = new Map<string, string>();
+    map.set('all', 'All');
+
+    products.forEach((p) => {
+      const raw = p.category?.trim();
+      if (raw) {
+        const lower = raw.toLowerCase();
+        if (!map.has(lower)) {
+          map.set(lower, raw.charAt(0).toUpperCase() + raw.slice(1));
+        }
+      }
+    });
+
+    customCategories.forEach((c) => {
+      const raw = c.name?.trim();
+      if (raw) {
+        const lower = raw.toLowerCase();
+        if (!map.has(lower)) {
+          map.set(lower, raw.charAt(0).toUpperCase() + raw.slice(1));
+        }
+      }
+    });
+
+    return Array.from(map.values());
   }, [products, customCategories]);
 
   // Active homepage image configuration keyed by slot (storefront consumers

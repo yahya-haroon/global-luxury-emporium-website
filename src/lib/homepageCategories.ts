@@ -90,27 +90,41 @@ export function parseHomepageCategories(rows: HomepageImage[]): HomepageCategory
     return DEFAULT_HOMEPAGE_CATEGORIES;
   }
 
-  return catRows
-    .map((r) => {
-      const id = r.slot_key.replace(HP_CAT_PREFIX, '');
-      const destination = (r.description || '').trim().toLowerCase();
-      const validDest: CategorySlug = isCategorySlug(destination) ? destination : 'all';
+  const seenIds = new Set<string>();
+  const seenKeys = new Set<string>();
+  const parsed: HomepageCategory[] = [];
 
-      return {
-        id,
-        name: r.title?.trim() || 'Category',
-        slug: id,
-        destination_category: validDest,
-        image_url: r.image_url || null,
-        storage_path: r.storage_path || null,
-        alt_text: r.alt_text || r.title || 'Category item',
-        display_order: typeof r.sort_order === 'number' ? r.sort_order : 0,
-        is_active: r.is_active ?? true,
-        created_at: r.created_at,
-        updated_at: r.updated_at,
-      };
-    })
-    .sort((a, b) => a.display_order - b.display_order);
+  for (const r of catRows) {
+    const id = r.slot_key.replace(HP_CAT_PREFIX, '').trim();
+    if (!id || seenIds.has(id.toLowerCase())) continue;
+
+    const destination = (r.description || '').trim().toLowerCase();
+    const validDest: CategorySlug = isCategorySlug(destination) ? destination : 'all';
+    const name = r.title?.trim() || 'Category';
+
+    // Guard against duplicate slot combinations
+    const dedupeKey = `${name.toLowerCase()}::${validDest}`;
+    if (seenKeys.has(dedupeKey)) continue;
+
+    seenIds.add(id.toLowerCase());
+    seenKeys.add(dedupeKey);
+
+    parsed.push({
+      id,
+      name,
+      slug: id,
+      destination_category: validDest,
+      image_url: r.image_url || null,
+      storage_path: r.storage_path || null,
+      alt_text: r.alt_text || r.title || 'Category item',
+      display_order: typeof r.sort_order === 'number' ? r.sort_order : 0,
+      is_active: r.is_active ?? true,
+      created_at: r.created_at,
+      updated_at: r.updated_at,
+    });
+  }
+
+  return parsed.sort((a, b) => a.display_order - b.display_order);
 }
 
 /**

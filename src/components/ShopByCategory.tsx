@@ -6,10 +6,17 @@ import { getCategoryFallbackImage, HomepageCategory } from '../lib/homepageCateg
 export const ShopByCategory: React.FC = () => {
   const { homepageCategories } = useData();
 
-  // Filter only active categories, sorted by display_order
+  // Filter only active categories, sorted by display_order, guaranteed unique
   const activeCategories = useMemo(() => {
+    const seen = new Set<string>();
     return (homepageCategories || [])
-      .filter((cat) => cat.is_active)
+      .filter((cat) => {
+        if (!cat.is_active) return false;
+        const key = `${(cat.destination_category || cat.slug || cat.id).toLowerCase()}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
       .sort((a, b) => a.display_order - b.display_order);
   }, [homepageCategories]);
 

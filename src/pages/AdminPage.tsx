@@ -617,7 +617,19 @@ export const AdminPage: React.FC = () => {
   };
 
   // Sales & Discounts logic & handlers
-  const storeCategories = Array.from(new Set(products.map((p) => p.category?.trim()).filter(Boolean) as string[]));
+  const storeCategories = useMemo(() => {
+    const map = new Map<string, string>();
+    products.forEach((p) => {
+      const cat = p.category?.trim();
+      if (cat) {
+        const lower = cat.toLowerCase();
+        if (!map.has(lower)) {
+          map.set(lower, cat.charAt(0).toUpperCase() + cat.slice(1));
+        }
+      }
+    });
+    return Array.from(map.values());
+  }, [products]);
 
   const handleRefreshSales = async () => {
     setIsRefreshingSales(true);

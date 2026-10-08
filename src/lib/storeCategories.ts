@@ -35,8 +35,11 @@ export function slugifyCategory(title: string): string {
  */
 export function parseCustomCategories(rows: HomepageImage[]): CustomCategoryData[] {
   const customRows = rows.filter((r) => r.slot_key.startsWith(STORE_CAT_PREFIX));
+  const seenSlugs = new Set<string>();
+  const results: CustomCategoryData[] = [];
 
-  return customRows.map((r, index) => {
+  for (let index = 0; index < customRows.length; index++) {
+    const r = customRows[index];
     let meta: { product_ids?: string[]; is_custom?: boolean; slug?: string } = {};
     if (r.alt_text) {
       try {
@@ -48,8 +51,10 @@ export function parseCustomCategories(rows: HomepageImage[]): CustomCategoryData
 
     const rawSlug = meta.slug || r.slot_key.replace(STORE_CAT_PREFIX, '');
     const slug = slugifyCategory(rawSlug || r.title || `cat-${index}`);
+    if (!slug || seenSlugs.has(slug)) continue;
+    seenSlugs.add(slug);
 
-    return {
+    results.push({
       id: r.id || `custom_${slug}`,
       slug,
       name: r.title || slug,
@@ -62,6 +67,8 @@ export function parseCustomCategories(rows: HomepageImage[]): CustomCategoryData
       is_active: r.is_active ?? true,
       created_at: r.created_at,
       updated_at: r.updated_at,
-    };
-  });
+    });
+  }
+
+  return results.sort((a, b) => a.sort_order - b.sort_order);
 }

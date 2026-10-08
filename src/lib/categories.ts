@@ -327,16 +327,16 @@ export function getCategoryBySlug(
 ): CategoryDefinition | undefined {
   if (!slug) return undefined;
   const normalized = slug.trim().toLowerCase();
-  const builtIn = CATEGORIES[normalized as BuiltInCategorySlug];
-  if (builtIn) return builtIn;
 
-  // Search among custom categories
+  // 1. Search custom categories first (allows admin overrides & customized definitions)
   const custom = customCategories.find((c) => c.slug.toLowerCase() === normalized);
+  const builtIn = CATEGORIES[normalized as BuiltInCategorySlug];
+
   if (custom) {
     return {
       slug: custom.slug,
-      name: custom.name,
-      title: custom.name,
+      name: custom.name || builtIn?.name || custom.slug,
+      title: custom.name || builtIn?.title || custom.slug,
       isCustom: true,
       metaTitle: (g) =>
         g === 'all'
@@ -344,31 +344,51 @@ export function getCategoryBySlug(
           : `${custom.name} for ${g === 'men' ? 'Men' : 'Women'} | Global Luxury Emporium`,
       metaDescription: (g) =>
         custom.description ||
+        builtIn?.metaDescription(g) ||
         `Explore handcrafted luxury ${custom.name.toLowerCase()} for ${g === 'all' ? 'men and women' : g}. Free worldwide delivery.`,
       headline: (g) =>
         g === 'all' ? custom.name : `${g === 'men' ? "Men's" : "Women's"} ${custom.name}`,
       subheadline:
         custom.description ||
+        builtIn?.subheadline ||
         `Handcrafted luxury ${custom.name.toLowerCase()} tailored from finest materials.`,
       matches: (p) => productMatchesCategory(p, custom.slug, customCategories),
     };
   }
 
+  // 2. Return built-in definition
+  if (builtIn) return builtIn;
+
   return undefined;
 }
 
 /**
- * Returns all available categories: default built-ins plus any active custom categories.
+ * Returns all available categories: default built-ins cleanly merged with active custom categories.
+ * Guaranteed 100% deduplication by slug.
  */
 export function getAllCategories(
   customCategories: CustomCategoryData[] = []
 ): CategoryDefinition[] {
-  const customDefs = customCategories
-    .filter((c) => c.is_active !== false)
-    .map((c) => getCategoryBySlug(c.slug, customCategories))
-    .filter((c): c is CategoryDefinition => Boolean(c));
+  const categoryMap = new Map<string, CategoryDefinition>();
 
-  return [...CATEGORY_LIST, ...customDefs];
+  // 1. Populate standard built-in categories
+  for (const cat of CATEGORY_LIST) {
+    categoryMap.set(cat.slug.toLowerCase(), cat);
+  }
+
+  // 2. Overlay / merge active custom categories (overrides matching built-ins or appends new ones)
+  for (const custom of customCategories) {
+    if (custom.is_active === false) continue;
+    const normSlug = (custom.slug || '').trim().toLowerCase();
+    if (!normSlug) continue;
+
+    const def = getCategoryBySlug(normSlug, customCategories);
+    if (def) {
+      categoryMap.set(normSlug, def);
+    }
+  }
+
+  return Array.from(categoryMap.values());
 }
 
 /**

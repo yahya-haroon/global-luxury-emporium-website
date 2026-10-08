@@ -19,18 +19,26 @@ export const Collection: React.FC<CollectionProps> = () => {
   const [currentPage, setCurrentPage] = useState(0);
 
   const categories = React.useMemo(() => {
-    const set = new Set<string>();
-    set.add('All');
+    const map = new Map<string, string>();
+    map.set('all', 'All');
+
     products.forEach((p) => {
-      if (p.category && p.category.trim()) {
-        set.add(p.category.trim());
+      const cat = p.category?.trim();
+      if (cat) {
+        const lower = cat.toLowerCase();
+        if (!map.has(lower)) {
+          const display = cat.charAt(0).toUpperCase() + cat.slice(1);
+          map.set(lower, display);
+        }
       }
     });
-    if (set.size === 1) {
-      set.add('Women');
-      set.add('Men');
+
+    if (map.size === 1) {
+      map.set('women', 'Women');
+      map.set('men', 'Men');
     }
-    return Array.from(set);
+
+    return Array.from(map.values());
   }, [products]);
 
   // Build a lowercase searchable string from existing product fields only
