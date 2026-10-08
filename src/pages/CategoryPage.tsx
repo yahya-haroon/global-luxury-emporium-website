@@ -7,7 +7,7 @@ import { getProductSaleInfo } from '../lib/sales';
 import {
   GenderFilter,
   CategorySlug,
-  CATEGORY_LIST,
+  getAllCategories,
   getCategoryBySlug,
   filterProductsByGenderAndCategory,
   isCategorySlug,
@@ -26,7 +26,7 @@ export const CategoryPage: React.FC<CategoryPageProps> = ({
 }) => {
   const { categorySlug: routeSlug } = useParams<{ categorySlug?: string }>();
   const location = useLocation();
-  const { products, sales, reviews, settings } = useData();
+  const { products, sales, reviews, settings, customCategories } = useData();
 
   // 1. Resolve initial Gender from prop or URL
   const initialGender: GenderFilter = useMemo(() => {
@@ -54,15 +54,20 @@ export const CategoryPage: React.FC<CategoryPageProps> = ({
   // 2. Resolve Category Slug (defaults to 'all' if not specified)
   const activeSlug: CategorySlug = useMemo(() => {
     const raw = (routeSlug || defaultCategory || 'all').trim().toLowerCase();
-    return isCategorySlug(raw) ? raw : 'all';
-  }, [routeSlug, defaultCategory]);
+    return isCategorySlug(raw, customCategories) ? raw : 'all';
+  }, [routeSlug, defaultCategory, customCategories]);
 
-  const categoryDef = getCategoryBySlug(activeSlug);
+  const categoryDef = getCategoryBySlug(activeSlug, customCategories) || getCategoryBySlug('all')!;
+
+  const allNavCategories = useMemo(
+    () => getAllCategories(customCategories),
+    [customCategories]
+  );
 
   // 3. Filter products by selected Gender + Category
   const categoryProducts = useMemo(() => {
-    return filterProductsByGenderAndCategory(products, selectedGender, activeSlug);
-  }, [products, selectedGender, activeSlug]);
+    return filterProductsByGenderAndCategory(products, selectedGender, activeSlug, customCategories);
+  }, [products, selectedGender, activeSlug, customCategories]);
 
   // 4. Continuous loading / infinite scroll state
   const [visibleCount, setVisibleCount] = useState(BATCH_SIZE);
@@ -272,7 +277,7 @@ export const CategoryPage: React.FC<CategoryPageProps> = ({
           className="no-scrollbar"
           aria-label="Category sub-navigation"
         >
-          {CATEGORY_LIST.map((cat) => {
+          {allNavCategories.map((cat) => {
             const isActive = cat.slug === activeSlug;
             const destLink =
               selectedGender === 'all'

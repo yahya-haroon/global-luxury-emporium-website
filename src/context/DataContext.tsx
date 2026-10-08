@@ -9,6 +9,13 @@ import {
   HP_CAT_PREFIX,
   DEFAULT_HOMEPAGE_CATEGORIES,
 } from '../lib/homepageCategories';
+import {
+  CustomCategoryData,
+  parseCustomCategories,
+  STORE_CAT_PREFIX,
+  slugifyCategory,
+} from '../lib/storeCategories';
+import { CATEGORIES } from '../lib/categories';
 import { DEFAULT_THEME, applyThemeToDocument } from '../lib/theme';
 import { useAuth } from './AuthContext';
 
@@ -21,6 +28,7 @@ interface DataContextType {
   homepageImages: HomepageImage[];
   homepageSlots: Record<string, HomepageImage>;
   homepageCategories: HomepageCategory[];
+  customCategories: CustomCategoryData[];
   sales: Sale[];
   loading: boolean;
   error: string | null;
@@ -56,6 +64,18 @@ interface DataContextType {
   deleteHomepageCategory: (id: string) => Promise<{ error?: string }>;
   reorderHomepageCategories: (orderedIds: string[]) => Promise<{ error?: string }>;
   initDefaultHomepageCategories: () => Promise<{ error?: string }>;
+  saveCustomCategory: (categoryData: {
+    id?: string;
+    name: string;
+    slug?: string;
+    description?: string;
+    image_url?: string;
+    is_active?: boolean;
+    sort_order?: number;
+    product_ids?: string[];
+  }) => Promise<{ error?: string; category?: CustomCategoryData }>;
+  deleteCustomCategory: (slug: string) => Promise<{ error?: string }>;
+  assignProductsToCategory: (categorySlug: string, productIds: string[]) => Promise<{ error?: string }>;
   saveSale: (saleData: Partial<Sale>) => Promise<{ data?: Sale; error?: string }>;
   deleteSale: (id: string) => Promise<{ success: boolean; error?: string }>;
   toggleSaleActive: (id: string, isActive: boolean) => Promise<{ success: boolean; error?: string }>;
@@ -541,6 +561,115 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     [refreshHomepageImages, user?.isOwner]
   );
 
+  // ---- Mutation: Custom store categories and product assignment ----
+  const saveCustomCategory = useCallback(
+    async (catData: {
+      id?: string;
+      name: string;
+      slug?: string;
+      description?: string;
+      image_url?: string;
+      is_active?: boolean;
+      sort_order?: number;
+      product_ids?: string[];
+    }): Promise<{ error?: string; category?: CustomCategoryData }> => {
+      if (!isSupabaseConfigured) return { error: 'Supabase is not configured.' };
+      if (!user?.isOwner) return { error: 'Unauthorized. Only the owner can manage categories.' };
+
+      try {
+        const rawSlug = catData.slug?.trim() || slugifyCategory(catData.name);
+        const slug = slugifyCategory(rawSlug);
+        if (!slug) {
+          return { error: 'Category slug is invalid or empty.' };
+        }
+
+        const slotKey = `${STORE_CAT_PREFIX}${slug}`;
+        const existing = homepageImages.find((r) => r.slot_key === slotKey);
+
+        let currentMeta: { product_ids?: string[] } = {};
+        if (existing?.alt_text) {
+          try {
+            currentMeta = JSON.parse(existing.alt_text);
+          } catch {
+            currentMeta = {};
+          }
+        }
+
+        const metaObj = {
+          slug,
+          is_custom: true,
+          product_ids: catData.product_ids ?? currentMeta.product_ids ?? [],
+        };
+
+        const payload = {
+          slot_key: slotKey,
+          title: catData.name.trim(),
+          description: catData.description?.trim() || '',
+          image_url: catData.image_url ?? existing?.image_url ?? null,
+          storage_path: existing?.storage_path ?? null,
+          alt_text: JSON.stringify(metaObj),
+          sort_order: Number(catData.sort_order ?? existing?.sort_order ?? 10),
+          is_active: catData.is_active ?? existing?.is_active ?? true,
+          updated_at: new Date().toISOString(),
+        };
+
+        const { data, error: upsertErr } = await supabase
+          .from('homepage_images')
+          .upsert(payload, { onConflict: 'slot_key' })
+          .select()
+          .single();
+
+        if (upsertErr) throw upsertErr;
+
+        await refreshHomepageImages();
+
+        return {
+          category: {
+            id: data.id || `custom_${slug}`,
+            slug,
+            name: data.title,
+            description: data.description,
+            image_url: data.image_url,
+            storage_path: data.storage_path,
+            is_custom: true,
+            sort_order: data.sort_order,
+            product_ids: metaObj.product_ids,
+            is_active: data.is_active,
+          },
+        };
+      } catch (err: any) {
+        console.error('Error saving custom category:', err);
+        return { error: err.message || 'Failed to save custom category.' };
+      }
+    },
+    [homepageImages, refreshHomepageImages, user?.isOwner]
+  );
+
+  const deleteCustomCategory = useCallback(
+    async (slug: string): Promise<{ error?: string }> => {
+      if (!isSupabaseConfigured) return { error: 'Supabase is not configured.' };
+      if (!user?.isOwner) return { error: 'Unauthorized. Only the owner can delete categories.' };
+
+      try {
+        const normSlug = slugifyCategory(slug);
+        const slotKey = `${STORE_CAT_PREFIX}${normSlug}`;
+        const { error: delErr } = await supabase
+          .from('homepage_images')
+          .delete()
+          .eq('slot_key', slotKey);
+
+        if (delErr) throw delErr;
+
+        await refreshHomepageImages();
+        return {};
+      } catch (err: any) {
+        console.error('Error deleting custom category:', err);
+        return { error: err.message || 'Failed to delete category.' };
+      }
+    },
+    [refreshHomepageImages, user?.isOwner]
+  );
+
   // ---- Mutation: order delivery status ----
   const updateOrderStatus = useCallback(
     async (orderId: string, status: OrderStatus): Promise<{ error?: string }> => {
@@ -919,11 +1048,87 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     applyThemeToDocument(settings.theme);
   }, [settings.theme]);
 
-  // Derive categories list from current products
-  const categories = useMemo(
-    () => ['All', ...Array.from(new Set(products.map((p) => p.category)))],
-    [products]
+  // ---- Mutation: assign products to category ----
+  const assignProductsToCategory = useCallback(
+    async (categorySlug: string, productIds: string[]): Promise<{ error?: string }> => {
+      if (!isSupabaseConfigured) return { error: 'Supabase is not configured.' };
+      if (!user?.isOwner) return { error: 'Unauthorized. Only the owner can assign products to categories.' };
+
+      try {
+        const normSlug = slugifyCategory(categorySlug);
+        const slotKey = `${STORE_CAT_PREFIX}${normSlug}`;
+        const existing = homepageImages.find((r) => r.slot_key === slotKey);
+
+        let currentName = existing?.title || normSlug;
+        let isCustom = true;
+        let currentDesc = existing?.description || '';
+
+        // Check if it's a built-in category
+        const builtInDef = CATEGORIES[normSlug as any];
+        if (builtInDef) {
+          currentName = builtInDef.name;
+          isCustom = false;
+          currentDesc = builtInDef.subheadline;
+        }
+
+        const metaObj = {
+          slug: normSlug,
+          is_custom: isCustom,
+          product_ids: productIds,
+        };
+
+        const payload = {
+          slot_key: slotKey,
+          title: currentName,
+          description: currentDesc,
+          image_url: existing?.image_url ?? null,
+          storage_path: existing?.storage_path ?? null,
+          alt_text: JSON.stringify(metaObj),
+          sort_order: existing?.sort_order ?? 10,
+          is_active: existing?.is_active ?? true,
+          updated_at: new Date().toISOString(),
+        };
+
+        const { error: slotErr } = await supabase
+          .from('homepage_images')
+          .upsert(payload, { onConflict: 'slot_key' });
+
+        if (slotErr) throw slotErr;
+
+        // Also update product.category for all assigned products in Supabase
+        if (productIds.length > 0) {
+          const { error: prodErr } = await supabase
+            .from('products')
+            .update({ category: normSlug, updated_at: new Date().toISOString() })
+            .in('id', productIds);
+
+          if (prodErr) {
+            console.warn('Notice: bulk product category update returned:', prodErr.message);
+          }
+        }
+
+        await refreshHomepageImages();
+        await refreshData();
+        return {};
+      } catch (err: any) {
+        console.error('Error assigning products to category:', err);
+        return { error: err.message || 'Failed to assign products to category.' };
+      }
+    },
+    [homepageImages, refreshHomepageImages, refreshData, user?.isOwner]
   );
+
+  // Dynamic custom store categories from Supabase
+  const customCategories: CustomCategoryData[] = useMemo(() => {
+    return parseCustomCategories(homepageImages);
+  }, [homepageImages]);
+
+  // Derive categories list from current products + custom categories
+  const categories = useMemo(() => {
+    const fromProducts = products.map((p) => p.category?.trim()).filter(Boolean);
+    const fromCustom = customCategories.map((c) => c.name);
+    return ['All', ...Array.from(new Set([...fromProducts, ...fromCustom]))];
+  }, [products, customCategories]);
 
   // Active homepage image configuration keyed by slot (storefront consumers
   // filter here so an owner browsing while signed in never sees draft rows).
@@ -1182,6 +1387,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         homepageImages,
         homepageSlots,
         homepageCategories,
+        customCategories,
         sales,
         loading,
         error,
@@ -1214,6 +1420,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         deleteHomepageCategory,
         reorderHomepageCategories,
         initDefaultHomepageCategories,
+        saveCustomCategory,
+        deleteCustomCategory,
+        assignProductsToCategory,
         saveSale,
         deleteSale,
         toggleSaleActive,

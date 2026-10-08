@@ -3,7 +3,9 @@ import { Product } from '../types';
 export type Gender = 'men' | 'women';
 export type GenderFilter = 'all' | 'men' | 'women';
 
-export type CategorySlug =
+import { CustomCategoryData } from './storeCategories';
+
+export type BuiltInCategorySlug =
   | 'all'
   | 'biker'
   | 'bomber'
@@ -15,6 +17,8 @@ export type CategorySlug =
   | 'casual'
   | 'coats';
 
+export type CategorySlug = BuiltInCategorySlug | string;
+
 export interface CategoryDefinition {
   slug: CategorySlug;
   name: string;
@@ -24,9 +28,10 @@ export interface CategoryDefinition {
   headline: (gender: GenderFilter) => string;
   subheadline: string;
   matches: (product: Product) => boolean;
+  isCustom?: boolean;
 }
 
-export const VALID_CATEGORY_SLUGS: CategorySlug[] = [
+export const VALID_CATEGORY_SLUGS: BuiltInCategorySlug[] = [
   'all',
   'biker',
   'bomber',
@@ -39,8 +44,9 @@ export const VALID_CATEGORY_SLUGS: CategorySlug[] = [
   'coats',
 ];
 
-export function isCategorySlug(slug: string): slug is CategorySlug {
-  return VALID_CATEGORY_SLUGS.includes(slug as CategorySlug);
+export function isCategorySlug(slug: string, customCategories: CustomCategoryData[] = []): boolean {
+  if (VALID_CATEGORY_SLUGS.includes(slug as BuiltInCategorySlug)) return true;
+  return customCategories.some((c) => c.slug.toLowerCase() === slug.toLowerCase());
 }
 
 /**
@@ -315,29 +321,108 @@ export const CATEGORIES: Record<CategorySlug, CategoryDefinition> = {
 
 export const CATEGORY_LIST = Object.values(CATEGORIES);
 
-export function getCategoryBySlug(slug: string): CategoryDefinition | undefined {
+export function getCategoryBySlug(
+  slug: string,
+  customCategories: CustomCategoryData[] = []
+): CategoryDefinition | undefined {
   if (!slug) return undefined;
   const normalized = slug.trim().toLowerCase();
-  return CATEGORIES[normalized as CategorySlug];
+  const builtIn = CATEGORIES[normalized as BuiltInCategorySlug];
+  if (builtIn) return builtIn;
+
+  // Search among custom categories
+  const custom = customCategories.find((c) => c.slug.toLowerCase() === normalized);
+  if (custom) {
+    return {
+      slug: custom.slug,
+      name: custom.name,
+      title: custom.name,
+      isCustom: true,
+      metaTitle: (g) =>
+        g === 'all'
+          ? `${custom.name} | Handcrafted Luxury | Global Luxury Emporium`
+          : `${custom.name} for ${g === 'men' ? 'Men' : 'Women'} | Global Luxury Emporium`,
+      metaDescription: (g) =>
+        custom.description ||
+        `Explore handcrafted luxury ${custom.name.toLowerCase()} for ${g === 'all' ? 'men and women' : g}. Free worldwide delivery.`,
+      headline: (g) =>
+        g === 'all' ? custom.name : `${g === 'men' ? "Men's" : "Women's"} ${custom.name}`,
+      subheadline:
+        custom.description ||
+        `Handcrafted luxury ${custom.name.toLowerCase()} tailored from finest materials.`,
+      matches: (p) => productMatchesCategory(p, custom.slug, customCategories),
+    };
+  }
+
+  return undefined;
+}
+
+/**
+ * Returns all available categories: default built-ins plus any active custom categories.
+ */
+export function getAllCategories(
+  customCategories: CustomCategoryData[] = []
+): CategoryDefinition[] {
+  const customDefs = customCategories
+    .filter((c) => c.is_active !== false)
+    .map((c) => getCategoryBySlug(c.slug, customCategories))
+    .filter((c): c is CategoryDefinition => Boolean(c));
+
+  return [...CATEGORY_LIST, ...customDefs];
 }
 
 /**
  * Checks if a product matches a given category slug:
- * 1. Admin manual category override on product.category takes highest priority.
- * 2. Otherwise, evaluates the automatic category detection rule.
+ * 1. Explicit product_ids assignment in category metadata (highest priority).
+ * 2. Admin manual category override on product.category (slug or name match).
+ * 3. Default keyword detection rule for built-in categories.
  */
-export function productMatchesCategory(product: Product, categorySlug: CategorySlug): boolean {
+export function productMatchesCategory(
+  product: Product,
+  categorySlug: CategorySlug,
+  customCategories: CustomCategoryData[] = []
+): boolean {
+  const normSlug = (categorySlug || '').trim().toLowerCase();
+  if (normSlug === 'all') return true;
+
   const manualCategory = (product.category || '').trim().toLowerCase();
 
-  // Admin manual override: if product.category matches a valid category slug exactly
-  if (isCategorySlug(manualCategory)) {
-    return manualCategory === categorySlug;
+  // 1. Check custom categories
+  const custom = customCategories.find((c) => c.slug.toLowerCase() === normSlug);
+  if (custom) {
+    // A) Explicitly assigned by product ID
+    if (custom.product_ids && custom.product_ids.includes(product.id)) {
+      return true;
+    }
+    // B) Direct slug or name match on product.category
+    if (manualCategory === normSlug || manualCategory === custom.name.trim().toLowerCase()) {
+      return true;
+    }
+    return false;
   }
 
-  const categoryDef = CATEGORIES[categorySlug];
-  if (!categoryDef) return false;
+  // 2. Check built-in category
+  const builtIn = CATEGORIES[normSlug as BuiltInCategorySlug];
+  if (builtIn) {
+    // If a custom entry was saved for this built-in category containing assigned product IDs
+    const assignedBuiltIn = customCategories.find((c) => c.slug.toLowerCase() === normSlug);
+    if (assignedBuiltIn?.product_ids && assignedBuiltIn.product_ids.length > 0) {
+      if (assignedBuiltIn.product_ids.includes(product.id)) {
+        return true;
+      }
+    }
 
-  return categoryDef.matches(product);
+    // Direct slug or name match on product.category
+    if (manualCategory === normSlug || manualCategory === builtIn.name.trim().toLowerCase()) {
+      return true;
+    }
+
+    // Fallback: evaluate the automatic regex detection rule
+    return builtIn.matches(product);
+  }
+
+  // 3. Direct match fallback
+  return manualCategory === normSlug;
 }
 
 /**
@@ -348,7 +433,8 @@ export function productMatchesCategory(product: Product, categorySlug: CategoryS
 export function filterProductsByGenderAndCategory(
   products: Product[],
   gender: GenderFilter,
-  categorySlug: CategorySlug
+  categorySlug: CategorySlug,
+  customCategories: CustomCategoryData[] = []
 ): Product[] {
   return products.filter((p) => {
     // 1. Gender check: if not 'all', filter strictly by gender
@@ -360,7 +446,8 @@ export function filterProductsByGenderAndCategory(
     // 2. If 'all', include all products for this gender
     if (categorySlug === 'all') return true;
 
-    // 3. Category check: manual override or rule match
-    return productMatchesCategory(p, categorySlug);
+    // 3. Category check: manual override, assignment, or rule match
+    return productMatchesCategory(p, categorySlug, customCategories);
   });
 }
+

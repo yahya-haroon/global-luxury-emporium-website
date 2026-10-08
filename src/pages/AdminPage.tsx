@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
 import { isSupabaseConfigured, uploadProductImage } from '../lib/supabase';
@@ -67,7 +67,16 @@ import {
   isVideoMedia,
   isVideoUrl,
 } from '../lib/homepageImages';
-import { CATEGORY_LIST, CategorySlug } from '../lib/categories';
+import {
+  CategorySlug,
+  CategoryDefinition,
+  getAllCategories,
+  filterProductsByGenderAndCategory,
+} from '../lib/categories';
+import {
+  CustomCategoryData,
+  slugifyCategory,
+} from '../lib/storeCategories';
 import {
   HomepageCategory,
   getCategoryFallbackImage,
@@ -139,10 +148,14 @@ export const AdminPage: React.FC = () => {
     deleteHomepageCategory,
     reorderHomepageCategories,
     initDefaultHomepageCategories,
+    customCategories,
+    saveCustomCategory,
+    deleteCustomCategory,
+    assignProductsToCategory,
   } = useData();
 
   // Navigation & Tabs
-  const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'reviews' | 'sales' | 'gallery' | 'homepage' | 'settings'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'categories' | 'orders' | 'reviews' | 'sales' | 'gallery' | 'homepage' | 'settings'>('products');
 
   // Sales & Discounts tab state
   const [salesFilter, setSalesFilter] = useState<'all' | SaleStatus>('all');
@@ -468,6 +481,140 @@ export const AdminPage: React.FC = () => {
   const [catEdits, setCatEdits] = useState<
     Record<string, { name?: string; destination_category?: CategorySlug; display_order?: number; alt_text?: string; image_url?: string }>
   >({});
+
+  // All combined categories (built-in + active custom)
+  const allCategoriesList: CategoryDefinition[] = useMemo(
+    () => getAllCategories(customCategories),
+    [customCategories]
+  );
+
+  // Store Categories Tab state
+  const [storeCategorySearch, setStoreCategorySearch] = useState('');
+  const [isStoreCatModalOpen, setIsStoreCatModalOpen] = useState(false);
+  const [editingStoreCat, setEditingStoreCat] = useState<CustomCategoryData | null>(null);
+  const [catNameInput, setCatNameInput] = useState('');
+  const [catSlugInput, setCatSlugInput] = useState('');
+  const [catDescInput, setCatDescInput] = useState('');
+  const [catActiveInput, setCatActiveInput] = useState(true);
+  const [isSavingStoreCat, setIsSavingStoreCat] = useState(false);
+  const [storeCatMsg, setStoreCatMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  // Jacket / Product Assignment Modal state
+  const [assignModalCategory, setAssignModalCategory] = useState<CategoryDefinition | null>(null);
+  const [assignSearch, setAssignSearch] = useState('');
+  const [selectedAssignIds, setSelectedAssignIds] = useState<string[]>([]);
+  const [isSavingAssignments, setIsSavingAssignments] = useState(false);
+  const [assignMsg, setAssignMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  // Products Tab: category filter
+  const [productCategoryFilter, setProductCategoryFilter] = useState('all');
+
+  const displayedAdminProducts: Product[] = useMemo(() => {
+    if (productCategoryFilter === 'all') return products;
+    return filterProductsByGenderAndCategory(products, 'all', productCategoryFilter, customCategories);
+  }, [products, productCategoryFilter, customCategories]);
+
+  const openAssignModalForCategory = (cat: CategoryDefinition) => {
+    setAssignModalCategory(cat);
+    setAssignSearch('');
+    setAssignMsg(null);
+    const matchingProducts = filterProductsByGenderAndCategory(products, 'all', cat.slug, customCategories);
+    setSelectedAssignIds(matchingProducts.map((p) => p.id));
+  };
+
+  const handleSaveAssignments = async () => {
+    if (!assignModalCategory) return;
+    setIsSavingAssignments(true);
+    setAssignMsg(null);
+    try {
+      const res = await assignProductsToCategory(assignModalCategory.slug, selectedAssignIds);
+      if (res.error) {
+        setAssignMsg({ type: 'error', text: res.error });
+      } else {
+        setAssignMsg({ type: 'success', text: `Assigned ${selectedAssignIds.length} jacket(s) to "${assignModalCategory.name}".` });
+        setTimeout(() => {
+          setAssignModalCategory(null);
+          setAssignMsg(null);
+        }, 1200);
+      }
+    } catch (err: any) {
+      setAssignMsg({ type: 'error', text: err.message || 'Failed to save assignments.' });
+    } finally {
+      setIsSavingAssignments(false);
+    }
+  };
+
+  const openCreateStoreCatModal = (catToEdit?: CustomCategoryData) => {
+    setStoreCatMsg(null);
+    if (catToEdit) {
+      setEditingStoreCat(catToEdit);
+      setCatNameInput(catToEdit.name);
+      setCatSlugInput(catToEdit.slug);
+      setCatDescInput(catToEdit.description || '');
+      setCatActiveInput(catToEdit.is_active);
+    } else {
+      setEditingStoreCat(null);
+      setCatNameInput('');
+      setCatSlugInput('');
+      setCatDescInput('');
+      setCatActiveInput(true);
+    }
+    setIsStoreCatModalOpen(true);
+  };
+
+  const handleSaveStoreCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!catNameInput.trim()) {
+      setStoreCatMsg({ type: 'error', text: 'Category name is required.' });
+      return;
+    }
+    const slug = slugifyCategory(catSlugInput.trim() || catNameInput.trim());
+    if (!slug) {
+      setStoreCatMsg({ type: 'error', text: 'Please enter a valid category name or slug.' });
+      return;
+    }
+
+    setIsSavingStoreCat(true);
+    setStoreCatMsg(null);
+    try {
+      const res = await saveCustomCategory({
+        name: catNameInput.trim(),
+        slug,
+        description: catDescInput.trim(),
+        is_active: catActiveInput,
+      });
+
+      if (res.error) {
+        setStoreCatMsg({ type: 'error', text: res.error });
+      } else {
+        setStoreCatMsg({ type: 'success', text: `Category "${catNameInput.trim()}" saved successfully!` });
+        setTimeout(() => {
+          setIsStoreCatModalOpen(false);
+          setEditingStoreCat(null);
+          setCatNameInput('');
+          setCatSlugInput('');
+          setCatDescInput('');
+          setCatActiveInput(true);
+          setStoreCatMsg(null);
+        }, 1000);
+      }
+    } catch (err: any) {
+      setStoreCatMsg({ type: 'error', text: err.message || 'Failed to save category.' });
+    } finally {
+      setIsSavingStoreCat(false);
+    }
+  };
+
+  const handleDeleteStoreCategory = async (slug: string) => {
+    try {
+      const res = await deleteCustomCategory(slug);
+      if (res.error) {
+        alert(`Error deleting category: ${res.error}`);
+      }
+    } catch (err: any) {
+      alert(`Error: ${err.message || 'Failed to delete'}`);
+    }
+  };
 
   // Sales & Discounts logic & handlers
   const storeCategories = Array.from(new Set(products.map((p) => p.category?.trim()).filter(Boolean) as string[]));
@@ -1876,6 +2023,16 @@ export const AdminPage: React.FC = () => {
             Products ({products.length})
           </button>
           <button
+            onClick={() => setActiveTab('categories')}
+            className={`pb-3 px-6 text-sm uppercase tracking-widest font-medium border-b-2 transition-all whitespace-nowrap ${
+              activeTab === 'categories'
+                ? 'border-gold text-gold font-semibold'
+                : 'border-transparent text-muted hover:text-text'
+            }`}
+          >
+            Categories ({allCategoriesList.length})
+          </button>
+          <button
             onClick={() => setActiveTab('orders')}
             className={`pb-3 px-6 text-sm uppercase tracking-widest font-medium border-b-2 transition-all whitespace-nowrap ${
               activeTab === 'orders'
@@ -1948,6 +2105,14 @@ export const AdminPage: React.FC = () => {
               <div className="flex items-center gap-2">
                 <button
                   type="button"
+                  onClick={() => setActiveTab('categories')}
+                  className="btn-ghost text-xs py-2 px-3 flex items-center gap-1.5"
+                  title="Manage categories and jacket assignments"
+                >
+                  <Tag className="w-3.5 h-3.5" /> Manage Categories
+                </button>
+                <button
+                  type="button"
                   onClick={() => setIsRenameCategoryOpen(true)}
                   className="btn-ghost text-xs py-2 px-3 flex items-center gap-1.5"
                   title="Rename category across catalog"
@@ -1963,14 +2128,50 @@ export const AdminPage: React.FC = () => {
               </div>
             </div>
 
+            {/* Category Filter Toolbar */}
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4 p-3 bg-white border border-hairline rounded">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted">
+                  Category Filter:
+                </span>
+                <select
+                  value={productCategoryFilter}
+                  onChange={(e) => setProductCategoryFilter(e.target.value)}
+                  className="text-xs bg-ivory border border-hairline rounded px-2.5 py-1.5 font-medium text-text focus:outline-none focus:ring-1 focus:ring-gold"
+                >
+                  <option value="all">All Categories ({products.length})</option>
+                  {allCategoriesList.map((cat: CategoryDefinition) => {
+                    const count = filterProductsByGenderAndCategory(products, 'all', cat.slug, customCategories).length;
+                    return (
+                      <option key={cat.slug} value={cat.slug}>
+                        {cat.name} ({count})
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+
+              {productCategoryFilter !== 'all' && (
+                <button
+                  type="button"
+                  onClick={() => setProductCategoryFilter('all')}
+                  className="text-xs text-gold hover:underline font-medium"
+                >
+                  Show all jackets
+                </button>
+              )}
+            </div>
+
             {/* Products Table/List */}
             <div className="border border-hairline rounded divide-y divide-hairline bg-ivory/80 shadow-sm overflow-hidden">
-              {products.length === 0 ? (
+              {displayedAdminProducts.length === 0 ? (
                 <div className="p-8 text-center text-muted font-light">
-                  No products in catalog yet. Click "Add product" to create one.
+                  {productCategoryFilter !== 'all'
+                    ? 'No products currently assigned to this category.'
+                    : 'No products in catalog yet. Click "Add product" to create one.'}
                 </div>
               ) : (
-                products.map((p) => {
+                displayedAdminProducts.map((p: Product) => {
                   return (
                     <div
                       key={p.id}
@@ -1995,19 +2196,20 @@ export const AdminPage: React.FC = () => {
                               </span>
                             )}
                           </div>
-                          <p className="text-xs text-muted mt-0.5">
+                          <p className="text-xs text-muted mt-1 flex flex-wrap items-center gap-2">
                             <span className="text-gold font-medium">{settings.currency}{p.price.toFixed(2)}</span>
-                            {' • '}
-                            <span>{p.category}</span>
-                            {' • '}
+                            <span>•</span>
+                            <span className="text-[11px] font-medium bg-gold/15 text-gold-dark px-2 py-0.5 rounded uppercase tracking-wider">
+                              {p.category || 'Unassigned'}
+                            </span>
+                            <span>•</span>
                             <span>Sort: {p.sort_order}</span>
                           </p>
                         </div>
                       </div>
 
-                      {/* Actions & Hide Product Switch (Requirement 5) */}
+                      {/* Actions & Hide Product Switch */}
                       <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
-                        {/* Requirement 5: "Hide product" switch */}
                         <label className="flex items-center gap-1.5 text-xs text-muted cursor-pointer select-none">
                           <input
                             type="checkbox"
@@ -2054,6 +2256,137 @@ export const AdminPage: React.FC = () => {
                   );
                 })
               )}
+            </div>
+          </div>
+        )}
+
+        {/* TAB: CATEGORIES MANAGEMENT */}
+        {activeTab === 'categories' && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div>
+                <h2 className="font-serif text-2xl text-gradient-gold">Store Categories &amp; Product Assignment</h2>
+                <p className="text-muted text-xs font-light mt-1">
+                  Create custom jacket collections and decide exactly which jackets appear in each category.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => openCreateStoreCatModal()}
+                className="btn-gold text-xs py-2 px-4 flex items-center gap-1.5 flex-shrink-0"
+              >
+                <Plus className="w-4 h-4" /> Create New Category
+              </button>
+            </div>
+
+            {/* Categories Search Bar */}
+            <div className="flex items-center gap-2 bg-white border border-hairline rounded px-3 py-2 max-w-md">
+              <Search className="w-4 h-4 text-muted flex-shrink-0" />
+              <input
+                type="text"
+                value={storeCategorySearch}
+                onChange={(e) => setStoreCategorySearch(e.target.value)}
+                placeholder="Search categories by name or slug..."
+                className="w-full text-xs text-text bg-transparent outline-none placeholder:text-muted"
+              />
+            </div>
+
+            {/* Categories Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {allCategoriesList
+                .filter((cat: CategoryDefinition) => {
+                  if (!storeCategorySearch.trim()) return true;
+                  const q = storeCategorySearch.toLowerCase();
+                  return cat.name.toLowerCase().includes(q) || cat.slug.toLowerCase().includes(q);
+                })
+                .map((cat: CategoryDefinition) => {
+                  const matchingCount = filterProductsByGenderAndCategory(products, 'all', cat.slug, customCategories).length;
+                  const customItem = customCategories.find((c) => c.slug.toLowerCase() === cat.slug.toLowerCase());
+                  const isCustom = Boolean(customItem);
+
+                  return (
+                    <div
+                      key={cat.slug}
+                      className="bg-white border border-hairline rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between gap-2 mb-2">
+                          <h4 className="font-serif text-lg font-semibold text-text truncate">
+                            {cat.name}
+                          </h4>
+                          <span
+                            className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded ${
+                              isCustom
+                                ? 'bg-gold/15 text-gold-dark border border-gold/30'
+                                : 'bg-neutral-100 text-neutral-600'
+                            }`}
+                          >
+                            {isCustom ? 'Custom' : 'Built-In'}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-1 text-[11px] text-muted font-mono mb-2">
+                          <span>/category/{cat.slug}</span>
+                          <a
+                            href={`/category/${cat.slug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-gold hover:text-gold-dark ml-1 inline-flex items-center"
+                            title="View category on live storefront"
+                          >
+                            <ExternalLink className="w-3 h-3 ml-0.5" />
+                          </a>
+                        </div>
+
+                        <p className="text-xs text-muted font-light line-clamp-2 mb-4">
+                          {cat.subheadline || 'Handcrafted jackets tailored from finest leather.'}
+                        </p>
+
+                        <div className="flex items-center gap-2 mb-4">
+                          <span className="text-xs font-semibold text-text">
+                            {matchingCount} {matchingCount === 1 ? 'jacket' : 'jackets'} assigned
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="pt-3 border-t border-hairline flex items-center justify-between gap-2">
+                        <button
+                          type="button"
+                          onClick={() => openAssignModalForCategory(cat)}
+                          className="btn-gold text-[11px] py-1.5 px-3 flex items-center gap-1.5 flex-1 justify-center"
+                          title="Assign or remove jackets for this category"
+                        >
+                          <Check className="w-3.5 h-3.5" /> Assign Jackets ({matchingCount})
+                        </button>
+
+                        {isCustom && customItem && (
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => openCreateStoreCatModal(customItem)}
+                              className="p-1.5 text-muted hover:text-text rounded hover:bg-neutral-100 transition-colors"
+                              title="Edit Category Details"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (window.confirm(`Delete custom category "${cat.name}"? Jackets will remain in the catalog.`)) {
+                                  handleDeleteStoreCategory(cat.slug);
+                                }
+                              }}
+                              className="p-1.5 text-muted hover:text-red-600 rounded hover:bg-red-50 transition-colors"
+                              title="Delete Category"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
             </div>
           </div>
         )}
@@ -3737,9 +4070,9 @@ export const AdminPage: React.FC = () => {
                                           }
                                           className="input-text text-xs w-full py-1.5 px-2.5 bg-white border border-hairline rounded"
                                         >
-                                          {CATEGORY_LIST.map((c) => (
+                                          {allCategoriesList.map((c: CategoryDefinition) => (
                                             <option key={c.slug} value={c.slug}>
-                                              {c.name} ({c.title}) &rarr; /category/{c.slug}
+                                              {c.name} {c.isCustom ? '(Custom)' : ''} &rarr; /category/{c.slug}
                                             </option>
                                           ))}
                                         </select>
@@ -4366,9 +4699,9 @@ export const AdminPage: React.FC = () => {
                         onChange={(e) => setNewCatDestination(e.target.value as CategorySlug)}
                         className="input-text text-xs w-full py-2 px-3 bg-white border border-hairline rounded"
                       >
-                        {CATEGORY_LIST.map((c) => (
+                        {allCategoriesList.map((c: CategoryDefinition) => (
                           <option key={c.slug} value={c.slug}>
-                            {c.name} ({c.title}) &rarr; /category/{c.slug}
+                            {c.name} {c.isCustom ? '(Custom)' : ''} &rarr; /category/{c.slug}
                           </option>
                         ))}
                       </select>
@@ -5688,22 +6021,30 @@ export const AdminPage: React.FC = () => {
               {/* Category & Sizes */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs uppercase tracking-wider font-semibold text-black mb-1">
-                    Category Title
-                  </label>
-                  <input
-                    type="text"
-                    list="category-options"
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs uppercase tracking-wider font-semibold text-black">
+                      Category
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => openCreateStoreCatModal()}
+                      className="text-[11px] text-gold hover:underline font-medium"
+                    >
+                      + New Category
+                    </button>
+                  </div>
+                  <select
                     value={currentProduct.category || ''}
                     onChange={(e) => setCurrentProduct({ ...currentProduct, category: e.target.value })}
-                    placeholder="e.g. Women, Men, Unisex..."
-                    className="w-full bg-white border border-neutral-300 text-black placeholder:text-neutral-500 px-3 py-2 text-sm rounded focus:border-black focus:ring-1 focus:ring-black outline-none"
-                  />
-                  <datalist id="category-options">
-                    {Array.from(new Set(['Women', 'Men', 'Unisex', ...products.map((p) => p.category).filter(Boolean)])).map((cat) => (
-                      <option key={cat} value={cat} />
+                    className="w-full bg-white border border-neutral-300 text-black px-3 py-2 text-sm rounded focus:border-black focus:ring-1 focus:ring-black outline-none"
+                  >
+                    <option value="">-- Select Category --</option>
+                    {allCategoriesList.map((cat: CategoryDefinition) => (
+                      <option key={cat.slug} value={cat.slug}>
+                        {cat.name} {cat.isCustom ? '(Custom)' : ''}
+                      </option>
                     ))}
-                  </datalist>
+                  </select>
                 </div>
 
                 <div>
@@ -6097,6 +6438,256 @@ export const AdminPage: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* CREATE / EDIT CUSTOM CATEGORY MODAL */}
+      {isStoreCatModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsStoreCatModalOpen(false);
+          }}
+        >
+          <div className="relative w-full max-w-md bg-white border border-hairline rounded-lg p-6 shadow-2xl text-black space-y-4">
+            <div className="flex items-center justify-between border-b border-hairline pb-3">
+              <h3 className="font-serif text-xl font-semibold text-black">
+                {editingStoreCat ? 'Edit Custom Category' : 'Create New Category'}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsStoreCatModalOpen(false)}
+                className="text-neutral-400 hover:text-black p-1 text-base font-bold leading-none"
+              >
+                &times;
+              </button>
+            </div>
+
+            {storeCatMsg && (
+              <div
+                className={`p-3 text-xs rounded border ${
+                  storeCatMsg.type === 'error'
+                    ? 'bg-red-50 border-red-200 text-red-700'
+                    : 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                }`}
+              >
+                {storeCatMsg.text}
+              </div>
+            )}
+
+            <form onSubmit={handleSaveStoreCategory} className="space-y-4">
+              <div>
+                <label className="block text-xs uppercase tracking-wider font-semibold text-black mb-1">
+                  Category Name *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={catNameInput}
+                  onChange={(e) => {
+                    setCatNameInput(e.target.value);
+                    if (!editingStoreCat) {
+                      setCatSlugInput(slugifyCategory(e.target.value));
+                    }
+                  }}
+                  placeholder="e.g. Suede Jackets, Trench Coats"
+                  className="w-full bg-white border border-neutral-300 text-black px-3 py-2 text-sm rounded outline-none focus:border-black"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs uppercase tracking-wider font-semibold text-black mb-1">
+                  URL Slug *
+                </label>
+                <div className="flex items-center">
+                  <span className="text-xs text-neutral-500 font-mono bg-neutral-100 border border-r-0 border-neutral-300 px-2.5 py-2 rounded-l">
+                    /category/
+                  </span>
+                  <input
+                    type="text"
+                    required
+                    value={catSlugInput}
+                    onChange={(e) => setCatSlugInput(slugifyCategory(e.target.value))}
+                    placeholder="suede-jackets"
+                    className="w-full bg-white border border-neutral-300 text-black px-3 py-2 text-sm rounded-r outline-none font-mono focus:border-black"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs uppercase tracking-wider font-semibold text-black mb-1">
+                  Editorial Description / Subtitle
+                </label>
+                <textarea
+                  rows={2}
+                  value={catDescInput}
+                  onChange={(e) => setCatDescInput(e.target.value)}
+                  placeholder="e.g. Handcrafted Italian suede silhouettes with rich velvet texture."
+                  className="w-full bg-white border border-neutral-300 text-black px-3 py-2 text-sm rounded outline-none focus:border-black"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-hairline">
+                <button
+                  type="button"
+                  onClick={() => setIsStoreCatModalOpen(false)}
+                  className="px-3 py-1.5 border border-neutral-300 rounded text-xs uppercase tracking-wider font-semibold hover:bg-neutral-100"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSavingStoreCat}
+                  className="btn-gold text-xs py-1.5 px-4 font-semibold uppercase tracking-wider"
+                >
+                  {isSavingStoreCat ? 'Saving...' : editingStoreCat ? 'Update Category' : 'Create Category'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* JACKET / PRODUCT ASSIGNMENT MODAL */}
+      {assignModalCategory && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setAssignModalCategory(null);
+          }}
+        >
+          <div className="relative w-full max-w-2xl max-h-[90vh] flex flex-col bg-white border border-hairline rounded-lg shadow-2xl text-black">
+            {/* Modal Header */}
+            <div className="p-5 border-b border-hairline flex items-center justify-between">
+              <div>
+                <h3 className="font-serif text-xl font-semibold text-black">
+                  Assign Jackets to "{assignModalCategory.name}"
+                </h3>
+                <p className="text-xs text-neutral-500 mt-0.5">
+                  Select which jackets belong to this category ({selectedAssignIds.length} of {products.length} selected).
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setAssignModalCategory(null)}
+                className="text-neutral-400 hover:text-black p-1 text-lg font-bold"
+              >
+                &times;
+              </button>
+            </div>
+
+            {/* Filter & Quick Actions */}
+            <div className="p-3 bg-neutral-50 border-b border-hairline flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2 flex-1 min-w-[200px]">
+                <Search className="w-4 h-4 text-neutral-400 flex-shrink-0" />
+                <input
+                  type="text"
+                  value={assignSearch}
+                  onChange={(e) => setAssignSearch(e.target.value)}
+                  placeholder="Search jackets by name..."
+                  className="w-full text-xs px-2.5 py-1.5 bg-white border border-neutral-300 rounded outline-none"
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const filtered = products.filter((p) =>
+                      !assignSearch.trim() || p.name.toLowerCase().includes(assignSearch.toLowerCase())
+                    );
+                    const newIds = Array.from(new Set([...selectedAssignIds, ...filtered.map((p) => p.id)]));
+                    setSelectedAssignIds(newIds);
+                  }}
+                  className="text-xs px-2.5 py-1 bg-white border border-neutral-300 hover:bg-neutral-100 rounded font-medium"
+                >
+                  Select All Filtered
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedAssignIds([])}
+                  className="text-xs px-2.5 py-1 bg-white border border-neutral-300 hover:bg-neutral-100 rounded font-medium text-neutral-600"
+                >
+                  Clear Selection
+                </button>
+              </div>
+            </div>
+
+            {/* Jackets Checkbox List */}
+            <div className="flex-1 overflow-y-auto p-4 divide-y divide-neutral-100 max-h-[50vh]">
+              {products
+                .filter((p) => {
+                  if (!assignSearch.trim()) return true;
+                  return p.name.toLowerCase().includes(assignSearch.toLowerCase());
+                })
+                .map((product) => {
+                  const isChecked = selectedAssignIds.includes(product.id);
+                  return (
+                    <label
+                      key={product.id}
+                      className={`flex items-center gap-3 p-3 hover:bg-neutral-50 rounded cursor-pointer transition-colors ${
+                        isChecked ? 'bg-gold/5' : ''
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedAssignIds((prev) => [...prev, product.id]);
+                          } else {
+                            setSelectedAssignIds((prev) => prev.filter((id) => id !== product.id));
+                          }
+                        }}
+                        className="w-4 h-4 rounded text-gold focus:ring-gold border-neutral-300"
+                      />
+                      <img
+                        src={product.images[0] || '/assets/products/shearling-aviator-jacket-main.png'}
+                        alt={product.name}
+                        className="w-12 h-14 object-cover rounded border border-neutral-200 flex-shrink-0"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="font-medium text-xs text-black truncate">{product.name}</div>
+                        <div className="text-[11px] text-neutral-500 mt-0.5">
+                          {settings.currency}{product.price.toFixed(2)} • Current category: <span className="font-mono text-neutral-700">{product.category || 'None'}</span>
+                        </div>
+                      </div>
+                    </label>
+                  );
+                })}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 border-t border-hairline bg-white flex items-center justify-between">
+              {assignMsg ? (
+                <span className={`text-xs ${assignMsg.type === 'error' ? 'text-red-600' : 'text-emerald-600'}`}>
+                  {assignMsg.text}
+                </span>
+              ) : (
+                <span className="text-xs text-neutral-600 font-medium">
+                  {selectedAssignIds.length} jacket(s) selected
+                </span>
+              )}
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setAssignModalCategory(null)}
+                  className="px-3 py-1.5 border border-neutral-300 rounded text-xs uppercase tracking-wider font-semibold hover:bg-neutral-100"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={isSavingAssignments}
+                  onClick={handleSaveAssignments}
+                  className="btn-gold text-xs py-1.5 px-4 font-semibold uppercase tracking-wider"
+                >
+                  {isSavingAssignments ? 'Saving...' : 'Save Assignments'}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
