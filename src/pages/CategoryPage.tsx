@@ -5,7 +5,7 @@ import { SEO } from '../components/SEO';
 import { ProductCardRating } from '../components/ProductCardRating';
 import { getProductSaleInfo } from '../lib/sales';
 import {
-  Gender,
+  GenderFilter,
   CategorySlug,
   CATEGORY_LIST,
   getCategoryBySlug,
@@ -14,7 +14,7 @@ import {
 } from '../lib/categories';
 
 interface CategoryPageProps {
-  gender?: Gender;
+  gender?: GenderFilter;
   defaultCategory?: CategorySlug;
 }
 
@@ -28,12 +28,27 @@ export const CategoryPage: React.FC<CategoryPageProps> = ({
   const location = useLocation();
   const { products, sales, reviews, settings } = useData();
 
-  // 1. Resolve strict Gender (men or women)
-  const gender: Gender = useMemo(() => {
+  // 1. Resolve initial Gender from prop or URL
+  const initialGender: GenderFilter = useMemo(() => {
     if (genderProp) return genderProp;
     if (location.pathname.startsWith('/women')) return 'women';
     if (location.pathname.startsWith('/men')) return 'men';
-    return 'men';
+    return 'all';
+  }, [genderProp, location.pathname]);
+
+  const [selectedGender, setSelectedGender] = useState<GenderFilter>(initialGender);
+
+  // Sync gender filter when navigating between top-level routes
+  useEffect(() => {
+    if (genderProp) {
+      setSelectedGender(genderProp);
+    } else if (location.pathname.startsWith('/women')) {
+      setSelectedGender('women');
+    } else if (location.pathname.startsWith('/men')) {
+      setSelectedGender('men');
+    } else if (location.pathname.startsWith('/category')) {
+      setSelectedGender('all');
+    }
   }, [genderProp, location.pathname]);
 
   // 2. Resolve Category Slug (defaults to 'all' if not specified)
@@ -44,10 +59,10 @@ export const CategoryPage: React.FC<CategoryPageProps> = ({
 
   const categoryDef = getCategoryBySlug(activeSlug);
 
-  // 3. Filter products strictly by Gender + Category (never mix Men & Women)
+  // 3. Filter products by selected Gender + Category
   const categoryProducts = useMemo(() => {
-    return filterProductsByGenderAndCategory(products, gender, activeSlug);
-  }, [products, gender, activeSlug]);
+    return filterProductsByGenderAndCategory(products, selectedGender, activeSlug);
+  }, [products, selectedGender, activeSlug]);
 
   // 4. Continuous loading / infinite scroll state
   const [visibleCount, setVisibleCount] = useState(BATCH_SIZE);
@@ -57,7 +72,7 @@ export const CategoryPage: React.FC<CategoryPageProps> = ({
   useEffect(() => {
     setVisibleCount(BATCH_SIZE);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [gender, activeSlug]);
+  }, [selectedGender, activeSlug]);
 
   const displayedProducts = useMemo(() => {
     return categoryProducts.slice(0, visibleCount);
@@ -113,27 +128,37 @@ export const CategoryPage: React.FC<CategoryPageProps> = ({
   }, [reviews]);
 
   if (!categoryDef) {
-    return <Navigate to={`/${gender}/all`} replace />;
+    return <Navigate to="/category/all" replace />;
   }
 
-  const genderLabel = gender === 'men' ? 'Men' : 'Women';
-  const pageTitle = categoryDef.metaTitle(gender);
-  const pageDescription = categoryDef.metaDescription(gender);
+  const genderLabel =
+    selectedGender === 'all'
+      ? 'All Collections'
+      : selectedGender === 'men'
+      ? "Men's Collection"
+      : "Women's Collection";
+
+  const pageTitle = categoryDef.metaTitle(selectedGender);
+  const pageDescription = categoryDef.metaDescription(selectedGender);
+  const canonicalPath =
+    selectedGender === 'all'
+      ? `/category/${categoryDef.slug}`
+      : `/${selectedGender}/${categoryDef.slug}`;
 
   return (
     <main id="top">
       <SEO
         title={pageTitle}
         description={pageDescription}
-        canonical={`/${gender}/${categoryDef.slug}`}
+        canonical={canonicalPath}
         breadcrumbs={[
           { name: 'Home', item: '/' },
-          { name: `${genderLabel}'s Collection`, item: `/${gender}/${categoryDef.slug}` },
-          { name: categoryDef.title, item: `/${gender}/${categoryDef.slug}` },
+          { name: genderLabel, item: canonicalPath },
+          { name: categoryDef.title, item: canonicalPath },
         ]}
       />
 
-      {/* Dark Category Strip for Options (like header) */}
+      {/* Dark Category Strip with Category Selector and Gender Filter Pills */}
       <div
         className="dark-category-strip"
         style={{
@@ -144,13 +169,14 @@ export const CategoryPage: React.FC<CategoryPageProps> = ({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: '20px',
-          overflowX: 'auto',
+          flexWrap: 'wrap',
+          gap: '16px',
           position: 'sticky',
           top: '0px',
           zIndex: 15,
         }}
       >
+        {/* Left: Breadcrumb / Category Title */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
           <span
             className="sm"
@@ -162,7 +188,7 @@ export const CategoryPage: React.FC<CategoryPageProps> = ({
               fontSize: '11px',
             }}
           >
-            {genderLabel}
+            {categoryDef.name}
           </span>
           <span style={{ color: 'rgba(255, 255, 255, 0.3)', fontSize: '11px' }}>/</span>
           <span
@@ -175,27 +201,88 @@ export const CategoryPage: React.FC<CategoryPageProps> = ({
               fontSize: '11px',
             }}
           >
-            {categoryDef.name}
+            {selectedGender === 'all' ? 'All' : selectedGender === 'men' ? 'Men' : 'Women'} ({categoryProducts.length})
           </span>
         </div>
 
+        {/* Center: Gender Filter Pills [All] [Men] [Women] */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            background: 'rgba(255, 255, 255, 0.05)',
+            padding: '4px',
+            borderRadius: '9999px',
+            border: '1px solid rgba(201, 162, 74, 0.2)',
+          }}
+          aria-label="Filter by gender"
+        >
+          <span
+            style={{
+              fontSize: '10px',
+              color: '#A89F8B',
+              textTransform: 'uppercase',
+              letterSpacing: '.16em',
+              paddingLeft: '8px',
+              paddingRight: '4px',
+              fontWeight: 500,
+            }}
+          >
+            Gender:
+          </span>
+          {(['all', 'men', 'women'] as const).map((g) => {
+            const isSelected = selectedGender === g;
+            const label = g === 'all' ? 'All' : g === 'men' ? 'Men' : 'Women';
+            return (
+              <button
+                key={g}
+                type="button"
+                onClick={() => setSelectedGender(g)}
+                style={{
+                  background: isSelected ? '#C9A24A' : 'transparent',
+                  color: isSelected ? '#0E0D0B' : '#E5DFD3',
+                  border: 'none',
+                  borderRadius: '9999px',
+                  padding: '4px 12px',
+                  fontSize: '11px',
+                  fontWeight: isSelected ? 700 : 500,
+                  letterSpacing: '.14em',
+                  textTransform: 'uppercase',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Right: Category Tabs Horizontal Scroll */}
         <nav
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '22px',
+            gap: '20px',
             overflowX: 'auto',
             whiteSpace: 'nowrap',
             paddingBottom: '2px',
           }}
           className="no-scrollbar"
+          aria-label="Category sub-navigation"
         >
           {CATEGORY_LIST.map((cat) => {
             const isActive = cat.slug === activeSlug;
+            const destLink =
+              selectedGender === 'all'
+                ? `/category/${cat.slug}`
+                : `/${selectedGender}/${cat.slug}`;
+
             return (
               <Link
                 key={cat.slug}
-                to={`/${gender}/${cat.slug}`}
+                to={destLink}
                 style={{
                   color: isActive ? '#C9A24A' : '#A89F8B',
                   fontWeight: isActive ? 600 : 400,
@@ -221,19 +308,32 @@ export const CategoryPage: React.FC<CategoryPageProps> = ({
         className="collection-section"
         style={{ minHeight: '85vh', paddingTop: '36px', paddingBottom: '120px' }}
       >
-        {/* Continuous Product Grid - Reuses exact existing .grid-3col & .c classes */}
+        {/* Continuous Product Grid */}
         {categoryProducts.length === 0 ? (
           <div className="collection-empty">
-            <h3>No products found</h3>
-            <p className="sm">
-              No {gender === 'men' ? "men's" : "women's"} {categoryDef.title.toLowerCase()} are currently in this collection.
+            <h3 className="font-serif text-2xl font-light tracking-wide text-text mb-3">No products found</h3>
+            <p className="sm text-muted mb-6">
+              No {selectedGender !== 'all' ? (selectedGender === 'men' ? "men's" : "women's") : ''}{' '}
+              {categoryDef.title.toLowerCase()} are currently matching this selection.
             </p>
-            <Link
-              to={gender === 'men' ? '/men/all' : '/women/all'}
-              className="pagination-btn"
-            >
-              View All {gender === 'men' ? "Men's" : "Women's"} Jackets &rarr;
-            </Link>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+              {selectedGender !== 'all' && (
+                <button
+                  type="button"
+                  onClick={() => setSelectedGender('all')}
+                  className="pagination-btn"
+                >
+                  View All Genders ({categoryDef.title})
+                </button>
+              )}
+              <Link
+                to="/category/all"
+                onClick={() => setSelectedGender('all')}
+                className="pagination-btn"
+              >
+                View Full Catalog &rarr;
+              </Link>
+            </div>
           </div>
         ) : (
           <>
@@ -248,55 +348,115 @@ export const CategoryPage: React.FC<CategoryPageProps> = ({
                     key={product.id || idx}
                     className="c r in"
                     style={{ '--d': `${(idx % 3) * 0.12}s` } as React.CSSProperties}
-                    tabIndex={0}
                     to={`/product/${product.id}`}
                   >
-                    <div className="sm" style={{ color: 'var(--au)', marginBottom: '12px' }}>
-                      0{idx + 1}
-                    </div>
-                    <div className="ph">
-                      <img
-                        src={product.images[0] || `/assets/products/product-${(idx % 3) + 1}-main.jpg`}
-                        alt={product.name}
-                        loading="lazy"
-                        decoding="async"
-                      />
-                      {product.images[1] && (
+                    <div className="c-img">
+                      {product.images?.[0] ? (
+                        <img
+                          src={product.images[0]}
+                          alt={product.name}
+                          loading={idx < 6 ? 'eager' : 'lazy'}
+                          decoding="async"
+                          className="c-img-base"
+                        />
+                      ) : (
+                        <div
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            background: '#1A1816',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: '#8A8175',
+                            fontSize: '11px',
+                            letterSpacing: '.16em',
+                            textTransform: 'uppercase',
+                          }}
+                        >
+                          Handcrafted Leather
+                        </div>
+                      )}
+
+                      {/* Second image hover flip */}
+                      {product.images?.[1] && (
                         <img
                           src={product.images[1]}
                           alt={`${product.name} alternate view`}
                           loading="lazy"
                           decoding="async"
-                          className="image-hover-crossfade"
+                          className="c-img-hover"
                         />
                       )}
-                      {saleInfo.hasSale && (
-                        <span className="product-sale-badge sm">
-                          {saleInfo.discountPercentage}% OFF
-                        </span>
-                      )}
-                    </div>
-                    <div className="ci">
-                      <h3>{product.name}</h3>
-                      {saleInfo.hasSale ? (
-                        <div className="price-wrap">
-                          <span className="price-old">
-                            {currency}{saleInfo.originalPrice.toFixed(2)}
-                          </span>
-                          <span className="price-sale">
-                            {currency}{saleInfo.salePrice.toFixed(2)}
-                          </span>
+
+                      {/* Discount Sale Badge */}
+                      {saleInfo?.hasSale && (
+                        <div
+                          style={{
+                            position: 'absolute',
+                            top: '12px',
+                            left: '12px',
+                            zIndex: 4,
+                            background: '#781D1D',
+                            color: '#F7F3EA',
+                            padding: '4px 9px',
+                            fontSize: '10px',
+                            letterSpacing: '.18em',
+                            fontWeight: 700,
+                            textTransform: 'uppercase',
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                          }}
+                        >
+                          {saleInfo.discountPercentage > 0
+                            ? `-${Math.round(saleInfo.discountPercentage)}%`
+                            : 'SALE'}
                         </div>
-                      ) : (
-                        <span>
-                          {currency}{product.price.toFixed(2)}
-                        </span>
                       )}
                     </div>
-                    {stat && stat.count > 0 && (
-                      <ProductCardRating rating={stat.average} count={stat.count} theme="light" />
-                    )}
-                    <span className="vw sm">View piece &rarr;</span>
+
+                    <div className="c-body">
+                      <div className="c-cat sm">{product.category || 'Handcrafted'}</div>
+                      <div className="c-name">{product.name}</div>
+
+                      <div className="c-price-row">
+                        {saleInfo?.hasSale ? (
+                          <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                            <span
+                              style={{
+                                color: '#A84332',
+                                fontWeight: 600,
+                                fontSize: '15px',
+                              }}
+                            >
+                              {currency}
+                              {saleInfo.salePrice.toFixed(2)}
+                            </span>
+                            <span
+                              style={{
+                                color: '#8A8175',
+                                textDecoration: 'line-through',
+                                fontSize: '12px',
+                              }}
+                            >
+                              {currency}
+                              {product.price.toFixed(2)}
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="c-price">
+                            {currency}
+                            {product.price.toFixed(2)}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Star Rating snippet */}
+                      {stat && stat.count > 0 && (
+                        <div style={{ marginTop: '8px' }}>
+                          <ProductCardRating rating={stat.average} count={stat.count} />
+                        </div>
+                      )}
+                    </div>
                   </Link>
                 );
               })}

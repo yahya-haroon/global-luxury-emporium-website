@@ -4,6 +4,7 @@ import { GenderHero } from '../components/GenderHero';
 import { SaleCountdownBanner } from '../components/SaleCountdownBanner';
 import { TrustStrip } from '../components/TrustStrip';
 import { OurStory } from '../components/OurStory';
+import { ShopByCategory } from '../components/ShopByCategory';
 import { FeaturedGallery } from '../components/FeaturedGallery';
 import { Collection } from '../components/Collection';
 import { WhyChoose } from '../components/WhyChoose';
@@ -63,6 +64,9 @@ export const HomePage: React.FC = () => {
 
         {/* 4. Editorial story band */}
         <OurStory />
+
+        {/* 5. Shop by Category - 100% Admin Controlled */}
+        <ShopByCategory />
 
         {/* Product discovery: admin gallery lead-in + collection */}
         <FeaturedGallery />

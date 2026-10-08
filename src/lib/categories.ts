@@ -1,6 +1,7 @@
 import { Product } from '../types';
 
 export type Gender = 'men' | 'women';
+export type GenderFilter = 'all' | 'men' | 'women';
 
 export type CategorySlug =
   | 'all'
@@ -18,9 +19,9 @@ export interface CategoryDefinition {
   slug: CategorySlug;
   name: string;
   title: string;
-  metaTitle: (gender: Gender) => string;
-  metaDescription: (gender: Gender) => string;
-  headline: (gender: Gender) => string;
+  metaTitle: (gender: GenderFilter) => string;
+  metaDescription: (gender: GenderFilter) => string;
+  headline: (gender: GenderFilter) => string;
   subheadline: string;
   matches: (product: Product) => boolean;
 }
@@ -109,10 +110,15 @@ export const CATEGORIES: Record<CategorySlug, CategoryDefinition> = {
     slug: 'all',
     name: 'All',
     title: 'All Jackets',
-    metaTitle: (g) => `All Handcrafted Leather Jackets for ${g === 'men' ? 'Men' : 'Women'} | Global Luxury Emporium`,
+    metaTitle: (g) =>
+      g === 'all'
+        ? 'All Handcrafted Luxury Leather Jackets & Coats | Global Luxury Emporium'
+        : `All Handcrafted Leather Jackets for ${g === 'men' ? 'Men' : 'Women'} | Global Luxury Emporium`,
     metaDescription: (g) =>
-      `Explore our complete collection of handcrafted luxury leather jackets and coats for ${g === 'men' ? 'men' : 'women'}. Free worldwide delivery.`,
-    headline: (g) => `All ${g === 'men' ? "Men's" : "Women's"} Jackets`,
+      g === 'all'
+        ? 'Explore our complete collection of handcrafted luxury leather jackets and coats. Free worldwide delivery.'
+        : `Explore our complete collection of handcrafted luxury leather jackets and coats for ${g === 'men' ? 'men' : 'women'}. Free worldwide delivery.`,
+    headline: (g) => (g === 'all' ? 'All Handcrafted Jackets' : `All ${g === 'men' ? "Men's" : "Women's"} Jackets`),
     subheadline:
       'Explore our full curated range of genuine leather jackets, coats, and shearling outerwear.',
     matches: () => true,
@@ -121,10 +127,15 @@ export const CATEGORIES: Record<CategorySlug, CategoryDefinition> = {
     slug: 'biker',
     name: 'Biker',
     title: 'Biker Jackets',
-    metaTitle: (g) => `Handcrafted Leather Biker Jackets for ${g === 'men' ? 'Men' : 'Women'} | Global Luxury Emporium`,
+    metaTitle: (g) =>
+      g === 'all'
+        ? 'Handcrafted Luxury Leather Biker Jackets | Global Luxury Emporium'
+        : `Handcrafted Leather Biker Jackets for ${g === 'men' ? 'Men' : 'Women'} | Global Luxury Emporium`,
     metaDescription: (g) =>
-      `Explore luxury handcrafted leather biker jackets for ${g === 'men' ? 'men' : 'women'}. Premium calfskin and lambskin with asymmetrical zips and diamond-quilted details. Free worldwide delivery.`,
-    headline: (g) => `${g === 'men' ? "Men's" : "Women's"} Biker Jackets`,
+      g === 'all'
+        ? 'Explore luxury handcrafted leather biker jackets. Premium calfskin and lambskin with asymmetrical zips and diamond-quilted details. Free worldwide delivery.'
+        : `Explore luxury handcrafted leather biker jackets for ${g === 'men' ? 'men' : 'women'}. Premium calfskin and lambskin with asymmetrical zips and diamond-quilted details. Free worldwide delivery.`,
+    headline: (g) => (g === 'all' ? 'Biker Jackets' : `${g === 'men' ? "Men's" : "Women's"} Biker Jackets`),
     subheadline:
       'Iconic asymmetrical silhouettes, hand-waxed leather finishes, and artisanal brass hardware.',
     matches: (p: Product) => {
@@ -136,10 +147,15 @@ export const CATEGORIES: Record<CategorySlug, CategoryDefinition> = {
     slug: 'bomber',
     name: 'Bomber',
     title: 'Bomber Jackets',
-    metaTitle: (g) => `Luxury Leather Bomber Jackets for ${g === 'men' ? 'Men' : 'Women'} | Global Luxury Emporium`,
+    metaTitle: (g) =>
+      g === 'all'
+        ? 'Luxury Handcrafted Leather Bomber Jackets | Global Luxury Emporium'
+        : `Luxury Leather Bomber Jackets for ${g === 'men' ? 'Men' : 'Women'} | Global Luxury Emporium`,
     metaDescription: (g) =>
-      `Discover handcrafted luxury leather bomber and flight jackets for ${g === 'men' ? 'men' : 'women'}. Ribbed trims, supple lambskin, and insulated comfort.`,
-    headline: (g) => `${g === 'men' ? "Men's" : "Women's"} Bomber Jackets`,
+      g === 'all'
+        ? 'Discover handcrafted luxury leather bomber and flight jackets. Ribbed trims, supple lambskin, and insulated comfort.'
+        : `Discover handcrafted luxury leather bomber and flight jackets for ${g === 'men' ? 'men' : 'women'}. Ribbed trims, supple lambskin, and insulated comfort.`,
+    headline: (g) => (g === 'all' ? 'Bomber Jackets' : `${g === 'men' ? "Men's" : "Women's"} Bomber Jackets`),
     subheadline:
       'Timeless military heritage crafted with ultra-soft Italian lambskin and tailored comfort.',
     matches: (p: Product) => {
@@ -151,10 +167,15 @@ export const CATEGORIES: Record<CategorySlug, CategoryDefinition> = {
     slug: 'aviator',
     name: 'Aviator',
     title: 'Aviator Jackets',
-    metaTitle: (g) => `Genuine Shearling Aviator & Flying Jackets for ${g === 'men' ? 'Men' : 'Women'} | Global Luxury Emporium`,
+    metaTitle: (g) =>
+      g === 'all'
+        ? 'Genuine Shearling Aviator & Flying Jackets | Global Luxury Emporium'
+        : `Genuine Shearling Aviator & Flying Jackets for ${g === 'men' ? 'Men' : 'Women'} | Global Luxury Emporium`,
     metaDescription: (g) =>
-      `Shop luxury shearling aviator and B3 flying jackets for ${g === 'men' ? 'men' : 'women'}. Heavyweight shearling linings and authentic military styling.`,
-    headline: (g) => `${g === 'men' ? "Men's" : "Women's"} Aviator Jackets`,
+      g === 'all'
+        ? 'Shop luxury shearling aviator and B3 flying jackets. Heavyweight shearling linings and authentic military styling.'
+        : `Shop luxury shearling aviator and B3 flying jackets for ${g === 'men' ? 'men' : 'women'}. Heavyweight shearling linings and authentic military styling.`,
+    headline: (g) => (g === 'all' ? 'Aviator Jackets' : `${g === 'men' ? "Men's" : "Women's"} Aviator Jackets`),
     subheadline:
       'Authentic B3, RAF, and military flight jackets lined with plush natural shearling.',
     matches: (p: Product) => {
@@ -166,10 +187,15 @@ export const CATEGORIES: Record<CategorySlug, CategoryDefinition> = {
     slug: 'puffer',
     name: 'Puffer',
     title: 'Puffer Jackets',
-    metaTitle: (g) => `Luxury Leather Puffer & Down Jackets for ${g === 'men' ? 'Men' : 'Women'} | Global Luxury Emporium`,
+    metaTitle: (g) =>
+      g === 'all'
+        ? 'Luxury Leather Puffer & Down Jackets | Global Luxury Emporium'
+        : `Luxury Leather Puffer & Down Jackets for ${g === 'men' ? 'Men' : 'Women'} | Global Luxury Emporium`,
     metaDescription: (g) =>
-      `Shop luxury leather puffer jackets, quilted leather coats, and goose down outerwear for ${g === 'men' ? 'men' : 'women'}.`,
-    headline: (g) => `${g === 'men' ? "Men's" : "Women's"} Puffer Jackets`,
+      g === 'all'
+        ? 'Shop luxury leather puffer jackets, quilted leather coats, and goose down outerwear.'
+        : `Shop luxury leather puffer jackets, quilted leather coats, and goose down outerwear for ${g === 'men' ? 'men' : 'women'}.`,
+    headline: (g) => (g === 'all' ? 'Puffer Jackets' : `${g === 'men' ? "Men's" : "Women's"} Puffer Jackets`),
     subheadline:
       'Bespoke diamond quilted leather and premium insulated puffer coats.',
     matches: (p: Product) => {
@@ -181,10 +207,15 @@ export const CATEGORIES: Record<CategorySlug, CategoryDefinition> = {
     slug: 'shearling',
     name: 'Shearling',
     title: 'Shearling Jackets',
-    metaTitle: (g) => `Handcrafted Genuine Shearling & Fur Jackets for ${g === 'men' ? 'Men' : 'Women'} | Global Luxury Emporium`,
+    metaTitle: (g) =>
+      g === 'all'
+        ? 'Handcrafted Genuine Shearling & Sheepskin Jackets | Global Luxury Emporium'
+        : `Handcrafted Genuine Shearling & Fur Jackets for ${g === 'men' ? 'Men' : 'Women'} | Global Luxury Emporium`,
     metaDescription: (g) =>
-      `Discover handcrafted genuine shearling, sheepskin, and fur-collared leather jackets for ${g === 'men' ? 'men' : 'women'}.`,
-    headline: (g) => `${g === 'men' ? "Men's" : "Women's"} Shearling Jackets`,
+      g === 'all'
+        ? 'Discover handcrafted genuine shearling, sheepskin, and fur-collared leather jackets.'
+        : `Discover handcrafted genuine shearling, sheepskin, and fur-collared leather jackets for ${g === 'men' ? 'men' : 'women'}.`,
+    headline: (g) => (g === 'all' ? 'Shearling Jackets' : `${g === 'men' ? "Men's" : "Women's"} Shearling Jackets`),
     subheadline:
       'Luxurious sheepskin wool linings and plush fur collars crafted for winter warmth.',
     matches: (p: Product) => {
@@ -196,10 +227,15 @@ export const CATEGORIES: Record<CategorySlug, CategoryDefinition> = {
     slug: 'racer',
     name: 'Racer',
     title: 'Racer Jackets',
-    metaTitle: (g) => `Café Racer Leather Jackets for ${g === 'men' ? 'Men' : 'Women'} | Global Luxury Emporium`,
+    metaTitle: (g) =>
+      g === 'all'
+        ? 'Café Racer Handcrafted Leather Jackets | Global Luxury Emporium'
+        : `Café Racer Leather Jackets for ${g === 'men' ? 'Men' : 'Women'} | Global Luxury Emporium`,
     metaDescription: (g) =>
-      `Streamlined minimalist café racer leather jackets for ${g === 'men' ? 'men' : 'women'}. Clean mandarin collars and ergonomic fit.`,
-    headline: (g) => `${g === 'men' ? "Men's" : "Women's"} Racer Jackets`,
+      g === 'all'
+        ? 'Streamlined minimalist café racer leather jackets. Clean mandarin collars and ergonomic fit.'
+        : `Streamlined minimalist café racer leather jackets for ${g === 'men' ? 'men' : 'women'}. Clean mandarin collars and ergonomic fit.`,
+    headline: (g) => (g === 'all' ? 'Racer Jackets' : `${g === 'men' ? "Men's" : "Women's"} Racer Jackets`),
     subheadline:
       'Streamlined minimalist contours, snap-tab collars, and ergonomic precision.',
     matches: (p: Product) => {
@@ -211,10 +247,15 @@ export const CATEGORIES: Record<CategorySlug, CategoryDefinition> = {
     slug: 'varsity',
     name: 'Varsity',
     title: 'Varsity Jackets',
-    metaTitle: (g) => `Luxury Leather Varsity & Baseball Jackets for ${g === 'men' ? 'Men' : 'Women'} | Global Luxury Emporium`,
+    metaTitle: (g) =>
+      g === 'all'
+        ? 'Luxury Leather Varsity & Baseball Jackets | Global Luxury Emporium'
+        : `Luxury Leather Varsity & Baseball Jackets for ${g === 'men' ? 'Men' : 'Women'} | Global Luxury Emporium`,
     metaDescription: (g) =>
-      `Collegiate leather varsity and baseball jackets for ${g === 'men' ? 'men' : 'women'}. Contrast two-tone leatherwork and artisan finish.`,
-    headline: (g) => `${g === 'men' ? "Men's" : "Women's"} Varsity Jackets`,
+      g === 'all'
+        ? 'Collegiate leather varsity and baseball jackets. Contrast two-tone leatherwork and artisan finish.'
+        : `Collegiate leather varsity and baseball jackets for ${g === 'men' ? 'men' : 'women'}. Contrast two-tone leatherwork and artisan finish.`,
+    headline: (g) => (g === 'all' ? 'Varsity Jackets' : `${g === 'men' ? "Men's" : "Women's"} Varsity Jackets`),
     subheadline:
       'Sporting prestige reimagined in buttery lambskin and contrast artisan leatherwork.',
     matches: (p: Product) => {
@@ -225,11 +266,16 @@ export const CATEGORIES: Record<CategorySlug, CategoryDefinition> = {
   coats: {
     slug: 'coats',
     name: 'Coats',
-    title: 'Leather Coats',
-    metaTitle: (g) => `Handcrafted Leather Coats & Trenches for ${g === 'men' ? 'Men' : 'Women'} | Global Luxury Emporium`,
+    title: 'Leather & Wool Coats',
+    metaTitle: (g) =>
+      g === 'all'
+        ? 'Handcrafted Luxury Leather & Wool Coats, Trenches & Overcoats | Global Luxury Emporium'
+        : `Handcrafted Leather Coats & Trenches for ${g === 'men' ? 'Men' : 'Women'} | Global Luxury Emporium`,
     metaDescription: (g) =>
-      `Explore extended leather coats, tailored trenches, and overcoats for ${g === 'men' ? 'men' : 'women'}. Free worldwide delivery.`,
-    headline: (g) => `${g === 'men' ? "Men's" : "Women's"} Leather Coats`,
+      g === 'all'
+        ? 'Explore extended leather coats, tailored wool overcoats, and trenches. Free worldwide delivery.'
+        : `Explore extended leather coats, tailored trenches, and overcoats for ${g === 'men' ? 'men' : 'women'}. Free worldwide delivery.`,
+    headline: (g) => (g === 'all' ? 'Coats & Overcoats' : `${g === 'men' ? "Men's" : "Women's"} Leather Coats`),
     subheadline:
       'Elegant extended length, belted silhouettes, and premium full-grain outercoats.',
     matches: (p: Product) => {
@@ -241,10 +287,15 @@ export const CATEGORIES: Record<CategorySlug, CategoryDefinition> = {
     slug: 'casual',
     name: 'Casual',
     title: 'Casual Jackets',
-    metaTitle: (g) => `Casual & Everyday Luxury Leather Jackets for ${g === 'men' ? 'Men' : 'Women'} | Global Luxury Emporium`,
+    metaTitle: (g) =>
+      g === 'all'
+        ? 'Casual & Everyday Luxury Leather Jackets | Global Luxury Emporium'
+        : `Casual & Everyday Luxury Leather Jackets for ${g === 'men' ? 'Men' : 'Women'} | Global Luxury Emporium`,
     metaDescription: (g) =>
-      `Versatile casual leather jackets, blazers, and field jackets for ${g === 'men' ? 'men' : 'women'}.`,
-    headline: (g) => `${g === 'men' ? "Men's" : "Women's"} Casual Jackets`,
+      g === 'all'
+        ? 'Versatile casual leather jackets, blazers, and field jackets for every day.'
+        : `Versatile casual leather jackets, blazers, and field jackets for ${g === 'men' ? 'men' : 'women'}.`,
+    headline: (g) => (g === 'all' ? 'Casual Jackets' : `${g === 'men' ? "Men's" : "Women's"} Casual Jackets`),
     subheadline:
       'Effortless leather blazers, utility field silhouettes, and relaxed everyday designs.',
     matches: (p: Product) => {
@@ -291,17 +342,20 @@ export function productMatchesCategory(product: Product, categorySlug: CategoryS
 
 /**
  * Filters a list of products by gender and category.
- * Men and Women products are kept completely separate.
+ * When gender is 'all', products of any gender are matched.
+ * When gender is 'men' or 'women', only matching gender products are returned.
  */
 export function filterProductsByGenderAndCategory(
   products: Product[],
-  gender: Gender,
+  gender: GenderFilter,
   categorySlug: CategorySlug
 ): Product[] {
   return products.filter((p) => {
-    // 1. Gender check: Men and Women are strictly separate
-    const prodGender = deriveProductGender(p);
-    if (prodGender !== gender) return false;
+    // 1. Gender check: if not 'all', filter strictly by gender
+    if (gender !== 'all') {
+      const prodGender = deriveProductGender(p);
+      if (prodGender !== gender) return false;
+    }
 
     // 2. If 'all', include all products for this gender
     if (categorySlug === 'all') return true;

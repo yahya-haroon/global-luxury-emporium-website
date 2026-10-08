@@ -67,6 +67,11 @@ import {
   isVideoMedia,
   isVideoUrl,
 } from '../lib/homepageImages';
+import { CATEGORY_LIST, CategorySlug } from '../lib/categories';
+import {
+  HomepageCategory,
+  getCategoryFallbackImage,
+} from '../lib/homepageCategories';
 
 export const AdminPage: React.FC = () => {
   useEffect(() => {
@@ -129,6 +134,11 @@ export const AdminPage: React.FC = () => {
     toggleSaleActive,
     refreshSales,
     saveHomepageSlot,
+    homepageCategories,
+    saveHomepageCategory,
+    deleteHomepageCategory,
+    reorderHomepageCategories,
+    initDefaultHomepageCategories,
   } = useData();
 
   // Navigation & Tabs
@@ -443,6 +453,21 @@ export const AdminPage: React.FC = () => {
   >({});
   const [altEdits, setAltEdits] = useState<Record<string, string>>({});
   const [categoryTitleEdits, setCategoryTitleEdits] = useState<Record<string, string>>({});
+
+  // Shop by Category state
+  const [isAddCategoryModalOpen, setIsAddCategoryModalOpen] = useState(false);
+  const [newCatName, setNewCatName] = useState('');
+  const [newCatDestination, setNewCatDestination] = useState<CategorySlug>('bomber');
+  const [newCatFile, setNewCatFile] = useState<File | null>(null);
+  const [newCatUrl, setNewCatUrl] = useState('');
+  const [newCatOrder, setNewCatOrder] = useState<number>(1);
+  const [newCatIsActive, setNewCatIsActive] = useState(true);
+  const [isSubmittingNewCat, setIsSubmittingNewCat] = useState(false);
+  const [uploadingCatId, setUploadingCatId] = useState<string | null>(null);
+  const [savingCatId, setSavingCatId] = useState<string | null>(null);
+  const [catEdits, setCatEdits] = useState<
+    Record<string, { name?: string; destination_category?: CategorySlug; display_order?: number; alt_text?: string; image_url?: string }>
+  >({});
 
   // Sales & Discounts logic & handlers
   const storeCategories = Array.from(new Set(products.map((p) => p.category?.trim()).filter(Boolean) as string[]));
@@ -894,6 +919,199 @@ export const AdminPage: React.FC = () => {
       setHomepageMsg({ type: 'error', text: err.message || 'Failed to save tag.' });
     } finally {
       setIsSavingSlotKey(null);
+    }
+  };
+
+  // ---- Shop by Category Handlers ----
+  const handleCreateCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCatName.trim()) {
+      setHomepageMsg({ type: 'error', text: 'Category display name is required.' });
+      return;
+    }
+    setIsSubmittingNewCat(true);
+    setHomepageMsg(null);
+    try {
+      let imageUrl = newCatUrl.trim() || null;
+      let storagePath: string | null = null;
+
+      if (newCatFile) {
+        const validationError = validateHomepageImageFile(newCatFile);
+        if (validationError) throw new Error(validationError);
+        const tempKey = `cat_${Date.now()}`;
+        const uploaded = await uploadHomepageImage(newCatFile, tempKey);
+        imageUrl = uploaded.publicUrl;
+        storagePath = uploaded.storagePath;
+      }
+
+      const order = typeof newCatOrder === 'number' && !isNaN(newCatOrder)
+        ? newCatOrder
+        : (homepageCategories.length + 1);
+
+      const res = await saveHomepageCategory({
+        name: newCatName.trim(),
+        destination_category: newCatDestination,
+        image_url: imageUrl,
+        storage_path: storagePath,
+        alt_text: newCatName.trim(),
+        display_order: order,
+        is_active: newCatIsActive,
+      });
+
+      if (res.error) throw new Error(res.error);
+
+      setHomepageMsg({ type: 'success', text: `Category "${newCatName.trim()}" created successfully.` });
+      setIsAddCategoryModalOpen(false);
+      setNewCatName('');
+      setNewCatDestination('bomber');
+      setNewCatFile(null);
+      setNewCatUrl('');
+      setNewCatOrder(homepageCategories.length + 2);
+      setNewCatIsActive(true);
+    } catch (err: any) {
+      setHomepageMsg({ type: 'error', text: err.message || 'Failed to create homepage category.' });
+    } finally {
+      setIsSubmittingNewCat(false);
+    }
+  };
+
+  const handleSaveCategoryInline = async (cat: HomepageCategory) => {
+    setSavingCatId(cat.id);
+    setHomepageMsg(null);
+    try {
+      const edits = catEdits[cat.id] || {};
+      const res = await saveHomepageCategory({
+        id: cat.id,
+        name: edits.name !== undefined ? edits.name : cat.name,
+        destination_category: edits.destination_category !== undefined ? edits.destination_category : cat.destination_category,
+        display_order: edits.display_order !== undefined ? Number(edits.display_order) : cat.display_order,
+        alt_text: edits.alt_text !== undefined ? edits.alt_text : cat.alt_text,
+        image_url: edits.image_url !== undefined ? edits.image_url : cat.image_url,
+        is_active: cat.is_active,
+        storage_path: cat.storage_path,
+      });
+      if (res.error) throw new Error(res.error);
+      setHomepageMsg({ type: 'success', text: `Category "${edits.name || cat.name}" updated successfully.` });
+      setCatEdits((prev) => {
+        const copy = { ...prev };
+        delete copy[cat.id];
+        return copy;
+      });
+    } catch (err: any) {
+      setHomepageMsg({ type: 'error', text: err.message || 'Failed to update category.' });
+    } finally {
+      setSavingCatId(null);
+    }
+  };
+
+  const handleUploadCategoryPhoto = async (cat: HomepageCategory, file: File) => {
+    const validationError = validateHomepageImageFile(file);
+    if (validationError) {
+      setHomepageMsg({ type: 'error', text: validationError });
+      return;
+    }
+    setUploadingCatId(cat.id);
+    setHomepageMsg(null);
+    try {
+      const { publicUrl, storagePath } = await uploadHomepageImage(file, `hp_cat_${cat.id}`);
+      const oldStorage = cat.storage_path;
+      const edits = catEdits[cat.id] || {};
+      const res = await saveHomepageCategory({
+        id: cat.id,
+        name: edits.name !== undefined ? edits.name : cat.name,
+        destination_category: edits.destination_category !== undefined ? edits.destination_category : cat.destination_category,
+        display_order: edits.display_order !== undefined ? Number(edits.display_order) : cat.display_order,
+        image_url: publicUrl,
+        storage_path: storagePath,
+        alt_text: edits.alt_text ?? cat.alt_text,
+        is_active: cat.is_active,
+      });
+      if (res.error) throw new Error(res.error);
+      if (oldStorage && oldStorage !== storagePath) {
+        await deleteHomepageImageObject(oldStorage);
+      }
+      setHomepageMsg({ type: 'success', text: `Image updated for "${cat.name}".` });
+    } catch (err: any) {
+      setHomepageMsg({ type: 'error', text: err.message || 'Failed to upload category image.' });
+    } finally {
+      setUploadingCatId(null);
+    }
+  };
+
+  const handleToggleCategoryActive = async (cat: HomepageCategory, isActive: boolean) => {
+    setHomepageMsg(null);
+    try {
+      const res = await saveHomepageCategory({
+        id: cat.id,
+        name: cat.name,
+        destination_category: cat.destination_category,
+        display_order: cat.display_order,
+        image_url: cat.image_url,
+        storage_path: cat.storage_path,
+        alt_text: cat.alt_text,
+        is_active: isActive,
+      });
+      if (res.error) throw new Error(res.error);
+      setHomepageMsg({
+        type: 'success',
+        text: `Category "${cat.name}" is now ${isActive ? 'active on homepage' : 'hidden'}.`,
+      });
+    } catch (err: any) {
+      setHomepageMsg({ type: 'error', text: err.message || 'Failed to toggle category.' });
+    }
+  };
+
+  const handleDeleteCategory = async (cat: HomepageCategory) => {
+    if (!window.confirm(`Are you sure you want to remove the "${cat.name}" category from the homepage?`)) {
+      return;
+    }
+    setHomepageMsg(null);
+    try {
+      if (cat.storage_path) {
+        await deleteHomepageImageObject(cat.storage_path);
+      }
+      const res = await deleteHomepageCategory(cat.id);
+      if (res.error) throw new Error(res.error);
+      setHomepageMsg({ type: 'success', text: `Category "${cat.name}" removed from homepage.` });
+    } catch (err: any) {
+      setHomepageMsg({ type: 'error', text: err.message || 'Failed to remove category.' });
+    }
+  };
+
+  const handleMoveCategory = async (catId: string, direction: 'up' | 'down') => {
+    const list = [...homepageCategories].sort((a, b) => a.display_order - b.display_order);
+    const index = list.findIndex((c) => c.id === catId);
+    if (index === -1) return;
+    if (direction === 'up' && index === 0) return;
+    if (direction === 'down' && index === list.length - 1) return;
+
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    const temp = list[index];
+    list[index] = list[targetIndex];
+    list[targetIndex] = temp;
+
+    const orderedIds = list.map((c) => c.id);
+    const res = await reorderHomepageCategories(orderedIds);
+    if (res.error) {
+      setHomepageMsg({ type: 'error', text: res.error });
+    } else {
+      setHomepageMsg({ type: 'success', text: 'Category display order updated.' });
+    }
+  };
+
+  const handleInitDefaultCategories = async () => {
+    if (
+      !window.confirm(
+        'Initialize default luxury categories (Bomber, Wool Coats, Shearling, Biker, Puffer)? This will save them to Supabase.'
+      )
+    ) {
+      return;
+    }
+    const res = await initDefaultHomepageCategories();
+    if (res.error) {
+      setHomepageMsg({ type: 'error', text: res.error });
+    } else {
+      setHomepageMsg({ type: 'success', text: 'Default categories initialized in Supabase.' });
     }
   };
 
@@ -3265,7 +3483,10 @@ export const AdminPage: React.FC = () => {
                 All Sections ({HOMEPAGE_SLOTS.length})
               </button>
               {HOMEPAGE_SLOT_SECTIONS.map((sec) => {
-                const count = HOMEPAGE_SLOTS.filter((s) => s.section === sec).length;
+                const count =
+                  sec === 'Shop by Category'
+                    ? homepageCategories.length
+                    : HOMEPAGE_SLOTS.filter((s) => s.section === sec).length;
                 return (
                   <button
                     key={sec}
@@ -3286,6 +3507,321 @@ export const AdminPage: React.FC = () => {
             {/* Slot cards grouped by section */}
             <div className="space-y-10">
               {(homepageSection === 'all' ? HOMEPAGE_SLOT_SECTIONS : [homepageSection]).map((sectionName) => {
+                if (sectionName === 'Shop by Category') {
+                  const activeCount = homepageCategories.filter((c) => c.is_active).length;
+                  return (
+                    <div key={sectionName} className="space-y-6 bg-white/40 p-6 rounded-lg border border-hairline">
+                      {/* Header with Title, Stats, and Actions */}
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-hairline">
+                        <div>
+                          <div className="flex items-center gap-3">
+                            <span className="text-xs uppercase tracking-widest font-semibold text-gold px-2.5 py-1 bg-gold/10 rounded">
+                              Shop by Category
+                            </span>
+                            <span className="text-xs text-muted">
+                              {activeCount} of {homepageCategories.length} active on storefront
+                            </span>
+                          </div>
+                          <p className="text-xs text-muted mt-1.5 max-w-2xl font-light">
+                            100% admin-controlled storefront categories. Upload custom luxury imagery, select destination filters (e.g. Bomber, Wool Coats, Shearling), set display order, and toggle visibility. There is no maximum limit — the homepage adapts automatically.
+                          </p>
+                        </div>
+
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <button
+                            type="button"
+                            onClick={handleInitDefaultCategories}
+                            className="btn-ghost text-xs py-2 px-3 border border-hairline rounded hover:bg-ivory text-muted hover:text-text transition-colors flex items-center gap-1.5"
+                            title="Restore the 5 curated luxury categories"
+                          >
+                            <RotateCcw className="w-3.5 h-3.5 text-gold" />
+                            <span>Restore Defaults</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setNewCatName('');
+                              setNewCatDestination('bomber');
+                              setNewCatFile(null);
+                              setNewCatUrl('');
+                              setNewCatOrder(homepageCategories.length + 1);
+                              setNewCatIsActive(true);
+                              setIsAddCategoryModalOpen(true);
+                            }}
+                            className="btn-primary text-xs py-2 px-4 flex items-center gap-1.5 shadow-sm"
+                          >
+                            <Plus className="w-4 h-4" />
+                            <span>Add Homepage Category</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Categories Grid */}
+                      {homepageCategories.length === 0 ? (
+                        <div className="text-center py-12 px-4 bg-ivory/60 rounded border border-dashed border-hairline">
+                          <ImageIcon className="w-10 h-10 mx-auto text-muted/50 mb-3" />
+                          <h4 className="font-serif text-lg text-text font-normal mb-1">No Homepage Categories</h4>
+                          <p className="text-xs text-muted max-w-md mx-auto mb-4 font-light">
+                            You haven't configured any categories for the homepage yet. Add custom categories or restore the luxury defaults to get started.
+                          </p>
+                          <div className="flex items-center justify-center gap-3">
+                            <button
+                              type="button"
+                              onClick={handleInitDefaultCategories}
+                              className="btn-ghost text-xs py-2 px-3 border border-hairline rounded hover:bg-ivory"
+                            >
+                              Load Default Categories
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setIsAddCategoryModalOpen(true)}
+                              className="btn-primary text-xs py-2 px-4"
+                            >
+                              Add Custom Category
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {homepageCategories
+                            .slice()
+                            .sort((a, b) => a.display_order - b.display_order)
+                            .map((cat, catIdx) => {
+                              const edits = catEdits[cat.id] || {};
+                              const currentName = edits.name !== undefined ? edits.name : cat.name;
+                              const currentDest = edits.destination_category !== undefined ? edits.destination_category : cat.destination_category;
+                              const currentOrder = edits.display_order !== undefined ? edits.display_order : cat.display_order;
+                              const currentAlt = edits.alt_text !== undefined ? edits.alt_text : (cat.alt_text || cat.name);
+                              const isUploading = uploadingCatId === cat.id;
+                              const isSaving = savingCatId === cat.id;
+                              const hasUnsavedChanges = Object.keys(edits).length > 0;
+                              const previewImg = edits.image_url || cat.image_url || getCategoryFallbackImage(currentDest);
+
+                              return (
+                                <div
+                                  key={cat.id}
+                                  className={`bg-ivory/80 border rounded-lg p-5 shadow-sm space-y-4 hover:border-gold/50 transition-colors flex flex-col justify-between ${
+                                    cat.is_active ? 'border-hairline' : 'border-amber-200/60 opacity-80'
+                                  }`}
+                                >
+                                  <div className="space-y-4">
+                                    {/* Top bar with Order, Active toggle, and Reorder buttons */}
+                                    <div className="flex items-center justify-between gap-2 border-b border-hairline/60 pb-3">
+                                      <div className="flex items-center gap-1.5">
+                                        <span className="text-[11px] font-mono font-semibold px-2 py-0.5 rounded bg-text text-white">
+                                          #{cat.display_order}
+                                        </span>
+                                        <div className="flex items-center">
+                                          <button
+                                            type="button"
+                                            onClick={() => handleMoveCategory(cat.id, 'up')}
+                                            disabled={catIdx === 0}
+                                            className="p-1 text-muted hover:text-text disabled:opacity-30 disabled:cursor-not-allowed"
+                                            title="Move Up"
+                                          >
+                                            <ArrowUp className="w-3.5 h-3.5" />
+                                          </button>
+                                          <button
+                                            type="button"
+                                            onClick={() => handleMoveCategory(cat.id, 'down')}
+                                            disabled={catIdx === homepageCategories.length - 1}
+                                            className="p-1 text-muted hover:text-text disabled:opacity-30 disabled:cursor-not-allowed"
+                                            title="Move Down"
+                                          >
+                                            <ArrowDown className="w-3.5 h-3.5" />
+                                          </button>
+                                        </div>
+                                      </div>
+
+                                      <div className="flex items-center gap-3">
+                                        <label className="flex items-center gap-1.5 text-xs text-muted cursor-pointer select-none">
+                                          <input
+                                            type="checkbox"
+                                            checked={cat.is_active}
+                                            onChange={(e) => handleToggleCategoryActive(cat, e.target.checked)}
+                                            className="rounded border-hairline text-gold focus:ring-gold"
+                                          />
+                                          <span className={cat.is_active ? 'text-emerald-700 font-medium' : 'text-amber-700'}>
+                                            {cat.is_active ? 'Active' : 'Hidden'}
+                                          </span>
+                                        </label>
+
+                                        <button
+                                          type="button"
+                                          onClick={() => handleDeleteCategory(cat)}
+                                          className="p-1 text-muted hover:text-red-700 transition-colors"
+                                          title="Remove category"
+                                        >
+                                          <Trash2 className="w-3.5 h-3.5" />
+                                        </button>
+                                      </div>
+                                    </div>
+
+                                    {/* Image Preview & Upload Container */}
+                                    <div className="space-y-2">
+                                      <div className="relative aspect-[4/5] bg-black/5 rounded border border-hairline overflow-hidden flex items-center justify-center">
+                                        <img
+                                          src={previewImg}
+                                          alt={currentAlt}
+                                          className="w-full h-full object-cover object-center"
+                                        />
+                                        {isUploading && (
+                                          <div className="absolute inset-0 bg-black/60 backdrop-blur-xs flex flex-col items-center justify-center text-white text-xs gap-2">
+                                            <Loader2 className="w-6 h-6 animate-spin text-gold" />
+                                            <span>Uploading to Supabase...</span>
+                                          </div>
+                                        )}
+                                        <div className="absolute top-2 left-2 flex gap-1">
+                                          {cat.image_url ? (
+                                            <span className="text-[10px] font-semibold bg-emerald-800 text-white px-2 py-0.5 rounded shadow">
+                                              Custom Image
+                                            </span>
+                                          ) : (
+                                            <span className="text-[10px] font-medium bg-black/70 text-white px-2 py-0.5 rounded">
+                                              Default Image
+                                            </span>
+                                          )}
+                                        </div>
+                                      </div>
+
+                                      {/* Image Action Row */}
+                                      <div className="flex items-center gap-2">
+                                        <label className="btn-ghost text-xs py-1.5 px-2.5 flex-1 flex items-center justify-center gap-1.5 border border-hairline rounded cursor-pointer hover:bg-white text-text transition-colors">
+                                          <Upload className="w-3.5 h-3.5 text-gold" />
+                                          <span>Replace Image</span>
+                                          <input
+                                            type="file"
+                                            accept="image/*"
+                                            className="hidden"
+                                            disabled={isUploading}
+                                            onChange={(e) => {
+                                              const file = e.target.files?.[0];
+                                              if (file) handleUploadCategoryPhoto(cat, file);
+                                            }}
+                                          />
+                                        </label>
+                                      </div>
+                                    </div>
+
+                                    {/* Editable Category Fields */}
+                                    <div className="space-y-3 pt-1">
+                                      <div>
+                                        <label className="block text-[11px] uppercase tracking-wider font-medium text-text mb-1">
+                                          Category Display Name
+                                        </label>
+                                        <input
+                                          type="text"
+                                          value={currentName}
+                                          onChange={(e) =>
+                                            setCatEdits((prev) => ({
+                                              ...prev,
+                                              [cat.id]: { ...(prev[cat.id] || {}), name: e.target.value },
+                                            }))
+                                          }
+                                          placeholder="e.g. Bomber Jackets"
+                                          className="input-text text-xs w-full py-1.5 px-2.5 bg-white border border-hairline rounded"
+                                        />
+                                      </div>
+
+                                      <div>
+                                        <label className="block text-[11px] uppercase tracking-wider font-medium text-text mb-1">
+                                          Destination Category
+                                        </label>
+                                        <select
+                                          value={currentDest}
+                                          onChange={(e) =>
+                                            setCatEdits((prev) => ({
+                                              ...prev,
+                                              [cat.id]: { ...(prev[cat.id] || {}), destination_category: e.target.value as CategorySlug },
+                                            }))
+                                          }
+                                          className="input-text text-xs w-full py-1.5 px-2.5 bg-white border border-hairline rounded"
+                                        >
+                                          {CATEGORY_LIST.map((c) => (
+                                            <option key={c.slug} value={c.slug}>
+                                              {c.name} ({c.title}) &rarr; /category/{c.slug}
+                                            </option>
+                                          ))}
+                                        </select>
+                                        <span className="text-[10px] text-muted font-mono block mt-1">
+                                          Links to: /category/{currentDest}
+                                        </span>
+                                      </div>
+
+                                      <div className="grid grid-cols-2 gap-2">
+                                        <div>
+                                          <label className="block text-[11px] uppercase tracking-wider font-medium text-text mb-1">
+                                            Display Order
+                                          </label>
+                                          <input
+                                            type="number"
+                                            min="1"
+                                            value={currentOrder}
+                                            onChange={(e) =>
+                                              setCatEdits((prev) => ({
+                                                ...prev,
+                                                [cat.id]: { ...(prev[cat.id] || {}), display_order: parseInt(e.target.value, 10) || 1 },
+                                              }))
+                                            }
+                                            className="input-text text-xs w-full py-1.5 px-2.5 bg-white border border-hairline rounded font-mono"
+                                          />
+                                        </div>
+
+                                        <div>
+                                          <label className="block text-[11px] uppercase tracking-wider font-medium text-text mb-1">
+                                            Alt Text
+                                          </label>
+                                          <input
+                                            type="text"
+                                            value={currentAlt}
+                                            onChange={(e) =>
+                                              setCatEdits((prev) => ({
+                                                ...prev,
+                                                [cat.id]: { ...(prev[cat.id] || {}), alt_text: e.target.value },
+                                              }))
+                                            }
+                                            placeholder="Alt description"
+                                            className="input-text text-xs w-full py-1.5 px-2.5 bg-white border border-hairline rounded"
+                                          />
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Save Button */}
+                                  <div className="pt-3 border-t border-hairline/60">
+                                    <button
+                                      type="button"
+                                      disabled={isSaving || !hasUnsavedChanges}
+                                      onClick={() => handleSaveCategoryInline(cat)}
+                                      className={`w-full text-xs py-2 px-3 rounded flex items-center justify-center gap-1.5 font-medium transition-colors ${
+                                        hasUnsavedChanges
+                                          ? 'bg-text text-white hover:bg-black'
+                                          : 'bg-ivory text-muted cursor-not-allowed border border-hairline'
+                                      }`}
+                                    >
+                                      {isSaving ? (
+                                        <>
+                                          <Loader2 className="w-3.5 h-3.5 animate-spin text-gold" />
+                                          <span>Saving Changes...</span>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <Check className="w-3.5 h-3.5" />
+                                          <span>{hasUnsavedChanges ? 'Save Changes' : 'Saved'}</span>
+                                        </>
+                                      )}
+                                    </button>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+
                 const slotsInSection = HOMEPAGE_SLOTS.filter((s) => s.section === sectionName);
                 if (slotsInSection.length === 0) return null;
 
@@ -3785,6 +4321,140 @@ export const AdminPage: React.FC = () => {
                 );
               })}
             </div>
+
+            {/* Modal for Adding New Homepage Category */}
+            {isAddCategoryModalOpen && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4 overflow-y-auto">
+                <div className="bg-ivory border border-gold/40 rounded-lg max-w-lg w-full p-6 shadow-2xl space-y-5 animate-in fade-in duration-200 my-8">
+                  <div className="flex items-center justify-between border-b border-hairline pb-3">
+                    <div>
+                      <h3 className="font-serif text-xl text-text font-normal">Add Homepage Category</h3>
+                      <p className="text-xs text-muted font-light mt-0.5">
+                        Configure a new category tile to appear on the storefront homepage.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsAddCategoryModalOpen(false)}
+                      className="text-muted hover:text-text p-1 text-lg leading-none"
+                    >
+                      &times;
+                    </button>
+                  </div>
+
+                  <form onSubmit={handleCreateCategory} className="space-y-4">
+                    <div>
+                      <label className="block text-xs uppercase tracking-wider font-semibold text-text mb-1">
+                        Category Display Name *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={newCatName}
+                        onChange={(e) => setNewCatName(e.target.value)}
+                        placeholder="e.g. Bomber Jackets, Wool Coats, Shearling..."
+                        className="input-text text-xs w-full py-2 px-3 bg-white border border-hairline rounded"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs uppercase tracking-wider font-semibold text-text mb-1">
+                        Destination Category *
+                      </label>
+                      <select
+                        value={newCatDestination}
+                        onChange={(e) => setNewCatDestination(e.target.value as CategorySlug)}
+                        className="input-text text-xs w-full py-2 px-3 bg-white border border-hairline rounded"
+                      >
+                        {CATEGORY_LIST.map((c) => (
+                          <option key={c.slug} value={c.slug}>
+                            {c.name} ({c.title}) &rarr; /category/{c.slug}
+                          </option>
+                        ))}
+                      </select>
+                      <span className="text-[11px] text-muted font-mono block mt-1">
+                        When clicked, redirects to: /category/{newCatDestination}
+                      </span>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs uppercase tracking-wider font-semibold text-text mb-1">
+                        Category Image
+                      </label>
+                      <div className="space-y-2">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => setNewCatFile(e.target.files?.[0] || null)}
+                          className="text-xs text-muted file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-medium file:bg-text file:text-white hover:file:bg-black cursor-pointer"
+                        />
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] text-muted uppercase tracking-wider">or image url:</span>
+                          <input
+                            type="url"
+                            value={newCatUrl}
+                            onChange={(e) => setNewCatUrl(e.target.value)}
+                            placeholder="https://... or /assets/..."
+                            className="input-text text-xs flex-1 py-1.5 px-2.5 bg-white border border-hairline rounded"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs uppercase tracking-wider font-semibold text-text mb-1">
+                          Display Order
+                        </label>
+                        <input
+                          type="number"
+                          min="1"
+                          value={newCatOrder}
+                          onChange={(e) => setNewCatOrder(parseInt(e.target.value, 10) || 1)}
+                          className="input-text text-xs w-full py-2 px-3 bg-white border border-hairline rounded font-mono"
+                        />
+                      </div>
+
+                      <div className="flex items-center pt-5">
+                        <label className="flex items-center gap-2 text-xs text-text cursor-pointer select-none">
+                          <input
+                            type="checkbox"
+                            checked={newCatIsActive}
+                            onChange={(e) => setNewCatIsActive(e.target.checked)}
+                            className="rounded border-hairline text-gold focus:ring-gold"
+                          />
+                          <span className="font-medium">Active on homepage</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-end gap-3 pt-3 border-t border-hairline">
+                      <button
+                        type="button"
+                        onClick={() => setIsAddCategoryModalOpen(false)}
+                        className="btn-ghost text-xs py-2 px-4 rounded border border-hairline hover:bg-white"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={isSubmittingNewCat}
+                        className="btn-primary text-xs py-2 px-5 rounded flex items-center gap-1.5 shadow-sm"
+                      >
+                        {isSubmittingNewCat ? (
+                          <>
+                            <Loader2 className="w-3.5 h-3.5 animate-spin text-gold" />
+                            <span>Creating Category...</span>
+                          </>
+                        ) : (
+                          <span>Create Category</span>
+                        )}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

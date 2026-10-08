@@ -3,6 +3,12 @@ import { supabase, isSupabaseConfigured, defaultSeedProducts, defaultSeedSetting
 import { normalizeProductOptions } from '../lib/options';
 import { Product, Settings, Order, OrderStatus, Review, FeaturedImage, Sale } from '../types';
 import { HomepageImage, fetchHomepageImages } from '../lib/homepageImages';
+import {
+  HomepageCategory,
+  parseHomepageCategories,
+  HP_CAT_PREFIX,
+  DEFAULT_HOMEPAGE_CATEGORIES,
+} from '../lib/homepageCategories';
 import { DEFAULT_THEME, applyThemeToDocument } from '../lib/theme';
 import { useAuth } from './AuthContext';
 
@@ -14,6 +20,7 @@ interface DataContextType {
   featuredImages: FeaturedImage[];
   homepageImages: HomepageImage[];
   homepageSlots: Record<string, HomepageImage>;
+  homepageCategories: HomepageCategory[];
   sales: Sale[];
   loading: boolean;
   error: string | null;
@@ -44,6 +51,11 @@ interface DataContextType {
     slotKey: string,
     patch: Partial<Pick<HomepageImage, 'image_url' | 'storage_path' | 'alt_text' | 'title' | 'description' | 'product_id' | 'is_active' | 'sort_order' | 'media_type'>>
   ) => Promise<{ error?: string }>;
+  deleteHomepageSlot: (slotKey: string) => Promise<{ error?: string }>;
+  saveHomepageCategory: (categoryData: Partial<HomepageCategory> & { id?: string }) => Promise<{ error?: string; category?: HomepageCategory }>;
+  deleteHomepageCategory: (id: string) => Promise<{ error?: string }>;
+  reorderHomepageCategories: (orderedIds: string[]) => Promise<{ error?: string }>;
+  initDefaultHomepageCategories: () => Promise<{ error?: string }>;
   saveSale: (saleData: Partial<Sale>) => Promise<{ data?: Sale; error?: string }>;
   deleteSale: (id: string) => Promise<{ success: boolean; error?: string }>;
   toggleSaleActive: (id: string, isActive: boolean) => Promise<{ success: boolean; error?: string }>;
@@ -400,6 +412,130 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch (err: any) {
         console.error('Error saving homepage slot:', err);
         return { error: err.message || 'Failed to save homepage image slot.' };
+      }
+    },
+    [refreshHomepageImages, user?.isOwner]
+  );
+
+  const deleteHomepageSlot = useCallback(
+    async (slotKey: string): Promise<{ error?: string }> => {
+      if (!isSupabaseConfigured) return { error: 'Supabase is not configured.' };
+      if (!user?.isOwner) return { error: 'Unauthorized. Only the owner can manage homepage items.' };
+
+      try {
+        const { error: delErr } = await supabase
+          .from('homepage_images')
+          .delete()
+          .eq('slot_key', slotKey);
+
+        if (delErr) throw delErr;
+        await refreshHomepageImages();
+        return {};
+      } catch (err: any) {
+        console.error('Error deleting homepage slot:', err);
+        return { error: err.message || 'Failed to delete homepage item.' };
+      }
+    },
+    [refreshHomepageImages, user?.isOwner]
+  );
+
+  const saveHomepageCategory = useCallback(
+    async (
+      categoryData: Partial<HomepageCategory> & { id?: string }
+    ): Promise<{ error?: string; category?: HomepageCategory }> => {
+      if (!isSupabaseConfigured) return { error: 'Supabase is not configured.' };
+      if (!user?.isOwner) return { error: 'Unauthorized. Only the owner can manage categories.' };
+
+      try {
+        const catId = (categoryData.id || `cat_${Date.now()}`).replace(/[^a-zA-Z0-9_-]/g, '_');
+        const slotKey = `${HP_CAT_PREFIX}${catId}`;
+
+        const payload = {
+          slot_key: slotKey,
+          title: categoryData.name?.trim() || 'Category',
+          description: categoryData.destination_category || 'all',
+          image_url: categoryData.image_url ?? null,
+          storage_path: categoryData.storage_path ?? null,
+          alt_text: categoryData.alt_text?.trim() || categoryData.name?.trim() || '',
+          sort_order: typeof categoryData.display_order === 'number' ? categoryData.display_order : 0,
+          is_active: categoryData.is_active ?? true,
+          updated_at: new Date().toISOString(),
+        };
+
+        const { error: upsertErr } = await supabase
+          .from('homepage_images')
+          .upsert(payload, { onConflict: 'slot_key' });
+
+        if (upsertErr) throw upsertErr;
+
+        await refreshHomepageImages();
+        return {};
+      } catch (err: any) {
+        console.error('Error saving homepage category:', err);
+        return { error: err.message || 'Failed to save homepage category.' };
+      }
+    },
+    [refreshHomepageImages, user?.isOwner]
+  );
+
+  const deleteHomepageCategory = useCallback(
+    async (id: string): Promise<{ error?: string }> => {
+      return deleteHomepageSlot(`${HP_CAT_PREFIX}${id}`);
+    },
+    [deleteHomepageSlot]
+  );
+
+  const reorderHomepageCategories = useCallback(
+    async (orderedIds: string[]): Promise<{ error?: string }> => {
+      if (!isSupabaseConfigured) return { error: 'Supabase is not configured.' };
+      if (!user?.isOwner) return { error: 'Unauthorized. Only the owner can manage categories.' };
+
+      try {
+        for (let i = 0; i < orderedIds.length; i++) {
+          const slotKey = `${HP_CAT_PREFIX}${orderedIds[i]}`;
+          await supabase
+            .from('homepage_images')
+            .update({ sort_order: i + 1, updated_at: new Date().toISOString() })
+            .eq('slot_key', slotKey);
+        }
+        await refreshHomepageImages();
+        return {};
+      } catch (err: any) {
+        console.error('Error reordering homepage categories:', err);
+        return { error: err.message || 'Failed to reorder categories.' };
+      }
+    },
+    [refreshHomepageImages, user?.isOwner]
+  );
+
+  const initDefaultHomepageCategories = useCallback(
+    async (): Promise<{ error?: string }> => {
+      if (!isSupabaseConfigured) return { error: 'Supabase is not configured.' };
+      if (!user?.isOwner) return { error: 'Unauthorized. Only the owner can manage categories.' };
+
+      try {
+        for (const cat of DEFAULT_HOMEPAGE_CATEGORIES) {
+          const slotKey = `${HP_CAT_PREFIX}${cat.id}`;
+          await supabase.from('homepage_images').upsert(
+            {
+              slot_key: slotKey,
+              title: cat.name,
+              description: cat.destination_category,
+              image_url: cat.image_url,
+              storage_path: null,
+              alt_text: cat.alt_text,
+              sort_order: cat.display_order,
+              is_active: cat.is_active,
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: 'slot_key' }
+          );
+        }
+        await refreshHomepageImages();
+        return {};
+      } catch (err: any) {
+        console.error('Error seeding default categories:', err);
+        return { error: err.message || 'Failed to initialize default categories.' };
       }
     },
     [refreshHomepageImages, user?.isOwner]
@@ -801,6 +937,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return slots;
   }, [homepageImages]);
 
+  // Dynamic admin-controlled homepage categories
+  const homepageCategories: HomepageCategory[] = useMemo(() => {
+    return parseHomepageCategories(homepageImages);
+  }, [homepageImages]);
+
   // Save or edit product
   const saveProduct = async (
     productData: Partial<Product> & { id?: string }
@@ -1040,6 +1181,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         featuredImages,
         homepageImages,
         homepageSlots,
+        homepageCategories,
         sales,
         loading,
         error,
@@ -1067,6 +1209,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         deleteFeaturedImage,
         reorderFeaturedImages,
         saveHomepageSlot,
+        deleteHomepageSlot,
+        saveHomepageCategory,
+        deleteHomepageCategory,
+        reorderHomepageCategories,
+        initDefaultHomepageCategories,
         saveSale,
         deleteSale,
         toggleSaleActive,
