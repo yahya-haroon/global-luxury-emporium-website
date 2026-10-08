@@ -80,7 +80,14 @@ const CategoryCard: React.FC<{ category: HomepageCategory }> = ({ category }) =>
   const [imageError, setImageError] = useState(false);
 
   const fallbackSrc = getCategoryFallbackImage(category.destination_category);
-  const imageSrc = !imageError && category.image_url ? category.image_url : fallbackSrc;
+  const rawImage = category.image_url?.trim();
+  const imageSrc =
+    !imageError &&
+    rawImage &&
+    !rawImage.includes('product-1-main.jpg') &&
+    !rawImage.includes('product-2-main.jpg')
+      ? rawImage
+      : fallbackSrc;
   const destinationUrl = `/category/${category.destination_category || 'all'}`;
 
   return (

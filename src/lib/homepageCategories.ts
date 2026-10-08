@@ -36,7 +36,7 @@ export const DEFAULT_HOMEPAGE_CATEGORIES: HomepageCategory[] = [
     name: 'Wool Coats',
     slug: 'coats',
     destination_category: 'coats',
-    image_url: '/assets/products/product-1-main.jpg',
+    image_url: '/assets/models/model-1.webp',
     storage_path: null,
     alt_text: 'Tailored luxury double-breasted wool and leather overcoat',
     display_order: 2,
@@ -69,7 +69,7 @@ export const DEFAULT_HOMEPAGE_CATEGORIES: HomepageCategory[] = [
     name: 'Puffer Jackets',
     slug: 'puffer',
     destination_category: 'puffer',
-    image_url: '/assets/products/product-2-main.jpg',
+    image_url: '/assets/models/campaign-quilted.webp',
     storage_path: null,
     alt_text: 'Diamond-quilted insulated leather puffer jacket',
     display_order: 5,
@@ -109,12 +109,22 @@ export function parseHomepageCategories(rows: HomepageImage[]): HomepageCategory
     seenIds.add(id.toLowerCase());
     seenKeys.add(dedupeKey);
 
+    // Resolve reliable image URL immediately on initial parse
+    let imageUrl = r.image_url?.trim() || null;
+    if (
+      !imageUrl ||
+      imageUrl.includes('product-1-main.jpg') ||
+      imageUrl.includes('product-2-main.jpg')
+    ) {
+      imageUrl = getCategoryFallbackImage(validDest);
+    }
+
     parsed.push({
       id,
       name,
       slug: id,
       destination_category: validDest,
-      image_url: r.image_url || null,
+      image_url: imageUrl,
       storage_path: r.storage_path || null,
       alt_text: r.alt_text || r.title || 'Category item',
       display_order: typeof r.sort_order === 'number' ? r.sort_order : 0,
@@ -135,15 +145,15 @@ export function getCategoryFallbackImage(destinationSlug?: string): string {
     case 'bomber':
       return '/assets/models/campaign-racer.webp';
     case 'coats':
-      return '/assets/products/product-1-main.jpg';
+      return '/assets/models/model-1.webp';
     case 'shearling':
     case 'aviator':
       return '/assets/models/campaign-shearling.webp';
     case 'biker':
       return '/assets/models/campaign-quilted.webp';
     case 'puffer':
-      return '/assets/products/product-2-main.jpg';
+      return '/assets/models/campaign-quilted.webp';
     default:
-      return '/assets/models/model-1.png';
+      return '/assets/models/campaign-racer.webp';
   }
 }
