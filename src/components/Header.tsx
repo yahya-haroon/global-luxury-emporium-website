@@ -179,10 +179,10 @@ export const Header: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setMenDropdownOpen((prev) => !prev)}
-                className="inline-flex items-center gap-1 hover:text-gold transition-colors py-1 cursor-pointer focus:outline-none"
+                className="inline-flex items-center gap-1 hover:text-gold transition-colors py-1 cursor-pointer focus:outline-none uppercase tracking-wide font-medium"
                 aria-expanded={menDropdownOpen}
               >
-                <span>Men</span>
+                <span>MEN</span>
                 <ChevronDown
                   className={`w-3.5 h-3.5 transition-transform duration-200 ${
                     menDropdownOpen ? 'rotate-180' : ''
@@ -225,10 +225,10 @@ export const Header: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setWomenDropdownOpen((prev) => !prev)}
-                className="inline-flex items-center gap-1 hover:text-gold transition-colors py-1 cursor-pointer focus:outline-none"
+                className="inline-flex items-center gap-1 hover:text-gold transition-colors py-1 cursor-pointer focus:outline-none uppercase tracking-wide font-medium"
                 aria-expanded={womenDropdownOpen}
               >
-                <span>Women</span>
+                <span>WOMEN</span>
                 <ChevronDown
                   className={`w-3.5 h-3.5 transition-transform duration-200 ${
                     womenDropdownOpen ? 'rotate-180' : ''
