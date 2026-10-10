@@ -58,6 +58,9 @@ export const Footer: React.FC = () => {
             <Link to="/privacy" style={{ fontSize: '13px' }}>
               Privacy Policy
             </Link>
+            <Link to="/custom-design" style={{ fontSize: '13px', color: 'var(--au2, #C9A24A)' }}>
+              Design Your Own (Bespoke)
+            </Link>
             <Link to="/admin" style={{ fontSize: '12px', opacity: 0.5, marginTop: '8px' }}>
               Owner Portal
             </Link>

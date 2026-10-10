@@ -3598,7 +3598,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Women</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; cropped</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>female</g:gender>
       <g:age_group>adult</g:age_group>
@@ -3654,7 +3654,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; Women</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; cropped</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>female</g:gender>
       <g:age_group>adult</g:age_group>
@@ -3915,7 +3915,7 @@
       <g:condition>new</g:condition>
       <g:identifier_exists>no</g:identifier_exists>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear &gt; Coats &amp; Jackets</g:google_product_category>
-      <g:product_type>Clothing &gt; Outerwear &gt; biker</g:product_type>
+      <g:product_type>Clothing &gt; Outerwear &gt; cropped</g:product_type>
       <g:material>Genuine Leather</g:material>
       <g:gender>female</g:gender>
       <g:age_group>adult</g:age_group>

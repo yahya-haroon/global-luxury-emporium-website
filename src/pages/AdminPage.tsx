@@ -81,6 +81,8 @@ import {
   HomepageCategory,
   getCategoryFallbackImage,
 } from '../lib/homepageCategories';
+import { Scissors } from 'lucide-react';
+import { AdminCustomDesignsTab } from '../components/admin/AdminCustomDesignsTab';
 
 export const AdminPage: React.FC = () => {
   useEffect(() => {
@@ -155,7 +157,7 @@ export const AdminPage: React.FC = () => {
   } = useData();
 
   // Navigation & Tabs
-  const [activeTab, setActiveTab] = useState<'products' | 'categories' | 'orders' | 'reviews' | 'sales' | 'gallery' | 'homepage' | 'settings'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'categories' | 'orders' | 'custom_designs' | 'reviews' | 'sales' | 'gallery' | 'homepage' | 'settings'>('products');
 
   // Sales & Discounts tab state
   const [salesFilter, setSalesFilter] = useState<'all' | SaleStatus>('all');
@@ -2055,6 +2057,17 @@ export const AdminPage: React.FC = () => {
             Orders ({orders.length})
           </button>
           <button
+            onClick={() => setActiveTab('custom_designs')}
+            className={`pb-3 px-6 text-sm uppercase tracking-widest font-medium border-b-2 transition-all whitespace-nowrap flex items-center gap-1.5 ${
+              activeTab === 'custom_designs'
+                ? 'border-gold text-gold font-semibold'
+                : 'border-transparent text-muted hover:text-text'
+            }`}
+          >
+            <Scissors className="w-3.5 h-3.5" />
+            <span>Custom Quotes</span>
+          </button>
+          <button
             onClick={() => setActiveTab('reviews')}
             className={`pb-3 px-6 text-sm uppercase tracking-widest font-medium border-b-2 transition-all whitespace-nowrap ${
               activeTab === 'reviews'
@@ -2852,6 +2865,11 @@ export const AdminPage: React.FC = () => {
               </div>
             )}
           </div>
+        )}
+
+        {/* TAB: CUSTOM DESIGN QUOTES */}
+        {activeTab === 'custom_designs' && (
+          <AdminCustomDesignsTab />
         )}
 
         {/* TAB: REVIEWS MODERATION */}

@@ -19,6 +19,7 @@ const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage').then((m) =>
 const CheckoutPage = React.lazy(() => import('./pages/CheckoutPage').then((m) => ({ default: m.CheckoutPage })));
 const OrderConfirmationPage = React.lazy(() => import('./pages/OrderConfirmationPage').then((m) => ({ default: m.OrderConfirmationPage })));
 const CategoryPage = React.lazy(() => import('./pages/CategoryPage').then((m) => ({ default: m.CategoryPage })));
+const CustomDesignPage = React.lazy(() => import('./pages/CustomDesignPage').then((m) => ({ default: m.CustomDesignPage })));
 
 import { initClarity } from './lib/clarity';
 
@@ -68,6 +69,7 @@ export const App: React.FC = () => {
                     <Route path="/women" element={<CategoryPage gender="women" defaultCategory="all" />} />
                     <Route path="/women/:categorySlug" element={<CategoryPage gender="women" />} />
                     <Route path="/category/:categorySlug" element={<CategoryPage />} />
+                    <Route path="/custom-design" element={<CustomDesignPage />} />
                     <Route path="*" element={<NotFoundPage />} />
                   </Routes>
                 </React.Suspense>

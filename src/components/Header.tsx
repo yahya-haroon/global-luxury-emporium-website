@@ -262,6 +262,13 @@ export const Header: React.FC = () => {
               )}
             </div>
 
+            <Link
+              to="/custom-design"
+              className="hover:text-gold transition-colors py-1 uppercase tracking-wide font-medium"
+            >
+              Custom Design
+            </Link>
+
             <a href="#story" onClick={(e) => handleNavClick(e, 'story')}>
               Our story
             </a>
@@ -356,6 +363,14 @@ export const Header: React.FC = () => {
             >
               All Collection
             </a>
+
+            <Link
+              to="/custom-design"
+              onClick={() => setMobileMenuOpen(false)}
+              className="py-1 hover:text-gold transition-colors border-b border-hairline/40 pb-2 font-medium"
+            >
+              Custom Design (Bespoke)
+            </Link>
 
             {/* Mobile Men's Categories */}
             <div className="border-b border-hairline/40 pb-3">
